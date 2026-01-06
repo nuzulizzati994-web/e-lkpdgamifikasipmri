@@ -124,7 +124,7 @@
         const data = collectPageValues();
         const stage = parseInt(Varstage.getValue());
         const request = await api.post(
-          "http://" + ip() + "/api/progress/save",
+          "https://" + ip() + "/api/progress/save",
           {
             caseId: kasus,
             data,
@@ -157,7 +157,7 @@
         if (status) Varstage.set(kasus);
         const data = collectPageValues();
         const request = await api.post(
-          "http://" + ip() + "/api/progress/save",
+          "https://" + ip() + "/api/progress/save",
           {
             caseId: kasus,
             data,
@@ -237,9 +237,9 @@
       return data;
     }
     async function login() {
-      const url = "http://" + ip() + "/api/auth/login";
-      const username = document.querySelector("input[name='username']").value;
-      const password = document.querySelector("input[name='password']").value;
+      const url = "https://" + ip() + "/api/auth/login";
+      const username =  Varusername_1.getValue();
+      const password =  Varpassword_1.getValue();
       await axios
         .post(url, { username, password })
         .then(async function (response) {
@@ -262,9 +262,9 @@
         });
     }
     async function signup() {
-      const url = "http://" + ip() + "/api/auth/signup";
-      const username = document.querySelector("input[name='username']").value;
-      const password = document.querySelector("input[name='password']").value;
+      const url = "https://" + ip() + "/api/auth/signup";
+      const username = Varusername_1.getValue();
+      const password = Varpassword_1.getValue();
       axios
         .post(url, { username, password })
         .then(function (response) {
@@ -459,8 +459,10 @@ trivSetupPage();
 var arVariables = [];
 
 VarTrivSelCap = new Variable( 'VarTrivSelCap', 'none', 0, 0, null, null, 'lkpd_gamifikasi', true )
+Varusername_1 = new Variable( 'Varusername_1', '', 0, 0, null, null, 'lkpd_gamifikasi', false )
+Varpassword_1 = new Variable( 'Varpassword_1', '', 0, 0, null, null, 'lkpd_gamifikasi', false )
 VarToken = new Variable( 'VarToken', '', 0, 0, null, null, 'lkpd_gamifikasi', false )
-Varip = new Variable( 'Varip', 'api.epistura.web.id', 0, 0, null, null, 'lkpd_gamifikasi', false )
+Varip = new Variable( 'Varip', 'localhost:3000', 0, 0, null, null, 'lkpd_gamifikasi', false )
 Varpoints = new Variable( 'Varpoints', '{}', 0, 0, null, null, 'lkpd_gamifikasi', false )
 VarFinalPoint = new Variable( 'VarFinalPoint', '0', 0, 0, null, null, 'lkpd_gamifikasi', false )
 VarTotalPoint = new Variable( 'VarTotalPoint', '0', 0, 0, null, null, 'lkpd_gamifikasi', false )
@@ -672,7 +674,7 @@ button26736.setStateOpacity( 0.000000, 0.000000, 0.000000, 0.000000 );
 button26736.addIe8Attr(662.000000, 251.000000, 84.000000, 84.000000, 0, 0)
 button26736.addOpacity(0)
 button26736.initImageMap('0,42,0,37,1,33,2,29,3,25,7,18,12,12,18,7,25,3,29,2,33,1,37,0,42,0,46,0,50,1,54,2,58,3,65,7,71,12,76,18,80,25,81,29,82,33,83,37,83,42,83,46,82,50,81,54,80,58,76,65,71,71,65,76,58,80,54,81,50,82,46,83,42,83,37,83,33,82,29,81,25,80,18,76,12,71,7,65,3,58,2,54,1,50,0,46,0,42','M 0.000000 41.500000 L 0.187500 37.250000 L 0.875000 33.125000 L 1.875000 29.187500 L 3.250000 25.375000 L 7.125000 18.312500 L 12.187500 12.187500 L 18.312500 7.125000 L 25.375000 3.250000 L 29.187500 1.875000 L 33.125000 0.875000 L 37.250000 0.187500 L 41.500000 0.000000 L 45.750000 0.187500 L 49.875000 0.875000 L 53.875000 1.875000 L 57.687500 3.250000 L 64.687500 7.125000 L 70.875000 12.187500 L 75.937500 18.312500 L 79.750000 25.375000 L 81.125000 29.187500 L 82.187500 33.125000 L 82.812500 37.250000 L 83.000000 41.500000 L 82.812500 45.750000 L 82.187500 49.875000 L 81.125000 53.875000 L 79.750000 57.687500 L 75.937500 64.687500 L 70.875000 70.875000 L 64.687500 75.937500 L 57.687500 79.750000 L 53.875000 81.125000 L 49.875000 82.187500 L 45.750000 82.812500 L 41.500000 83.000000 L 37.250000 82.812500 L 33.125000 82.187500 L 29.187500 81.125000 L 25.375000 79.750000 L 18.312500 75.937500 L 12.187500 70.875000 L 7.125000 64.687500 L 3.250000 57.687500 L 1.875000 53.875000 L 0.875000 49.875000 L 0.187500 45.750000 L 0.000000 41.500000 z')
-button26736.setFills('                <linearGradient id="LinGrad_kasus_2_observe_the_case_2_button26736" x1="0.000000" x2="0.000000" y1="1.000000" y2="0.000000">                <stop id="Stop0" stop-color="#0064BB" offset="0.000000"/>                <stop id="Stop1" stop-color="#007CE9" offset="0.500000"/>                <stop id="Stop2" stop-color="#1994FE" offset="1.000000"/>           </linearGradient>       ','                <linearGradient id="LinGrad_kasus_2_observe_the_case_2_button26736_over" x1="0.000000" x2="0.000000" y1="1.000000" y2="0.000000">                <stop id="Stop0" stop-color="#13446F" offset="0.000000"/>                <stop id="Stop1" stop-color="#007CE9" offset="0.500000"/>                <stop id="Stop2" stop-color="#6BBAFF" offset="1.000000"/>           </linearGradient>       ','                <linearGradient id="LinGrad_kasus_2_observe_the_case_2_button26736_down" x1="0.000000" x2="0.000000" y1="0.000000" y2="1.000000">                <stop id="Stop0" stop-color="#13446F" offset="0.000000"/>                <stop id="Stop1" stop-color="#007CE9" offset="0.500000"/>                <stop id="Stop2" stop-color="#1994FE" offset="1.000000"/>           </linearGradient>       ','                <linearGradient id="LinGrad_kasus_2_observe_the_case_2_button26736_disabled" x1="0.000000" x2="0.000000" y1="1.000000" y2="0.000000">                <stop id="Stop0" stop-color="#0064BB" offset="0.000000"/>                <stop id="Stop1" stop-color="#007CE9" offset="0.500000"/>                <stop id="Stop2" stop-color="#1994FE" offset="1.000000"/>           </linearGradient>       ','fill:url(#LinGrad_kasus_2_observe_the_case_2_button26736);"','fill:url(#LinGrad_kasus_2_observe_the_case_2_button26736_over);"','stroke:#0963B1; stroke-width:2; stroke-linejoin:round;stroke-dasharray: none; fill:url(#LinGrad_kasus_2_observe_the_case_2_button26736_down);"','fill:url(#LinGrad_kasus_2_observe_the_case_2_button26736_disabled);"')
+button26736.setFills('                <linearGradient id="LinGrad_kasus_2_observe_the_case_2_button26736" x1="0.000000" x2="0.000000" y1="1.000000" y2="0.000000">                <stop id="Stop0" stop-color="#0064BB" offset="0.000000"/>                <stop id="Stop1" stop-color="#007CE9" offset="0.500000"/>                <stop id="Stop2" stop-color="#1994FE" offset="1.000000"/>           </linearGradient>       ','                <linearGradient id="LinGrad_kasus_2_observe_the_case_2_button26736_over" x1="0.005025" x2="0.994975" y1="0.994975" y2="0.005025">           </linearGradient>       ','                <linearGradient id="LinGrad_kasus_2_observe_the_case_2_button26736_down" x1="0.005025" x2="0.994975" y1="0.994975" y2="0.005025">           </linearGradient>       ','                <linearGradient id="LinGrad_kasus_2_observe_the_case_2_button26736_disabled" x1="0.005025" x2="0.994975" y1="0.994975" y2="0.005025">           </linearGradient>       ','fill:url(#LinGrad_kasus_2_observe_the_case_2_button26736);"','fill:url(#LinGrad_kasus_2_observe_the_case_2_button26736_over);"','stroke:#0963B1; stroke-width:2; stroke-linejoin:round;stroke-dasharray: none; fill:url(#LinGrad_kasus_2_observe_the_case_2_button26736_down);"','fill:url(#LinGrad_kasus_2_observe_the_case_2_button26736_disabled);"')
 button26736.setTextVal('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAFQAAABUCAYAAAAcaxDBAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAySURBVHhe7cEBDQAAAMKg909tDjegAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAeDVulAABu0UHTwAAAABJRU5ErkJggg==' , 'fill:url(#Text_kasus_2_observe_the_case_2_button26736)', 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAFQAAABUCAYAAAAcaxDBAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAySURBVHhe7cEBDQAAAMKg909tDjegAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAeDVulAABu0UHTwAAAABJRU5ErkJggg==', 'fill:url(#Text_kasus_2_observe_the_case_2_button26736_over)', 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAFYAAABWCAYAAABVVmH3AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAzSURBVHhe7cEBAQAAAIIg/69uSEABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAwLsBc+YAAeAdxwMAAAAASUVORK5CYII=', 'fill:url(#Text_kasus_2_observe_the_case_2_button26736_down)', 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAFQAAABUCAYAAAAcaxDBAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAySURBVHhe7cEBDQAAAMKg909tDjegAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAeDVulAABu0UHTwAAAABJRU5ErkJggg==', 'fill:url(#Text_kasus_2_observe_the_case_2_button26736_disabled)')
 button26736.setBase64Images( '' , '' , '' , '' )
 button26736.setImgFillVal('','','','','','','','' )

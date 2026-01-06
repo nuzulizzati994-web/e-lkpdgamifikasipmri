@@ -124,7 +124,7 @@
         const data = collectPageValues();
         const stage = parseInt(Varstage.getValue());
         const request = await api.post(
-          "http://" + ip() + "/api/progress/save",
+          "https://" + ip() + "/api/progress/save",
           {
             caseId: kasus,
             data,
@@ -157,7 +157,7 @@
         if (status) Varstage.set(kasus);
         const data = collectPageValues();
         const request = await api.post(
-          "http://" + ip() + "/api/progress/save",
+          "https://" + ip() + "/api/progress/save",
           {
             caseId: kasus,
             data,
@@ -237,9 +237,9 @@
       return data;
     }
     async function login() {
-      const url = "http://" + ip() + "/api/auth/login";
-      const username = document.querySelector("input[name='username']").value;
-      const password = document.querySelector("input[name='password']").value;
+      const url = "https://" + ip() + "/api/auth/login";
+      const username =  Varusername_1.getValue();
+      const password =  Varpassword_1.getValue();
       await axios
         .post(url, { username, password })
         .then(async function (response) {
@@ -262,9 +262,9 @@
         });
     }
     async function signup() {
-      const url = "http://" + ip() + "/api/auth/signup";
-      const username = document.querySelector("input[name='username']").value;
-      const password = document.querySelector("input[name='password']").value;
+      const url = "https://" + ip() + "/api/auth/signup";
+      const username = Varusername_1.getValue();
+      const password = Varpassword_1.getValue();
       axios
         .post(url, { username, password })
         .then(function (response) {
@@ -464,8 +464,10 @@ trivSetupPage();
 var arVariables = [];
 
 VarTrivSelCap = new Variable( 'VarTrivSelCap', 'none', 0, 0, null, null, 'lkpd_gamifikasi', true )
+Varusername_1 = new Variable( 'Varusername_1', '', 0, 0, null, null, 'lkpd_gamifikasi', false )
+Varpassword_1 = new Variable( 'Varpassword_1', '', 0, 0, null, null, 'lkpd_gamifikasi', false )
 VarToken = new Variable( 'VarToken', '', 0, 0, null, null, 'lkpd_gamifikasi', false )
-Varip = new Variable( 'Varip', 'api.epistura.web.id', 0, 0, null, null, 'lkpd_gamifikasi', false )
+Varip = new Variable( 'Varip', 'localhost:3000', 0, 0, null, null, 'lkpd_gamifikasi', false )
 Var2_17_f = new Variable( 'Var2_17_f', '', 0, 0, null, null, 'lkpd_gamifikasi', false )
 Var2_18_f = new Variable( 'Var2_18_f', '', 0, 0, null, 365, 'lkpd_gamifikasi', false )
 Var2_19_f = new Variable( 'Var2_19_f', '', 0, 0, null, 365, 'lkpd_gamifikasi', false )
@@ -835,20 +837,20 @@ function doImmFeedback( objId ) {
   if(!qu44224.hasBeenProcessed) {
     if( ans_Var2_17_f != '\u0031\u0030\u0020\u006A\u0065\u0072\u0075\u006B' && ans_Var2_17_f != '~~~null~~~' ) 
     { //2 
-trivActFBCnt++; action44224_17(onAfterFBAction);return 0;  } //2 
+trivActFBCnt++; action44224_1(onAfterFBAction);return 0;  } //2 
 
     else if( ans_Var2_17_f != '\u0031\u0030\u0020\u006A\u0065\u0072\u0075\u006B' && ans_Var2_17_f != '~~~null~~~' ) 
     { //2 
-trivActFBCnt++; action44224_18(onAfterFBAction);return 0;  } //2 
+trivActFBCnt++; action44224_2(onAfterFBAction);return 0;  } //2 
 
     else if( ans_Var2_17_f == '\u0031\u0030\u0020\u006A\u0065\u0072\u0075\u006B' ) 
     { //1 
-        trivActFBCnt++; action44224_19(onAfterFBAction);  return 0;
+        trivActFBCnt++; action44224_3(onAfterFBAction);  return 0;
   } //1
 
     else if( ans_Var2_17_f != '\u0031\u0030\u0020\u006A\u0065\u0072\u0075\u006B' && ans_Var2_17_f != '~~~null~~~' ) 
     { //2 
-trivActFBCnt++; action44224_20(onAfterFBAction);return 0;  } //2 
+trivActFBCnt++; action44224_4(onAfterFBAction);return 0;  } //2 
 
     }
   }
@@ -857,20 +859,20 @@ trivActFBCnt++; action44224_20(onAfterFBAction);return 0;  } //2
   if(!qu44264.hasBeenProcessed) {
     if( ans_Var2_18_f != '\u0039\u0020\u0062\u0075\u0074\u0069\u0072' && ans_Var2_18_f != '~~~null~~~' ) 
     { //2 
-trivActFBCnt++; action44264_17(onAfterFBAction);return 0;  } //2 
+trivActFBCnt++; action44264_1(onAfterFBAction);return 0;  } //2 
 
     else if( ans_Var2_18_f != '\u0039\u0020\u0062\u0075\u0074\u0069\u0072' && ans_Var2_18_f != '~~~null~~~' ) 
     { //2 
-trivActFBCnt++; action44264_18(onAfterFBAction);return 0;  } //2 
+trivActFBCnt++; action44264_2(onAfterFBAction);return 0;  } //2 
 
     else if( ans_Var2_18_f == '\u0039\u0020\u0062\u0075\u0074\u0069\u0072' ) 
     { //1 
-        trivActFBCnt++; action44264_19(onAfterFBAction);  return 0;
+        trivActFBCnt++; action44264_3(onAfterFBAction);  return 0;
   } //1
 
     else if( ans_Var2_18_f != '\u0039\u0020\u0062\u0075\u0074\u0069\u0072' && ans_Var2_18_f != '~~~null~~~' ) 
     { //2 
-trivActFBCnt++; action44264_20(onAfterFBAction);return 0;  } //2 
+trivActFBCnt++; action44264_4(onAfterFBAction);return 0;  } //2 
 
     }
   }
@@ -879,20 +881,20 @@ trivActFBCnt++; action44264_20(onAfterFBAction);return 0;  } //2
   if(!qu44300.hasBeenProcessed) {
     if( ans_Var2_19_f != '\u0033\u0020\u006B\u006D' && ans_Var2_19_f != '~~~null~~~' ) 
     { //2 
-trivActFBCnt++; action44300_17(onAfterFBAction);return 0;  } //2 
+trivActFBCnt++; action44300_1(onAfterFBAction);return 0;  } //2 
 
     else if( ans_Var2_19_f == '\u0033\u0020\u006B\u006D' ) 
     { //1 
-        trivActFBCnt++; action44300_18(onAfterFBAction);  return 0;
+        trivActFBCnt++; action44300_2(onAfterFBAction);  return 0;
   } //1
 
     else if( ans_Var2_19_f != '\u0033\u0020\u006B\u006D' && ans_Var2_19_f != '~~~null~~~' ) 
     { //2 
-trivActFBCnt++; action44300_19(onAfterFBAction);return 0;  } //2 
+trivActFBCnt++; action44300_3(onAfterFBAction);return 0;  } //2 
 
     else if( ans_Var2_19_f != '\u0033\u0020\u006B\u006D' && ans_Var2_19_f != '~~~null~~~' ) 
     { //2 
-trivActFBCnt++; action44300_20(onAfterFBAction);return 0;  } //2 
+trivActFBCnt++; action44300_4(onAfterFBAction);return 0;  } //2 
 
     }
   }
@@ -901,20 +903,20 @@ trivActFBCnt++; action44300_20(onAfterFBAction);return 0;  } //2
   if(!qu44393.hasBeenProcessed) {
     if( ans_Var2_20_f != '\u0052\u0070\u0031\u002E\u0033\u0030\u0030' && ans_Var2_20_f != '~~~null~~~' ) 
     { //2 
-trivActFBCnt++; action44393_17(onAfterFBAction);return 0;  } //2 
+trivActFBCnt++; action44393_1(onAfterFBAction);return 0;  } //2 
 
     else if( ans_Var2_20_f == '\u0052\u0070\u0031\u002E\u0033\u0030\u0030' ) 
     { //1 
-        trivActFBCnt++; action44393_18(onAfterFBAction);  return 0;
+        trivActFBCnt++; action44393_2(onAfterFBAction);  return 0;
   } //1
 
     else if( ans_Var2_20_f != '\u0052\u0070\u0031\u002E\u0033\u0030\u0030' && ans_Var2_20_f != '~~~null~~~' ) 
     { //2 
-trivActFBCnt++; action44393_19(onAfterFBAction);return 0;  } //2 
+trivActFBCnt++; action44393_3(onAfterFBAction);return 0;  } //2 
 
     else if( ans_Var2_20_f != '\u0052\u0070\u0031\u002E\u0033\u0030\u0030' && ans_Var2_20_f != '~~~null~~~' ) 
     { //2 
-trivActFBCnt++; action44393_20(onAfterFBAction);return 0;  } //2 
+trivActFBCnt++; action44393_4(onAfterFBAction);return 0;  } //2 
 
     }
   }
@@ -923,20 +925,20 @@ trivActFBCnt++; action44393_20(onAfterFBAction);return 0;  } //2
   if(!qu44500.hasBeenProcessed) {
     if( ans_Var2_21_f == '\u0037\u0036\u0020\u006B\u006D' ) 
     { //1 
-        trivActFBCnt++; action44500_17(onAfterFBAction);  return 0;
+        trivActFBCnt++; action44500_1(onAfterFBAction);  return 0;
   } //1
 
     else if( ans_Var2_21_f != '\u0037\u0036\u0020\u006B\u006D' && ans_Var2_21_f != '~~~null~~~' ) 
     { //2 
-trivActFBCnt++; action44500_18(onAfterFBAction);return 0;  } //2 
+trivActFBCnt++; action44500_2(onAfterFBAction);return 0;  } //2 
 
     else if( ans_Var2_21_f != '\u0037\u0036\u0020\u006B\u006D' && ans_Var2_21_f != '~~~null~~~' ) 
     { //2 
-trivActFBCnt++; action44500_19(onAfterFBAction);return 0;  } //2 
+trivActFBCnt++; action44500_3(onAfterFBAction);return 0;  } //2 
 
     else if( ans_Var2_21_f != '\u0037\u0036\u0020\u006B\u006D' && ans_Var2_21_f != '~~~null~~~' ) 
     { //2 
-trivActFBCnt++; action44500_20(onAfterFBAction);return 0;  } //2 
+trivActFBCnt++; action44500_4(onAfterFBAction);return 0;  } //2 
 
     }
   }
@@ -980,7 +982,7 @@ function Update_qu44224(value) {
    qu44224Object.hasBeenProcessed=false;
 }
 
-function action44224_17(fn){
+function action44224_1(fn){
     try{
      pt(0,2,17,50); 
      } catch (e) {
@@ -990,7 +992,7 @@ function action44224_17(fn){
     else if(fn && typeof(fn) == 'function' ) fn();
 }
 
-function action44224_18(fn){
+function action44224_2(fn){
     try{
      pt(0,2,17,50); 
      } catch (e) {
@@ -1000,7 +1002,7 @@ function action44224_18(fn){
     else if(fn && typeof(fn) == 'function' ) fn();
 }
 
-function action44224_19(fn){
+function action44224_3(fn){
     try{
      pt(1,2,17,50); 
      } catch (e) {
@@ -1010,7 +1012,7 @@ function action44224_19(fn){
     else if(fn && typeof(fn) == 'function' ) fn();
 }
 
-function action44224_20(fn){
+function action44224_4(fn){
     try{
      pt(0,2,17,50); 
      } catch (e) {
@@ -1033,7 +1035,7 @@ function Update_qu44264(value) {
    qu44264Object.hasBeenProcessed=false;
 }
 
-function action44264_17(fn){
+function action44264_1(fn){
     try{
      pt(0,2,18,50); 
      } catch (e) {
@@ -1043,7 +1045,7 @@ function action44264_17(fn){
     else if(fn && typeof(fn) == 'function' ) fn();
 }
 
-function action44264_18(fn){
+function action44264_2(fn){
     try{
      pt(0,2,18,50); 
      } catch (e) {
@@ -1053,7 +1055,7 @@ function action44264_18(fn){
     else if(fn && typeof(fn) == 'function' ) fn();
 }
 
-function action44264_19(fn){
+function action44264_3(fn){
     try{
      pt(1,2,18,50); 
      } catch (e) {
@@ -1063,7 +1065,7 @@ function action44264_19(fn){
     else if(fn && typeof(fn) == 'function' ) fn();
 }
 
-function action44264_20(fn){
+function action44264_4(fn){
     try{
      pt(0,2,18,50); 
      } catch (e) {
@@ -1086,7 +1088,7 @@ function Update_qu44300(value) {
    qu44300Object.hasBeenProcessed=false;
 }
 
-function action44300_17(fn){
+function action44300_1(fn){
     try{
      pt(0,2,19,50); 
      } catch (e) {
@@ -1096,7 +1098,7 @@ function action44300_17(fn){
     else if(fn && typeof(fn) == 'function' ) fn();
 }
 
-function action44300_18(fn){
+function action44300_2(fn){
     try{
      pt(1,2,19,50); 
      } catch (e) {
@@ -1106,7 +1108,7 @@ function action44300_18(fn){
     else if(fn && typeof(fn) == 'function' ) fn();
 }
 
-function action44300_19(fn){
+function action44300_3(fn){
     try{
      pt(0,2,19,50); 
      } catch (e) {
@@ -1116,7 +1118,7 @@ function action44300_19(fn){
     else if(fn && typeof(fn) == 'function' ) fn();
 }
 
-function action44300_20(fn){
+function action44300_4(fn){
     try{
      pt(0,2,19,50); 
      } catch (e) {
@@ -1139,7 +1141,7 @@ function Update_qu44393(value) {
    qu44393Object.hasBeenProcessed=false;
 }
 
-function action44393_17(fn){
+function action44393_1(fn){
     try{
      pt(0,2,20,50); 
      } catch (e) {
@@ -1149,7 +1151,7 @@ function action44393_17(fn){
     else if(fn && typeof(fn) == 'function' ) fn();
 }
 
-function action44393_18(fn){
+function action44393_2(fn){
     try{
      pt(1,2,20,50); 
      } catch (e) {
@@ -1159,7 +1161,7 @@ function action44393_18(fn){
     else if(fn && typeof(fn) == 'function' ) fn();
 }
 
-function action44393_19(fn){
+function action44393_3(fn){
     try{
      pt(0,2,20,50); 
      } catch (e) {
@@ -1169,7 +1171,7 @@ function action44393_19(fn){
     else if(fn && typeof(fn) == 'function' ) fn();
 }
 
-function action44393_20(fn){
+function action44393_4(fn){
     try{
      pt(0,2,20,50); 
      } catch (e) {
@@ -1192,7 +1194,7 @@ function Update_qu44500(value) {
    qu44500Object.hasBeenProcessed=false;
 }
 
-function action44500_17(fn){
+function action44500_1(fn){
     try{
      pt(1,2,21,50); 
      } catch (e) {
@@ -1202,7 +1204,7 @@ function action44500_17(fn){
     else if(fn && typeof(fn) == 'function' ) fn();
 }
 
-function action44500_18(fn){
+function action44500_2(fn){
     try{
      pt(0,2,21,50); 
      } catch (e) {
@@ -1212,7 +1214,7 @@ function action44500_18(fn){
     else if(fn && typeof(fn) == 'function' ) fn();
 }
 
-function action44500_19(fn){
+function action44500_3(fn){
     try{
      pt(0,2,21,50); 
      } catch (e) {
@@ -1222,7 +1224,7 @@ function action44500_19(fn){
     else if(fn && typeof(fn) == 'function' ) fn();
 }
 
-function action44500_20(fn){
+function action44500_4(fn){
     try{
      pt(0,2,21,50); 
      } catch (e) {

@@ -23,7 +23,7 @@ try{if(window.dragMgr)window.dragMgr.clearDropZones();}catch(e){if(e&&e.message)
 "785":{
 "pageLayer":{"w":785,"h":1491,"bgColor":"#ffffff"}
 ,
-"text57603":{"x":332,"y":1056,"w":241,"h":45,"txtscale":100,"bOffBottom":0}
+"text57603":{"x":332,"y":1056,"w":187,"h":43,"txtscale":100,"bOffBottom":0}
 ,
 "image55114":{"x":210,"y":781,"w":368,"h":90,"bOffBottom":0,"i":"images/specialist.png"}
 ,

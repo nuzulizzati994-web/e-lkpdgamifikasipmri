@@ -29,7 +29,7 @@ try{if(window.dragMgr)window.dragMgr.clearDropZones();}catch(e){if(e&&e.message)
 ,
 "image51387":{"x":280,"y":526,"w":235,"h":259,"bOffBottom":0,"i":"images/badge_rookie.png"}
 ,
-"text56284":{"x":332,"y":1056,"w":241,"h":45,"txtscale":100,"bOffBottom":0}
+"text56284":{"x":332,"y":1056,"w":187,"h":43,"txtscale":100,"bOffBottom":0}
 ,
 "":{"x":122,"y":71,"w":300,"h":200,"bOffBottom":0}
 ,

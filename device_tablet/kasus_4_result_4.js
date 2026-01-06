@@ -23,7 +23,7 @@ try{if(window.dragMgr)window.dragMgr.clearDropZones();}catch(e){if(e&&e.message)
 "785":{
 "pageLayer":{"w":785,"h":1491,"bgColor":"#ffffff"}
 ,
-"text84125":{"x":332,"y":1056,"w":241,"h":45,"txtscale":100,"bOffBottom":0}
+"text84125":{"x":332,"y":1056,"w":187,"h":43,"txtscale":100,"bOffBottom":0}
 ,
 "image55212":{"x":232,"y":785,"w":323,"h":90,"bOffBottom":0,"i":"images/maetsro.png"}
 ,
