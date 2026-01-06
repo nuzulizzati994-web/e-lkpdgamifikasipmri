@@ -519,7 +519,7 @@ Var1_11_e = new Variable( 'Var1_11_e', '', 0, 0, null, 365, 'lkpd_gamifikasi', f
 Varcolor_1 = new Variable( 'Varcolor_1', '0', 0, 0, null, null, 'lkpd_gamifikasi', false )
 Varcolor_2 = new Variable( 'Varcolor_2', '0', 0, 0, null, null, 'lkpd_gamifikasi', false )
 Varcolors = new Variable( 'Varcolors', 'ff0000;ffff00', 0, 0, null, null, 'lkpd_gamifikasi', false )
-Varip = new Variable( 'Varip', 'localhost:3000', 0, 0, null, null, 'lkpd_gamifikasi', false )
+Varip = new Variable( 'Varip', 'api.epistura.web.id', 0, 0, null, null, 'lkpd_gamifikasi', false )
 Varpoints = new Variable( 'Varpoints', '{}', 0, 0, null, null, 'lkpd_gamifikasi', false )
 VarFinalPoint = new Variable( 'VarFinalPoint', '0', 0, 0, null, null, 'lkpd_gamifikasi', false )
 VarTotalPoint = new Variable( 'VarTotalPoint', '0', 0, 0, null, null, 'lkpd_gamifikasi', false )
@@ -941,12 +941,12 @@ function doImmFeedback( objId ) {
   if(!qu23964.hasBeenProcessed) {
     if( ans_Var1_5_q == '\u0059\u0061\u002C\u0020\u0073\u0061\u006D\u0061' ) 
     { //1 
-        trivActFBCnt++; action23964_1(onAfterFBAction);  return 0;
+        trivActFBCnt++; action23964_3(onAfterFBAction);  return 0;
   } //1
 
     else if( ans_Var1_5_q != '\u0059\u0061\u002C\u0020\u0073\u0061\u006D\u0061' && ans_Var1_5_q != '~~~null~~~' ) 
     { //2 
-trivActFBCnt++; action23964_2(onAfterFBAction);return 0;  } //2 
+trivActFBCnt++; action23964_4(onAfterFBAction);return 0;  } //2 
 
     }
   }
@@ -955,11 +955,11 @@ trivActFBCnt++; action23964_2(onAfterFBAction);return 0;  } //2
   if(!qu24247.hasBeenProcessed) {
     if( ans_Var1_7_q != '\u0054\u0069\u0064\u0061\u006B\u0020\u0073\u0061\u006D\u0061' && ans_Var1_7_q != '~~~null~~~' ) 
     { //2 
-trivActFBCnt++; action24247_1(onAfterFBAction);return 0;  } //2 
+trivActFBCnt++; action24247_3(onAfterFBAction);return 0;  } //2 
 
     else if( ans_Var1_7_q == '\u0054\u0069\u0064\u0061\u006B\u0020\u0073\u0061\u006D\u0061' ) 
     { //1 
-        trivActFBCnt++; action24247_2(onAfterFBAction);  return 0;
+        trivActFBCnt++; action24247_4(onAfterFBAction);  return 0;
   } //1
 
     }
@@ -969,12 +969,12 @@ trivActFBCnt++; action24247_1(onAfterFBAction);return 0;  } //2
   if(!qu24315.hasBeenProcessed) {
     if( ans_Var1_8_q == '\u004C\u0065\u0062\u0069\u0068\u0020\u0074\u0065\u0072\u0061\u006E\u0067' ) 
     { //1 
-        trivActFBCnt++; action24315_1(onAfterFBAction);  return 0;
+        trivActFBCnt++; action24315_3(onAfterFBAction);  return 0;
   } //1
 
     else if( ans_Var1_8_q != '\u004C\u0065\u0062\u0069\u0068\u0020\u0074\u0065\u0072\u0061\u006E\u0067' && ans_Var1_8_q != '~~~null~~~' ) 
     { //2 
-trivActFBCnt++; action24315_2(onAfterFBAction);return 0;  } //2 
+trivActFBCnt++; action24315_4(onAfterFBAction);return 0;  } //2 
 
     }
   }
@@ -983,11 +983,11 @@ trivActFBCnt++; action24315_2(onAfterFBAction);return 0;  } //2
   if(!qu24370.hasBeenProcessed) {
     if( ans_Var1_10_q != '\u0054\u0069\u0064\u0061\u006B\u0020\u0073\u0061\u006D\u0061' && ans_Var1_10_q != '~~~null~~~' ) 
     { //2 
-trivActFBCnt++; action24370_1(onAfterFBAction);return 0;  } //2 
+trivActFBCnt++; action24370_3(onAfterFBAction);return 0;  } //2 
 
     else if( ans_Var1_10_q == '\u0054\u0069\u0064\u0061\u006B\u0020\u0073\u0061\u006D\u0061' ) 
     { //1 
-        trivActFBCnt++; action24370_2(onAfterFBAction);  return 0;
+        trivActFBCnt++; action24370_4(onAfterFBAction);  return 0;
   } //1
 
     }
@@ -1376,7 +1376,7 @@ function Update_qu23964(value) {
    qu23964Object.hasBeenProcessed=false;
 }
 
-function action23964_1(fn){
+function action23964_3(fn){
     try{
      pt(1,1,5,50); 
      } catch (e) {
@@ -1386,7 +1386,7 @@ function action23964_1(fn){
     else if(fn && typeof(fn) == 'function' ) fn();
 }
 
-function action23964_2(fn){
+function action23964_4(fn){
     try{
      pt(0, 1, 5, 50); 
      } catch (e) {
@@ -1407,7 +1407,7 @@ function Update_qu24247(value) {
    qu24247Object.hasBeenProcessed=false;
 }
 
-function action24247_1(fn){
+function action24247_3(fn){
     try{
      pt(0, 1, 7, 50); 
      } catch (e) {
@@ -1417,7 +1417,7 @@ function action24247_1(fn){
     else if(fn && typeof(fn) == 'function' ) fn();
 }
 
-function action24247_2(fn){
+function action24247_4(fn){
     try{
      pt(1,1,7,50); 
      } catch (e) {
@@ -1438,7 +1438,7 @@ function Update_qu24315(value) {
    qu24315Object.hasBeenProcessed=false;
 }
 
-function action24315_1(fn){
+function action24315_3(fn){
     try{
      pt(1,1,8,50); 
      } catch (e) {
@@ -1448,7 +1448,7 @@ function action24315_1(fn){
     else if(fn && typeof(fn) == 'function' ) fn();
 }
 
-function action24315_2(fn){
+function action24315_4(fn){
     try{
      pt(0,1,8,50); 
      } catch (e) {
@@ -1469,7 +1469,7 @@ function Update_qu24370(value) {
    qu24370Object.hasBeenProcessed=false;
 }
 
-function action24370_1(fn){
+function action24370_3(fn){
     try{
      pt(0,1,10,50); 
      } catch (e) {
@@ -1479,7 +1479,7 @@ function action24370_1(fn){
     else if(fn && typeof(fn) == 'function' ) fn();
 }
 
-function action24370_2(fn){
+function action24370_4(fn){
     try{
      pt(1,1,10,50); 
      } catch (e) {
@@ -1519,7 +1519,7 @@ button28883.setStateOpacity( 0.000000, 0.000000, 0.000000, 0.000000 );
 button28883.addIe8Attr(190.000000, 474.000000, 39.000000, 39.000000, 0, 0)
 button28883.addOpacity(0)
 button28883.initImageMap('9,0,29,0,31,0,33,1,35,3,37,6,38,9,38,29,37,33,35,35,33,37,29,38,9,38,6,37,3,35,1,33,0,29,0,9,0,7,1,6,3,3,6,1,7,0,9,0','M 9.000000 0.000000 L 29.000000 0.000000 L 30.812500 0.187500 L 32.500000 0.687500 L 35.375000 2.625000 L 37.312500 5.500000 L 38.000000 9.000000 L 38.000000 29.000000 L 37.312500 32.500000 L 35.375000 35.375000 L 32.500000 37.312500 L 29.000000 38.000000 L 9.000000 38.000000 L 5.562500 37.312500 L 2.687500 35.375000 L 0.687500 32.500000 L 0.000000 29.000000 L 0.000000 9.000000 L 0.187500 7.187500 L 0.687500 5.500000 L 2.625000 2.625000 L 5.500000 0.687500 L 7.187500 0.187500 L 9.000000 0.000000 z')
-button28883.setFills('                <linearGradient id="LinGrad_kasus_1_investigate_1_button28883" x1="0.000000" x2="0.000000" y1="1.000000" y2="0.000000">                <stop id="Stop0" stop-color="#0064BB" offset="0.000000"/>                <stop id="Stop1" stop-color="#007CE9" offset="0.500000"/>                <stop id="Stop2" stop-color="#1994FE" offset="1.000000"/>           </linearGradient>       ','                <linearGradient id="LinGrad_kasus_1_investigate_1_button28883_over" x1="0.005025" x2="0.994975" y1="0.994975" y2="0.005025">           </linearGradient>       ','                <linearGradient id="LinGrad_kasus_1_investigate_1_button28883_down" x1="0.005025" x2="0.994975" y1="0.994975" y2="0.005025">           </linearGradient>       ','                <linearGradient id="LinGrad_kasus_1_investigate_1_button28883_disabled" x1="0.005025" x2="0.994975" y1="0.994975" y2="0.005025">           </linearGradient>       ','fill:url(#LinGrad_kasus_1_investigate_1_button28883);"','fill:url(#LinGrad_kasus_1_investigate_1_button28883_over);"','stroke:#0963B1; stroke-width:2; stroke-linejoin:round;stroke-dasharray: none; fill:url(#LinGrad_kasus_1_investigate_1_button28883_down);"','fill:url(#LinGrad_kasus_1_investigate_1_button28883_disabled);"')
+button28883.setFills('                <linearGradient id="LinGrad_kasus_1_investigate_1_button28883" x1="0.000000" x2="0.000000" y1="1.000000" y2="0.000000">                <stop id="Stop0" stop-color="#0064BB" offset="0.000000"/>                <stop id="Stop1" stop-color="#007CE9" offset="0.500000"/>                <stop id="Stop2" stop-color="#1994FE" offset="1.000000"/>           </linearGradient>       ','                <linearGradient id="LinGrad_kasus_1_investigate_1_button28883_over" x1="0.000000" x2="0.000000" y1="1.000000" y2="0.000000">                <stop id="Stop0" stop-color="#13446F" offset="0.000000"/>                <stop id="Stop1" stop-color="#007CE9" offset="0.500000"/>                <stop id="Stop2" stop-color="#6BBAFF" offset="1.000000"/>           </linearGradient>       ','                <linearGradient id="LinGrad_kasus_1_investigate_1_button28883_down" x1="0.000000" x2="0.000000" y1="0.000000" y2="1.000000">                <stop id="Stop0" stop-color="#13446F" offset="0.000000"/>                <stop id="Stop1" stop-color="#007CE9" offset="0.500000"/>                <stop id="Stop2" stop-color="#1994FE" offset="1.000000"/>           </linearGradient>       ','                <linearGradient id="LinGrad_kasus_1_investigate_1_button28883_disabled" x1="0.000000" x2="0.000000" y1="1.000000" y2="0.000000">                <stop id="Stop0" stop-color="#0064BB" offset="0.000000"/>                <stop id="Stop1" stop-color="#007CE9" offset="0.500000"/>                <stop id="Stop2" stop-color="#1994FE" offset="1.000000"/>           </linearGradient>       ','fill:url(#LinGrad_kasus_1_investigate_1_button28883);"','fill:url(#LinGrad_kasus_1_investigate_1_button28883_over);"','stroke:#0963B1; stroke-width:2; stroke-linejoin:round;stroke-dasharray: none; fill:url(#LinGrad_kasus_1_investigate_1_button28883_down);"','fill:url(#LinGrad_kasus_1_investigate_1_button28883_disabled);"')
 button28883.setTextVal('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACcAAAAnCAYAAACMo1E1AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAdSURBVFhH7cEBDQAAAMKg909tDjegAAAAAACAYwMX6wABkjhFPQAAAABJRU5ErkJggg==' , 'fill:url(#Text_kasus_1_investigate_1_button28883)', 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACcAAAAnCAYAAACMo1E1AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAdSURBVFhH7cEBDQAAAMKg909tDjegAAAAAACAYwMX6wABkjhFPQAAAABJRU5ErkJggg==', 'fill:url(#Text_kasus_1_investigate_1_button28883_over)', 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACkAAAApCAYAAACoYAD2AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAdSURBVFhH7cExAQAAAMKg9U9tB2+gAAAAAAAA4DQabQABsh9w1AAAAABJRU5ErkJggg==', 'fill:url(#Text_kasus_1_investigate_1_button28883_down)', 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACcAAAAnCAYAAACMo1E1AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAdSURBVFhH7cEBDQAAAMKg909tDjegAAAAAACAYwMX6wABkjhFPQAAAABJRU5ErkJggg==', 'fill:url(#Text_kasus_1_investigate_1_button28883_disabled)')
 button28883.setBase64Images( '' , '' , '' , '' )
 button28883.setImgFillVal('','','','','','','','' )
@@ -1541,7 +1541,7 @@ button29620.setStateOpacity( 0.000000, 0.000000, 0.000000, 0.000000 );
 button29620.addIe8Attr(76.000000, 474.000000, 39.000000, 39.000000, 0, 0)
 button29620.addOpacity(0)
 button29620.initImageMap('9,0,29,0,31,0,33,1,35,3,37,6,38,9,38,29,37,33,35,35,33,37,29,38,9,38,6,37,3,35,1,33,0,29,0,9,0,7,1,6,3,3,6,1,7,0,9,0','M 9.000000 0.000000 L 29.000000 0.000000 L 30.812500 0.187500 L 32.500000 0.687500 L 35.375000 2.625000 L 37.312500 5.500000 L 38.000000 9.000000 L 38.000000 29.000000 L 37.312500 32.500000 L 35.375000 35.375000 L 32.500000 37.312500 L 29.000000 38.000000 L 9.000000 38.000000 L 5.562500 37.312500 L 2.687500 35.375000 L 0.687500 32.500000 L 0.000000 29.000000 L 0.000000 9.000000 L 0.187500 7.187500 L 0.687500 5.500000 L 2.625000 2.625000 L 5.500000 0.687500 L 7.187500 0.187500 L 9.000000 0.000000 z')
-button29620.setFills('                <linearGradient id="LinGrad_kasus_1_investigate_1_button29620" x1="0.000000" x2="0.000000" y1="1.000000" y2="0.000000">                <stop id="Stop0" stop-color="#0064BB" offset="0.000000"/>                <stop id="Stop1" stop-color="#007CE9" offset="0.500000"/>                <stop id="Stop2" stop-color="#1994FE" offset="1.000000"/>           </linearGradient>       ','                <linearGradient id="LinGrad_kasus_1_investigate_1_button29620_over" x1="0.005025" x2="0.994975" y1="0.994975" y2="0.005025">           </linearGradient>       ','                <linearGradient id="LinGrad_kasus_1_investigate_1_button29620_down" x1="0.005025" x2="0.994975" y1="0.994975" y2="0.005025">           </linearGradient>       ','                <linearGradient id="LinGrad_kasus_1_investigate_1_button29620_disabled" x1="0.005025" x2="0.994975" y1="0.994975" y2="0.005025">           </linearGradient>       ','fill:url(#LinGrad_kasus_1_investigate_1_button29620);"','fill:url(#LinGrad_kasus_1_investigate_1_button29620_over);"','stroke:#0963B1; stroke-width:2; stroke-linejoin:round;stroke-dasharray: none; fill:url(#LinGrad_kasus_1_investigate_1_button29620_down);"','fill:url(#LinGrad_kasus_1_investigate_1_button29620_disabled);"')
+button29620.setFills('                <linearGradient id="LinGrad_kasus_1_investigate_1_button29620" x1="0.000000" x2="0.000000" y1="1.000000" y2="0.000000">                <stop id="Stop0" stop-color="#0064BB" offset="0.000000"/>                <stop id="Stop1" stop-color="#007CE9" offset="0.500000"/>                <stop id="Stop2" stop-color="#1994FE" offset="1.000000"/>           </linearGradient>       ','                <linearGradient id="LinGrad_kasus_1_investigate_1_button29620_over" x1="0.000000" x2="0.000000" y1="1.000000" y2="0.000000">                <stop id="Stop0" stop-color="#13446F" offset="0.000000"/>                <stop id="Stop1" stop-color="#007CE9" offset="0.500000"/>                <stop id="Stop2" stop-color="#6BBAFF" offset="1.000000"/>           </linearGradient>       ','                <linearGradient id="LinGrad_kasus_1_investigate_1_button29620_down" x1="0.000000" x2="0.000000" y1="0.000000" y2="1.000000">                <stop id="Stop0" stop-color="#13446F" offset="0.000000"/>                <stop id="Stop1" stop-color="#007CE9" offset="0.500000"/>                <stop id="Stop2" stop-color="#1994FE" offset="1.000000"/>           </linearGradient>       ','                <linearGradient id="LinGrad_kasus_1_investigate_1_button29620_disabled" x1="0.000000" x2="0.000000" y1="1.000000" y2="0.000000">                <stop id="Stop0" stop-color="#0064BB" offset="0.000000"/>                <stop id="Stop1" stop-color="#007CE9" offset="0.500000"/>                <stop id="Stop2" stop-color="#1994FE" offset="1.000000"/>           </linearGradient>       ','fill:url(#LinGrad_kasus_1_investigate_1_button29620);"','fill:url(#LinGrad_kasus_1_investigate_1_button29620_over);"','stroke:#0963B1; stroke-width:2; stroke-linejoin:round;stroke-dasharray: none; fill:url(#LinGrad_kasus_1_investigate_1_button29620_down);"','fill:url(#LinGrad_kasus_1_investigate_1_button29620_disabled);"')
 button29620.setTextVal('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACcAAAAnCAYAAACMo1E1AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAdSURBVFhH7cEBDQAAAMKg909tDjegAAAAAACAYwMX6wABkjhFPQAAAABJRU5ErkJggg==' , 'fill:url(#Text_kasus_1_investigate_1_button29620)', 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACcAAAAnCAYAAACMo1E1AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAdSURBVFhH7cEBDQAAAMKg909tDjegAAAAAACAYwMX6wABkjhFPQAAAABJRU5ErkJggg==', 'fill:url(#Text_kasus_1_investigate_1_button29620_over)', 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACkAAAApCAYAAACoYAD2AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAdSURBVFhH7cExAQAAAMKg9U9tB2+gAAAAAAAA4DQabQABsh9w1AAAAABJRU5ErkJggg==', 'fill:url(#Text_kasus_1_investigate_1_button29620_down)', 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACcAAAAnCAYAAACMo1E1AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAdSURBVFhH7cEBDQAAAMKg909tDjegAAAAAACAYwMX6wABkjhFPQAAAABJRU5ErkJggg==', 'fill:url(#Text_kasus_1_investigate_1_button29620_disabled)')
 button29620.setBase64Images( '' , '' , '' , '' )
 button29620.setImgFillVal('','','','','','','','' )
@@ -1617,7 +1617,7 @@ button29833.setStateOpacity( 0.000000, 0.000000, 0.000000, 0.000000 );
 button29833.addIe8Attr(410.000000, 474.000000, 39.000000, 39.000000, 0, 0)
 button29833.addOpacity(0)
 button29833.initImageMap('9,0,29,0,31,0,33,1,35,3,37,6,38,9,38,29,37,33,35,35,33,37,29,38,9,38,6,37,3,35,1,33,0,29,0,9,0,7,1,6,3,3,6,1,7,0,9,0','M 9.000000 0.000000 L 29.000000 0.000000 L 30.812500 0.187500 L 32.500000 0.687500 L 35.375000 2.625000 L 37.312500 5.500000 L 38.000000 9.000000 L 38.000000 29.000000 L 37.312500 32.500000 L 35.375000 35.375000 L 32.500000 37.312500 L 29.000000 38.000000 L 9.000000 38.000000 L 5.562500 37.312500 L 2.687500 35.375000 L 0.687500 32.500000 L 0.000000 29.000000 L 0.000000 9.000000 L 0.187500 7.187500 L 0.687500 5.500000 L 2.625000 2.625000 L 5.500000 0.687500 L 7.187500 0.187500 L 9.000000 0.000000 z')
-button29833.setFills('                <linearGradient id="LinGrad_kasus_1_investigate_1_button29833" x1="0.000000" x2="0.000000" y1="1.000000" y2="0.000000">                <stop id="Stop0" stop-color="#0064BB" offset="0.000000"/>                <stop id="Stop1" stop-color="#007CE9" offset="0.500000"/>                <stop id="Stop2" stop-color="#1994FE" offset="1.000000"/>           </linearGradient>       ','                <linearGradient id="LinGrad_kasus_1_investigate_1_button29833_over" x1="0.005025" x2="0.994975" y1="0.994975" y2="0.005025">           </linearGradient>       ','                <linearGradient id="LinGrad_kasus_1_investigate_1_button29833_down" x1="0.005025" x2="0.994975" y1="0.994975" y2="0.005025">           </linearGradient>       ','                <linearGradient id="LinGrad_kasus_1_investigate_1_button29833_disabled" x1="0.005025" x2="0.994975" y1="0.994975" y2="0.005025">           </linearGradient>       ','fill:url(#LinGrad_kasus_1_investigate_1_button29833);"','fill:url(#LinGrad_kasus_1_investigate_1_button29833_over);"','stroke:#0963B1; stroke-width:2; stroke-linejoin:round;stroke-dasharray: none; fill:url(#LinGrad_kasus_1_investigate_1_button29833_down);"','fill:url(#LinGrad_kasus_1_investigate_1_button29833_disabled);"')
+button29833.setFills('                <linearGradient id="LinGrad_kasus_1_investigate_1_button29833" x1="0.000000" x2="0.000000" y1="1.000000" y2="0.000000">                <stop id="Stop0" stop-color="#0064BB" offset="0.000000"/>                <stop id="Stop1" stop-color="#007CE9" offset="0.500000"/>                <stop id="Stop2" stop-color="#1994FE" offset="1.000000"/>           </linearGradient>       ','                <linearGradient id="LinGrad_kasus_1_investigate_1_button29833_over" x1="0.000000" x2="0.000000" y1="1.000000" y2="0.000000">                <stop id="Stop0" stop-color="#13446F" offset="0.000000"/>                <stop id="Stop1" stop-color="#007CE9" offset="0.500000"/>                <stop id="Stop2" stop-color="#6BBAFF" offset="1.000000"/>           </linearGradient>       ','                <linearGradient id="LinGrad_kasus_1_investigate_1_button29833_down" x1="0.000000" x2="0.000000" y1="0.000000" y2="1.000000">                <stop id="Stop0" stop-color="#13446F" offset="0.000000"/>                <stop id="Stop1" stop-color="#007CE9" offset="0.500000"/>                <stop id="Stop2" stop-color="#1994FE" offset="1.000000"/>           </linearGradient>       ','                <linearGradient id="LinGrad_kasus_1_investigate_1_button29833_disabled" x1="0.000000" x2="0.000000" y1="1.000000" y2="0.000000">                <stop id="Stop0" stop-color="#0064BB" offset="0.000000"/>                <stop id="Stop1" stop-color="#007CE9" offset="0.500000"/>                <stop id="Stop2" stop-color="#1994FE" offset="1.000000"/>           </linearGradient>       ','fill:url(#LinGrad_kasus_1_investigate_1_button29833);"','fill:url(#LinGrad_kasus_1_investigate_1_button29833_over);"','stroke:#0963B1; stroke-width:2; stroke-linejoin:round;stroke-dasharray: none; fill:url(#LinGrad_kasus_1_investigate_1_button29833_down);"','fill:url(#LinGrad_kasus_1_investigate_1_button29833_disabled);"')
 button29833.setTextVal('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACcAAAAnCAYAAACMo1E1AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAdSURBVFhH7cEBDQAAAMKg909tDjegAAAAAACAYwMX6wABkjhFPQAAAABJRU5ErkJggg==' , 'fill:url(#Text_kasus_1_investigate_1_button29833)', 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACcAAAAnCAYAAACMo1E1AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAdSURBVFhH7cEBDQAAAMKg909tDjegAAAAAACAYwMX6wABkjhFPQAAAABJRU5ErkJggg==', 'fill:url(#Text_kasus_1_investigate_1_button29833_over)', 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACkAAAApCAYAAACoYAD2AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAdSURBVFhH7cExAQAAAMKg9U9tB2+gAAAAAAAA4DQabQABsh9w1AAAAABJRU5ErkJggg==', 'fill:url(#Text_kasus_1_investigate_1_button29833_down)', 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACcAAAAnCAYAAACMo1E1AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAdSURBVFhH7cEBDQAAAMKg909tDjegAAAAAACAYwMX6wABkjhFPQAAAABJRU5ErkJggg==', 'fill:url(#Text_kasus_1_investigate_1_button29833_disabled)')
 button29833.setBase64Images( '' , '' , '' , '' )
 button29833.setImgFillVal('','','','','','','','' )
@@ -1639,7 +1639,7 @@ button29757.setStateOpacity( 0.000000, 0.000000, 0.000000, 0.000000 );
 button29757.addIe8Attr(296.000000, 474.000000, 39.000000, 39.000000, 0, 0)
 button29757.addOpacity(0)
 button29757.initImageMap('9,0,29,0,31,0,33,1,35,3,37,6,38,9,38,29,37,33,35,35,33,37,29,38,9,38,6,37,3,35,1,33,0,29,0,9,0,7,1,6,3,3,6,1,7,0,9,0','M 9.000000 0.000000 L 29.000000 0.000000 L 30.812500 0.187500 L 32.500000 0.687500 L 35.375000 2.625000 L 37.312500 5.500000 L 38.000000 9.000000 L 38.000000 29.000000 L 37.312500 32.500000 L 35.375000 35.375000 L 32.500000 37.312500 L 29.000000 38.000000 L 9.000000 38.000000 L 5.562500 37.312500 L 2.687500 35.375000 L 0.687500 32.500000 L 0.000000 29.000000 L 0.000000 9.000000 L 0.187500 7.187500 L 0.687500 5.500000 L 2.625000 2.625000 L 5.500000 0.687500 L 7.187500 0.187500 L 9.000000 0.000000 z')
-button29757.setFills('                <linearGradient id="LinGrad_kasus_1_investigate_1_button29757" x1="0.000000" x2="0.000000" y1="1.000000" y2="0.000000">                <stop id="Stop0" stop-color="#0064BB" offset="0.000000"/>                <stop id="Stop1" stop-color="#007CE9" offset="0.500000"/>                <stop id="Stop2" stop-color="#1994FE" offset="1.000000"/>           </linearGradient>       ','                <linearGradient id="LinGrad_kasus_1_investigate_1_button29757_over" x1="0.005025" x2="0.994975" y1="0.994975" y2="0.005025">           </linearGradient>       ','                <linearGradient id="LinGrad_kasus_1_investigate_1_button29757_down" x1="0.005025" x2="0.994975" y1="0.994975" y2="0.005025">           </linearGradient>       ','                <linearGradient id="LinGrad_kasus_1_investigate_1_button29757_disabled" x1="0.005025" x2="0.994975" y1="0.994975" y2="0.005025">           </linearGradient>       ','fill:url(#LinGrad_kasus_1_investigate_1_button29757);"','fill:url(#LinGrad_kasus_1_investigate_1_button29757_over);"','stroke:#0963B1; stroke-width:2; stroke-linejoin:round;stroke-dasharray: none; fill:url(#LinGrad_kasus_1_investigate_1_button29757_down);"','fill:url(#LinGrad_kasus_1_investigate_1_button29757_disabled);"')
+button29757.setFills('                <linearGradient id="LinGrad_kasus_1_investigate_1_button29757" x1="0.000000" x2="0.000000" y1="1.000000" y2="0.000000">                <stop id="Stop0" stop-color="#0064BB" offset="0.000000"/>                <stop id="Stop1" stop-color="#007CE9" offset="0.500000"/>                <stop id="Stop2" stop-color="#1994FE" offset="1.000000"/>           </linearGradient>       ','                <linearGradient id="LinGrad_kasus_1_investigate_1_button29757_over" x1="0.000000" x2="0.000000" y1="1.000000" y2="0.000000">                <stop id="Stop0" stop-color="#13446F" offset="0.000000"/>                <stop id="Stop1" stop-color="#007CE9" offset="0.500000"/>                <stop id="Stop2" stop-color="#6BBAFF" offset="1.000000"/>           </linearGradient>       ','                <linearGradient id="LinGrad_kasus_1_investigate_1_button29757_down" x1="0.000000" x2="0.000000" y1="0.000000" y2="1.000000">                <stop id="Stop0" stop-color="#13446F" offset="0.000000"/>                <stop id="Stop1" stop-color="#007CE9" offset="0.500000"/>                <stop id="Stop2" stop-color="#1994FE" offset="1.000000"/>           </linearGradient>       ','                <linearGradient id="LinGrad_kasus_1_investigate_1_button29757_disabled" x1="0.000000" x2="0.000000" y1="1.000000" y2="0.000000">                <stop id="Stop0" stop-color="#0064BB" offset="0.000000"/>                <stop id="Stop1" stop-color="#007CE9" offset="0.500000"/>                <stop id="Stop2" stop-color="#1994FE" offset="1.000000"/>           </linearGradient>       ','fill:url(#LinGrad_kasus_1_investigate_1_button29757);"','fill:url(#LinGrad_kasus_1_investigate_1_button29757_over);"','stroke:#0963B1; stroke-width:2; stroke-linejoin:round;stroke-dasharray: none; fill:url(#LinGrad_kasus_1_investigate_1_button29757_down);"','fill:url(#LinGrad_kasus_1_investigate_1_button29757_disabled);"')
 button29757.setTextVal('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACcAAAAnCAYAAACMo1E1AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAdSURBVFhH7cEBDQAAAMKg909tDjegAAAAAACAYwMX6wABkjhFPQAAAABJRU5ErkJggg==' , 'fill:url(#Text_kasus_1_investigate_1_button29757)', 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACcAAAAnCAYAAACMo1E1AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAdSURBVFhH7cEBDQAAAMKg909tDjegAAAAAACAYwMX6wABkjhFPQAAAABJRU5ErkJggg==', 'fill:url(#Text_kasus_1_investigate_1_button29757_over)', 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACkAAAApCAYAAACoYAD2AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAdSURBVFhH7cExAQAAAMKg9U9tB2+gAAAAAAAA4DQabQABsh9w1AAAAABJRU5ErkJggg==', 'fill:url(#Text_kasus_1_investigate_1_button29757_down)', 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACcAAAAnCAYAAACMo1E1AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAdSURBVFhH7cEBDQAAAMKg909tDjegAAAAAACAYwMX6wABkjhFPQAAAABJRU5ErkJggg==', 'fill:url(#Text_kasus_1_investigate_1_button29757_disabled)')
 button29757.setBase64Images( '' , '' , '' , '' )
 button29757.setImgFillVal('','','','','','','','' )
