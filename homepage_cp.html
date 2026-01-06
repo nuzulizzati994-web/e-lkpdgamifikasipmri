@@ -36,7 +36,7 @@
   };
   document.addEventListener("DOMContentLoaded", async () => {
     const api = axios.create({
-      baseURL: `http://${ip()}/api`,
+      baseURL: `https://${ip()}/api`,
       timeout: 10000,
     });
     api.interceptors.request.use(
@@ -460,7 +460,7 @@ var arVariables = [];
 
 VarTrivSelCap = new Variable( 'VarTrivSelCap', 'none', 0, 0, null, null, 'lkpd_gamifikasi', true )
 VarToken = new Variable( 'VarToken', '', 0, 0, null, null, 'lkpd_gamifikasi', false )
-Varip = new Variable( 'Varip', 'api.epistura.web.id:3001', 0, 0, null, null, 'lkpd_gamifikasi', false )
+Varip = new Variable( 'Varip', 'api.epistura.web.id', 0, 0, null, null, 'lkpd_gamifikasi', false )
 Varpoints = new Variable( 'Varpoints', '{}', 0, 0, null, null, 'lkpd_gamifikasi', false )
 VarFinalPoint = new Variable( 'VarFinalPoint', '0', 0, 0, null, null, 'lkpd_gamifikasi', false )
 VarTotalPoint = new Variable( 'VarTotalPoint', '0', 0, 0, null, null, 'lkpd_gamifikasi', false )

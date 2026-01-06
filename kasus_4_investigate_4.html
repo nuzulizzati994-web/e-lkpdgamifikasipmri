@@ -36,7 +36,7 @@
   };
   document.addEventListener("DOMContentLoaded", async () => {
     const api = axios.create({
-      baseURL: `http://${ip()}/api`,
+      baseURL: `https://${ip()}/api`,
       timeout: 10000,
     });
     api.interceptors.request.use(
@@ -462,7 +462,7 @@ var arVariables = [];
 
 VarTrivSelCap = new Variable( 'VarTrivSelCap', 'none', 0, 0, null, null, 'lkpd_gamifikasi', true )
 VarToken = new Variable( 'VarToken', '', 0, 0, null, null, 'lkpd_gamifikasi', false )
-Varip = new Variable( 'Varip', 'api.epistura.web.id:3001', 0, 0, null, null, 'lkpd_gamifikasi', false )
+Varip = new Variable( 'Varip', 'api.epistura.web.id', 0, 0, null, null, 'lkpd_gamifikasi', false )
 Var4_1_q = new Variable( 'Var4_1_q', '', 0, 0, null, 365, 'lkpd_gamifikasi', false )
 Var4_3_q = new Variable( 'Var4_3_q', '', 0, 0, null, 365, 'lkpd_gamifikasi', false )
 Var4_5_droplist_1_3 = new Variable( 'Var4_5_droplist_1_3', '', 0, 0, null, 365, 'lkpd_gamifikasi', false )
@@ -762,12 +762,12 @@ function doImmFeedback( objId ) {
   if(!qu32587.hasBeenProcessed) {
     if( ans_Var4_1_q == '\u0059\u0061\u002C\u0020\u0073\u0061\u006D\u0061' ) 
     { //1 
-        trivActFBCnt++; action32587_5(onAfterFBAction);  return 0;
+        trivActFBCnt++; action32587_9(onAfterFBAction);  return 0;
   } //1
 
     else if( ans_Var4_1_q != '\u0059\u0061\u002C\u0020\u0073\u0061\u006D\u0061' && ans_Var4_1_q != '~~~null~~~' ) 
     { //2 
-trivActFBCnt++; action32587_6(onAfterFBAction);return 0;  } //2 
+trivActFBCnt++; action32587_10(onAfterFBAction);return 0;  } //2 
 
     }
   }
@@ -776,11 +776,11 @@ trivActFBCnt++; action32587_6(onAfterFBAction);return 0;  } //2
   if(!qu32612.hasBeenProcessed) {
     if( ans_Var4_3_q != '\u0054\u0069\u0064\u0061\u006B\u0020\u0073\u0061\u006D\u0061' && ans_Var4_3_q != '~~~null~~~' ) 
     { //2 
-trivActFBCnt++; action32612_5(onAfterFBAction);return 0;  } //2 
+trivActFBCnt++; action32612_9(onAfterFBAction);return 0;  } //2 
 
     else if( ans_Var4_3_q == '\u0054\u0069\u0064\u0061\u006B\u0020\u0073\u0061\u006D\u0061' ) 
     { //1 
-        trivActFBCnt++; action32612_6(onAfterFBAction);  return 0;
+        trivActFBCnt++; action32612_10(onAfterFBAction);  return 0;
   } //1
 
     }
@@ -927,7 +927,7 @@ function Update_qu32587(value) {
    qu32587Object.hasBeenProcessed=false;
 }
 
-function action32587_5(fn){
+function action32587_9(fn){
     try{
      pt(1,4,1,50); 
      } catch (e) {
@@ -937,7 +937,7 @@ function action32587_5(fn){
     else if(fn && typeof(fn) == 'function' ) fn();
 }
 
-function action32587_6(fn){
+function action32587_10(fn){
     try{
      pt(0,4,1,50); 
      } catch (e) {
@@ -958,7 +958,7 @@ function Update_qu32612(value) {
    qu32612Object.hasBeenProcessed=false;
 }
 
-function action32612_5(fn){
+function action32612_9(fn){
     try{
      pt(0,4,3,50); 
      } catch (e) {
@@ -968,7 +968,7 @@ function action32612_5(fn){
     else if(fn && typeof(fn) == 'function' ) fn();
 }
 
-function action32612_6(fn){
+function action32612_10(fn){
     try{
      pt(1,4,3,50); 
      } catch (e) {
