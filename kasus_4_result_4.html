@@ -156,13 +156,14 @@
         const status = point >= minPoint;
         if (status) Varstage.set(kasus);
         const data = collectPageValues();
+        const stage = Varstage. getValue()
         const request = await api.post(
           "https://" + ip() + "/api/progress/save",
           {
             caseId: kasus,
             data,
             point: points,
-            stage: status && kasus,
+            stage: stage && kasus,
           }
         );
         if (request.status == 200) {

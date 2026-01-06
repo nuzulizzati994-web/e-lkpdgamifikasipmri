@@ -7,13 +7,13 @@ DesktopResponsive={"1009":{
 ,
 "image80218":{"x":0,"y":0,"w":786,"h":1704,"bOffBottom":0,"i":"images/landing_page.png"}
 ,
-"image80264":{"x":26,"y":1640,"w":367,"h":23,"bOffBottom":0,"i":"images/berbantuan_gamifikasi.png"}
+"image80264":{"x":26,"y":1625,"w":367,"h":23,"bOffBottom":0,"i":"images/berbantuan_gamifikasi.png"}
 ,
 "image80285":{"x":76,"y":1269,"w":635,"h":63,"bOffBottom":0,"i":"images/button_mulai_belajar.png"}
 ,
 "image80294":{"x":57,"y":217,"w":672,"h":278,"bOffBottom":0,"i":"images/lembar_kerja_peserta_didik_elektronik.png"}
 ,
-"image80332":{"x":487,"y":1640,"w":272,"h":23,"bOffBottom":0,"i":"images/pendekatan_pmri.png"}
+"image80332":{"x":487,"y":1625,"w":272,"h":23,"bOffBottom":0,"i":"images/pendekatan_pmri.png"}
 ,
 "image85213":{"x":250,"y":512,"w":287,"h":77,"bOffBottom":0,"i":"images/elkpd.png"}
 ,

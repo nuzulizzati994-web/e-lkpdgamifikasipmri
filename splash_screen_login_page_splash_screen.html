@@ -156,13 +156,14 @@
         const status = point >= minPoint;
         if (status) Varstage.set(kasus);
         const data = collectPageValues();
+        const stage = Varstage. getValue()
         const request = await api.post(
           "https://" + ip() + "/api/progress/save",
           {
             caseId: kasus,
             data,
             point: points,
-            stage: status && kasus,
+            stage: stage && kasus,
           }
         );
         if (request.status == 200) {
@@ -720,11 +721,11 @@ image80218.addBorder(0)
 image80218.addOpacity(100)
 image80218.build()
 
-image80264 = new ObjImage('image80264','images/berbantuan_gamifikasi.png','Berbantuan Gamifikasi',26,1640,367,23,1,4,'div',null, 0 )
+image80264 = new ObjImage('image80264','images/berbantuan_gamifikasi.png','Berbantuan Gamifikasi',26,1625,367,23,1,4,'div',null, 0 )
 image80264.initRotateAngle(0,0,0,0,0,0,0)
 image80264.initHasShadow(0)
 image80264.initHasReflection(0)
-image80264.addIe8Attr(26, 1640, 367, 23, 0, 0)
+image80264.addIe8Attr(26, 1625, 367, 23, 0, 0)
 image80264.initImageMap(1,'0,0,367,0,367,23,0,23,0,0','M 0 0 L 367 0 L 367 23 L 0 23 L 0 0 z')
 image80264.addBorder(0)
 image80264.addOpacity(100)
@@ -753,11 +754,11 @@ image80294.addOpacity(100)
 image80294.actionShow = image80294actionShow
 image80294.build()
 
-image80332 = new ObjImage('image80332','images/pendekatan_pmri.png','Pendekatan PMRI',487,1640,272,23,1,7,'div',null, 0 )
+image80332 = new ObjImage('image80332','images/pendekatan_pmri.png','Pendekatan PMRI',487,1625,272,23,1,7,'div',null, 0 )
 image80332.initRotateAngle(0,0,0,0,0,0,0)
 image80332.initHasShadow(0)
 image80332.initHasReflection(0)
-image80332.addIe8Attr(487, 1640, 272, 23, 0, 0)
+image80332.addIe8Attr(487, 1625, 272, 23, 0, 0)
 image80332.initImageMap(1,'0,0,272,0,272,23,0,23,0,0','M 0 0 L 272 0 L 272 23 L 0 23 L 0 0 z')
 image80332.addBorder(0)
 image80332.addOpacity(100)
