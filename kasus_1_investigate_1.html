@@ -298,41 +298,42 @@
   });
 </script>
 <script>
-function mixingColor() {
+document.addEventListener("DOMContentLoaded", function () {
+   window.mixingColor = function () {
       const q1 = Number(Varcolor_1.getValue());
       const q2 = Number(Varcolor_2.getValue());
       const colors = Varcolors.getValue().split(";");
       const color1 = colors[0];
       const color2 = colors[1];
       
-      const min = Math.min(q1, q2);
-      const max = Math.max(q1, q2);
       const ratio = q2 / (q1 + q2);
       const c1 = parseInt(color1, 16);
-  
       const c2 = parseInt(color2, 16);
       const r1 = (c1 >> 16) & 0xff, g1 = (c1 >> 8) & 0xff, b1 = c1 & 0xff;
       const r2 = (c2 >> 16) & 0xff, g2 = (c2 >> 8) & 0xff, b2 = c2 & 0xff;
+      
       const r = Math.round(r1 * (1 - ratio) + r2 * ratio);
- 
       const g = Math.round(g1 * (1 - ratio) + g2 * ratio);
       const b = Math.round(b1 * (1 - ratio) + b2 * ratio);
+      
       const hex = (r << 16) | (g << 8) | b;
- 
-      const hexCode = hex.toString(16).padStart(6, "0").toUpperCase()
+      const hexCode = hex.toString(16).padStart(6, "0").toUpperCase();
       
       const colorMixCode = document.querySelector(".colorMixCode span");
-      colorMixCode.innerText = hexCode;
+      if (colorMixCode) colorMixCode.innerText = hexCode;
+      
       const colorMix = document.querySelector("div#colorMix");
-      colorMix.style.background = "#" + hexCode
-}
-function inputCode(id) {
+      if (colorMix) colorMix.style.background = "#" + hexCode;
+};
+   window.inputCode = function (id) {
       const mix = document.querySelector("div#colormix" + id);
       const color = window["Var1_" + id + "_c"].getValue();
-      console.log(mix, color)
-      mix.style.background = "#" + color
-      return color
-}
+      
+      console.log(mix, color);
+      if (mix) mix.style.background = "#" + color;
+      return color;
+};
+});
 </script>
 <!DOCTYPE html>
 <html lang="en">
@@ -942,12 +943,12 @@ function doImmFeedback( objId ) {
   if(!qu23964.hasBeenProcessed) {
     if( ans_Var1_5_q == '\u0059\u0061\u002C\u0020\u0073\u0061\u006D\u0061' ) 
     { //1 
-        trivActFBCnt++; action23964_5(onAfterFBAction);  return 0;
+        trivActFBCnt++; action23964_7(onAfterFBAction);  return 0;
   } //1
 
     else if( ans_Var1_5_q != '\u0059\u0061\u002C\u0020\u0073\u0061\u006D\u0061' && ans_Var1_5_q != '~~~null~~~' ) 
     { //2 
-trivActFBCnt++; action23964_6(onAfterFBAction);return 0;  } //2 
+trivActFBCnt++; action23964_8(onAfterFBAction);return 0;  } //2 
 
     }
   }
@@ -956,11 +957,11 @@ trivActFBCnt++; action23964_6(onAfterFBAction);return 0;  } //2
   if(!qu24247.hasBeenProcessed) {
     if( ans_Var1_7_q != '\u0054\u0069\u0064\u0061\u006B\u0020\u0073\u0061\u006D\u0061' && ans_Var1_7_q != '~~~null~~~' ) 
     { //2 
-trivActFBCnt++; action24247_5(onAfterFBAction);return 0;  } //2 
+trivActFBCnt++; action24247_7(onAfterFBAction);return 0;  } //2 
 
     else if( ans_Var1_7_q == '\u0054\u0069\u0064\u0061\u006B\u0020\u0073\u0061\u006D\u0061' ) 
     { //1 
-        trivActFBCnt++; action24247_6(onAfterFBAction);  return 0;
+        trivActFBCnt++; action24247_8(onAfterFBAction);  return 0;
   } //1
 
     }
@@ -970,12 +971,12 @@ trivActFBCnt++; action24247_5(onAfterFBAction);return 0;  } //2
   if(!qu24315.hasBeenProcessed) {
     if( ans_Var1_8_q == '\u004C\u0065\u0062\u0069\u0068\u0020\u0074\u0065\u0072\u0061\u006E\u0067' ) 
     { //1 
-        trivActFBCnt++; action24315_5(onAfterFBAction);  return 0;
+        trivActFBCnt++; action24315_7(onAfterFBAction);  return 0;
   } //1
 
     else if( ans_Var1_8_q != '\u004C\u0065\u0062\u0069\u0068\u0020\u0074\u0065\u0072\u0061\u006E\u0067' && ans_Var1_8_q != '~~~null~~~' ) 
     { //2 
-trivActFBCnt++; action24315_6(onAfterFBAction);return 0;  } //2 
+trivActFBCnt++; action24315_8(onAfterFBAction);return 0;  } //2 
 
     }
   }
@@ -984,11 +985,11 @@ trivActFBCnt++; action24315_6(onAfterFBAction);return 0;  } //2
   if(!qu24370.hasBeenProcessed) {
     if( ans_Var1_10_q != '\u0054\u0069\u0064\u0061\u006B\u0020\u0073\u0061\u006D\u0061' && ans_Var1_10_q != '~~~null~~~' ) 
     { //2 
-trivActFBCnt++; action24370_5(onAfterFBAction);return 0;  } //2 
+trivActFBCnt++; action24370_7(onAfterFBAction);return 0;  } //2 
 
     else if( ans_Var1_10_q == '\u0054\u0069\u0064\u0061\u006B\u0020\u0073\u0061\u006D\u0061' ) 
     { //1 
-        trivActFBCnt++; action24370_6(onAfterFBAction);  return 0;
+        trivActFBCnt++; action24370_8(onAfterFBAction);  return 0;
   } //1
 
     }
@@ -1377,7 +1378,7 @@ function Update_qu23964(value) {
    qu23964Object.hasBeenProcessed=false;
 }
 
-function action23964_5(fn){
+function action23964_7(fn){
     try{
      pt(1,1,5,50); 
      } catch (e) {
@@ -1387,7 +1388,7 @@ function action23964_5(fn){
     else if(fn && typeof(fn) == 'function' ) fn();
 }
 
-function action23964_6(fn){
+function action23964_8(fn){
     try{
      pt(0, 1, 5, 50); 
      } catch (e) {
@@ -1408,7 +1409,7 @@ function Update_qu24247(value) {
    qu24247Object.hasBeenProcessed=false;
 }
 
-function action24247_5(fn){
+function action24247_7(fn){
     try{
      pt(0, 1, 7, 50); 
      } catch (e) {
@@ -1418,7 +1419,7 @@ function action24247_5(fn){
     else if(fn && typeof(fn) == 'function' ) fn();
 }
 
-function action24247_6(fn){
+function action24247_8(fn){
     try{
      pt(1,1,7,50); 
      } catch (e) {
@@ -1439,7 +1440,7 @@ function Update_qu24315(value) {
    qu24315Object.hasBeenProcessed=false;
 }
 
-function action24315_5(fn){
+function action24315_7(fn){
     try{
      pt(1,1,8,50); 
      } catch (e) {
@@ -1449,7 +1450,7 @@ function action24315_5(fn){
     else if(fn && typeof(fn) == 'function' ) fn();
 }
 
-function action24315_6(fn){
+function action24315_8(fn){
     try{
      pt(0,1,8,50); 
      } catch (e) {
@@ -1470,7 +1471,7 @@ function Update_qu24370(value) {
    qu24370Object.hasBeenProcessed=false;
 }
 
-function action24370_5(fn){
+function action24370_7(fn){
     try{
      pt(0,1,10,50); 
      } catch (e) {
@@ -1480,7 +1481,7 @@ function action24370_5(fn){
     else if(fn && typeof(fn) == 'function' ) fn();
 }
 
-function action24370_6(fn){
+function action24370_8(fn){
     try{
      pt(1,1,10,50); 
      } catch (e) {

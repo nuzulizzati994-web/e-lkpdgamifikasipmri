@@ -755,12 +755,12 @@ function doImmFeedback( objId ) {
     if(!qu34040.hasBeenProcessed && qu34040Cked >= 2) {
     if( ans_Var1_13_q == '\u0042\u0075\u006B\u0074\u0069\u0020\u0031\u002C\u0042\u0075\u006B\u0074\u0069\u0020\u0032' ) 
     { //1 
-        trivActFBCnt++; action34040_5(onAfterFBAction);  return 0;
+        trivActFBCnt++; action34040_7(onAfterFBAction);  return 0;
   } //1
 
     else if( ans_Var1_13_q != '\u0042\u0075\u006B\u0074\u0069\u0020\u0031\u002C\u0042\u0075\u006B\u0074\u0069\u0020\u0032' && ans_Var1_13_q != '~~~null~~~' ) 
     { //2 
-trivActFBCnt++; action34040_6(onAfterFBAction);return 0;  } //2 
+trivActFBCnt++; action34040_8(onAfterFBAction);return 0;  } //2 
 
     }
   }
@@ -769,11 +769,11 @@ trivActFBCnt++; action34040_6(onAfterFBAction);return 0;  } //2
   if(!qu34213.hasBeenProcessed) {
     if( ans_Var1_14_q != '\u0042\u0075\u006B\u0074\u0069\u0020\u0033' && ans_Var1_14_q != '~~~null~~~' ) 
     { //2 
-trivActFBCnt++; action34213_5(onAfterFBAction);return 0;  } //2 
+trivActFBCnt++; action34213_7(onAfterFBAction);return 0;  } //2 
 
     else if( ans_Var1_14_q == '\u0042\u0075\u006B\u0074\u0069\u0020\u0033' ) 
     { //1 
-        trivActFBCnt++; action34213_6(onAfterFBAction);  return 0;
+        trivActFBCnt++; action34213_8(onAfterFBAction);  return 0;
   } //1
 
     }
@@ -783,11 +783,11 @@ trivActFBCnt++; action34213_5(onAfterFBAction);return 0;  } //2
   if(!qu34304.hasBeenProcessed) {
     if( ans_Var1_16_q != '\u004B\u0075\u006E\u0069\u006E\u0067' && ans_Var1_16_q != '~~~null~~~' ) 
     { //2 
-trivActFBCnt++; action34304_5(onAfterFBAction);return 0;  } //2 
+trivActFBCnt++; action34304_7(onAfterFBAction);return 0;  } //2 
 
     else if( ans_Var1_16_q == '\u004B\u0075\u006E\u0069\u006E\u0067' ) 
     { //1 
-        trivActFBCnt++; action34304_6(onAfterFBAction);  return 0;
+        trivActFBCnt++; action34304_8(onAfterFBAction);  return 0;
   } //1
 
     }
@@ -898,7 +898,7 @@ function Update_qu34040( upd ) {
     qu34040Object.hasBeenProcessed=false;
 }
 
-function action34040_5(fn){
+function action34040_7(fn){
     try{
      pt(1,1,13,50); 
      } catch (e) {
@@ -908,7 +908,7 @@ function action34040_5(fn){
     else if(fn && typeof(fn) == 'function' ) fn();
 }
 
-function action34040_6(fn){
+function action34040_8(fn){
     try{
      pt(0,1,13,50); 
      } catch (e) {
@@ -929,7 +929,7 @@ function Update_qu34213(value) {
    qu34213Object.hasBeenProcessed=false;
 }
 
-function action34213_5(fn){
+function action34213_7(fn){
     try{
      pt(0,1,14,50); 
      } catch (e) {
@@ -939,7 +939,7 @@ function action34213_5(fn){
     else if(fn && typeof(fn) == 'function' ) fn();
 }
 
-function action34213_6(fn){
+function action34213_8(fn){
     try{
      pt(1,1,14,50); 
      } catch (e) {
@@ -960,7 +960,7 @@ function Update_qu34304(value) {
    qu34304Object.hasBeenProcessed=false;
 }
 
-function action34304_5(fn){
+function action34304_7(fn){
     try{
      pt(0,1,16,50); 
      } catch (e) {
@@ -970,7 +970,7 @@ function action34304_5(fn){
     else if(fn && typeof(fn) == 'function' ) fn();
 }
 
-function action34304_6(fn){
+function action34304_8(fn){
     try{
      pt(1,1,16,50); 
      } catch (e) {
