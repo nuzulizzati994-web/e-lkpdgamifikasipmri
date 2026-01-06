@@ -326,8 +326,8 @@
     #image80294 { filter:progid:DXImageTransform.Microsoft.AlphaImageLoader(src='images/lembar_kerja_peserta_didik_elektronik.png',sizingMethod='scale'); }
     #image80332 img { filter:progid:DXImageTransform.Microsoft.Alpha(opacity=0); }
     #image80332 { filter:progid:DXImageTransform.Microsoft.AlphaImageLoader(src='images/pendekatan_pmri.png',sizingMethod='scale'); }
-    #image80383 img { filter:progid:DXImageTransform.Microsoft.Alpha(opacity=0); }
-    #image80383 { filter:progid:DXImageTransform.Microsoft.AlphaImageLoader(src='images/_e-lkpd_.png',sizingMethod='scale'); }
+    #image85213 img { filter:progid:DXImageTransform.Microsoft.Alpha(opacity=0); }
+    #image85213 { filter:progid:DXImageTransform.Microsoft.AlphaImageLoader(src='images/elkpd.png',sizingMethod='scale'); }
     #image80303 img { filter:progid:DXImageTransform.Microsoft.Alpha(opacity=0); }
     #image80303 { filter:progid:DXImageTransform.Microsoft.AlphaImageLoader(src='images/teks_perbandingan.png',sizingMethod='scale'); }
 </style>
@@ -472,7 +472,7 @@ var arVariables = [];
 
 VarTrivSelCap = new Variable( 'VarTrivSelCap', 'none', 0, 0, null, null, 'lkpd_gamifikasi', true )
 VarToken = new Variable( 'VarToken', '', 0, 0, null, null, 'lkpd_gamifikasi', false )
-Varip = new Variable( 'Varip', ' https://api.epistura.web.id', 0, 0, null, null, 'lkpd_gamifikasi', false )
+Varip = new Variable( 'Varip', 'https://api.epistura.web.id', 0, 0, null, null, 'lkpd_gamifikasi', false )
 Varpoints = new Variable( 'Varpoints', '{}', 0, 0, null, null, 'lkpd_gamifikasi', false )
 VarFinalPoint = new Variable( 'VarFinalPoint', '0', 0, 0, null, null, 'lkpd_gamifikasi', false )
 VarTotalPoint = new Variable( 'VarTotalPoint', '0', 0, 0, null, null, 'lkpd_gamifikasi', false )
@@ -504,7 +504,7 @@ function init11() {
   findWH()
   if( is.min ){
     trivPageTracking.InitPageTracking();
-    PreloadResources(new Array(button81806,image80218,image80264,image80285,image80294,image80332,image80383,image80303))
+    PreloadResources(new Array(button81806,image80218,image80264,image80285,image80294,image80332,image85213,image80303))
     pageLayer.transData = {tOut:0,tNum:34,dur:4,fn:null,ol:0,ot:0,fl:0,ft:0,fr:0,fb:0,il:-1,eff:0, tb:0};
     if(!isSinglePagePlayerAvail()){
     if( !is.ie||is.v>8 ) setTimeout( 'pageLayer.doTrans( 0, 34, 4, null, 0, 0, 0, 0, 0, 0, -1, 0, 0 )' , 100 );
@@ -516,7 +516,7 @@ function init11() {
     image80285.init()
     image80294.init()
     image80332.init()
-    image80383.init()
+    image85213.init()
     image80303.init()
     button81806.activate()
     image80218.activate()
@@ -524,7 +524,7 @@ function init11() {
     image80285.activate()
     image80294.activate()
     image80332.activate()
-    image80383.activate()
+    image85213.activate()
     image80303.activate()
      var objToScroll = trivGetScrollObj(window.location.href) ;
      trivScrollTo(window, objToScroll);
@@ -678,8 +678,8 @@ function image80332actionShow() {
   setTimeout("if(!image80332.isVisible()) { setTimeout( 'image80332.objLyr.doTrans( 0, 25, 6, null, image80332.objLyr.x, image80332.objLyr.y, -292, -43, winW+20, winH+20, 0, 2, 0 )', 900 ); }", 1 )
 }
 
-function image80383actionShow() {
-  setTimeout("if(!image80383.isVisible()) { image80383.objLyr.doTrans( 0, 35, 3, null, image80383.objLyr.x, image80383.objLyr.y, -310, -98, winW+20, winH+20, 0, 2, 0 ); }", 1 )
+function image85213actionShow() {
+  setTimeout("if(!image85213.isVisible()) { image85213.objLyr.doTrans( 0, 35, 6, null, image85213.objLyr.x, image85213.objLyr.y, -307, -97, winW+20, winH+20, 0, 1, 0 ); }", 1 )
 }
 
 function image80303actionShow() {
@@ -762,16 +762,16 @@ image80332.addOpacity(100)
 image80332.actionShow = image80332actionShow
 image80332.build()
 
-image80383 = new ObjImage('image80383','images/_e-lkpd_.png','(E-LKPD)',248,525,290,78,1,8,'div',null, 0 )
-image80383.initRotateAngle(0,0,0,0,0,0,0)
-image80383.initHasShadow(0)
-image80383.initHasReflection(0)
-image80383.addIe8Attr(248, 525, 290, 78, 0, 0)
-image80383.initImageMap(1,'0,0,290,0,290,78,0,78,0,0','M 0 0 L 290 0 L 290 78 L 0 78 L 0 0 z')
-image80383.addBorder(0)
-image80383.addOpacity(100)
-image80383.actionShow = image80383actionShow
-image80383.build()
+image85213 = new ObjImage('image85213','images/elkpd.png','ELKPD',250,512,287,77,1,8,'div',null, 0 )
+image85213.initRotateAngle(0,0,0,0,0,0,0)
+image85213.initHasShadow(0)
+image85213.initHasReflection(0)
+image85213.addIe8Attr(250, 512, 287, 77, 0, 0)
+image85213.initImageMap(1,'0,0,287,0,287,77,0,77,0,0','M 0 0 L 287 0 L 287 77 L 0 77 L 0 0 z')
+image85213.addBorder(0)
+image85213.addOpacity(100)
+image85213.actionShow = image85213actionShow
+image85213.build()
 
 image80303 = new ObjImage('image80303','images/teks_perbandingan.png','teks perbandingan',170,976,447,124,1,9,'div',null, 0 )
 image80303.initRotateAngle(0,0,0,0,0,0,0)
@@ -790,7 +790,7 @@ arObjs.push(image80264);
 arObjs.push(image80285);
 arObjs.push(image80294);
 arObjs.push(image80332);
-arObjs.push(image80383);
+arObjs.push(image85213);
 arObjs.push(image80303);
 
 
@@ -823,7 +823,7 @@ if( is.min ){
     appendElement(image80285, null, null);
     appendElement(image80294, null, null);
     appendElement(image80332, null, null);
-    appendElement(image80383, null, null);
+    appendElement(image85213, null, null);
     appendElement(image80303, null, null);
 }
 </script>

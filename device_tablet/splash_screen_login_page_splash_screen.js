@@ -15,7 +15,7 @@ TabletResponsive={"1009":{
 ,
 "image80332":{"x":487,"y":1640,"w":272,"h":23,"bOffBottom":0,"i":"images/pendekatan_pmri.png"}
 ,
-"image80383":{"x":248,"y":525,"w":290,"h":78,"bOffBottom":0,"i":"images/_e-lkpd_.png"}
+"image85213":{"x":250,"y":512,"w":287,"h":77,"bOffBottom":0,"i":"images/elkpd.png"}
 ,
 "image80303":{"x":170,"y":976,"w":447,"h":124,"bOffBottom":0,"i":"images/teks_perbandingan.png"}
 ,
@@ -43,7 +43,7 @@ try{if(window.dragMgr)window.dragMgr.clearDropZones();}catch(e){if(e&&e.message)
 ,
 "image80332":{"x":486,"y":1640,"w":272,"h":23,"bOffBottom":0,"i":"images/pendekatan_pmri.png"}
 ,
-"image80383":{"x":248,"y":525,"w":290,"h":78,"bOffBottom":0,"i":"images/_e-lkpd_.png"}
+"image85213":{"x":250,"y":512,"w":287,"h":77,"bOffBottom":0,"i":"images/elkpd.png"}
 ,
 "image80303":{"x":170,"y":976,"w":446,"h":124,"bOffBottom":0,"i":"images/teks_perbandingan.png"}
 ,
