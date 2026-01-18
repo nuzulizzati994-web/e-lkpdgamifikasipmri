@@ -1,0 +1,2126 @@
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link
+  href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300..700&display=swap"
+  rel="stylesheet"
+/>
+<style>
+  .no-border input {
+    font-family: "Fredoka" !important;
+    border: none;
+    outline: none;
+  }
+  .circle-paint {
+    height: 100px;
+    width: 100px;
+    border-radius: 1000px;
+    background: #000000;
+    transition: all 0.3s ease;
+  }
+</style>
+<script>
+  function safeParseMaybeString(v) {
+    if (typeof v === "string") {
+      try {
+        return JSON.parse(v);
+      } catch {
+        return v;
+      }
+    }
+    return v;
+  }
+  window.ip = function () {
+    if (typeof Varip === "undefined") return null;
+    return Varip.getValue();
+  };
+  document.addEventListener("DOMContentLoaded", async () => {
+    const api = axios.create({
+      baseURL: `https://${ip()}/api`,
+      timeout: 10000,
+    });
+    api.interceptors.request.use(
+      (config) => {
+        try {
+          if (window.VarToken?.getValue) {
+            const token = VarToken.getValue();
+            if (token) {
+              config.headers.Authorization = `Bearer ${token}`;
+            }
+          }
+        } catch (e) {
+          console.warn("Token belum siap");
+        }
+        return config;
+      },
+      (error) => Promise.reject(error)
+    );
+    window.api = api;
+    async function check() {
+      try {
+        const token = VarToken.getValue();
+        const request = await api.post("/auth/check", {
+          token,
+        });
+        if (
+          request.data.status == "failed" &&
+          !window.location.href.includes("login")
+        ) {
+          trivExitPage("splash_screen_login_page_login.html", true);
+        }
+        if (request.data.status == "success") {
+          if (window.location.href.includes("login") && !window.location.href.includes("page_splash")) {
+            trivExitPage("homepage_homepage.html", true);
+          }
+          Varpoints.set(JSON.stringify(request.data.progress.points));
+          Varstage.set(request.data.progress.stage);
+          totalPoints(request.data.progress.points);
+        }
+      } catch (error) {
+        console.error("Error:", error);
+      }
+    }
+    await check();
+    let pointsRaw =
+      typeof Varpoints !== "undefined" ? Varpoints.getValue() : "{}";
+    let points = safeParseMaybeString(pointsRaw);
+    if (!points || typeof points !== "object") points = {};
+    console.log("initial points:", points);
+    function ipLocal() {
+      return typeof Varip !== "undefined" ? Varip.getValue() : null;
+    }
+    function essay(array, answer, kasus, quest, point) {
+      let acc = 0;
+      const lowerAns = (answer || "").toLowerCase();
+      array.forEach((item) => {
+        const check = item.some((key) => {
+          if (typeof key === "object") {
+            let checker = false;
+            key.forEach((value) => {
+              if (lowerAns.includes(value)) checker = true;
+              else {
+                checker = false;
+                return;
+              }
+            });
+            return checker;
+          } else {
+            return lowerAns.includes(key);
+          }
+        });
+        if (check) acc += point;
+      });
+      setPoint(kasus, quest, acc);
+    }
+    async function setPoint(kasus, quest, pointValue) {
+      try {
+        const temp = points["case" + kasus] || {};
+        temp[quest] = pointValue;
+        points["case" + kasus] = temp;
+        if (typeof Varpoints !== "undefined") {
+          Varpoints.set(JSON.stringify(points));
+        }
+        console.log("points updated:", points);
+        const data = collectPageValues();
+        const stage = parseInt(Varstage.getValue());
+        const request = await api.post(
+          "https://" + ip() + "/api/progress/save",
+          {
+            caseId: kasus,
+            data,
+            point: points,
+            stage,
+          }
+        );
+        if (request.status == 200) {
+          console.log("Success");
+        }
+      } catch (error) {
+        console.error("Error:", error);
+      }
+    }
+    async function casePoints(kasus, minPoint) {
+      try {
+        const target = points["case" + kasus] || {};
+        const point =
+          Object.keys(target).length > 0
+            ? Object.values(target).reduce((a, b) => a + b, 0)
+            : 0;
+            let totalPoint = 0;
+        Object.values(points).forEach((point) => {
+          totalPoint += Object.values(point).reduce((a, b) => a + b, 0);
+        });
+        if (typeof VarTotalPoint !== "undefined") VarTotalPoint.set(totalPoint);
+        if (typeof VarFinalPoint !== "undefined") VarFinalPoint.set(point);
+        console.log(point, minPoint);
+        const status = point >= minPoint;
+        if (status) Varstage.set(kasus);
+        const data = collectPageValues();
+        const stage = Varstage. getValue()
+        const request = await api.post(
+          "https://" + ip() + "/api/progress/save",
+          {
+            caseId: kasus,
+            data,
+            point: points,
+            stage: stage && kasus,
+          }
+        );
+        if (request.status == 200) {
+          console.log("Success");
+        }
+        trivExitPage(
+          `kasus_${kasus}_result_${kasus}${status ? "" : "x"}.html`,
+          true
+        );
+      } catch (error) {
+        console.error("Error:", error);
+      }
+    }
+    function totalPoints(data) {
+     
+      let total = 0;
+      Object.values(data || points).forEach((k) => {
+        total += Object.values(k).reduce((a, b) => a + b, 0);
+      });
+      console.log(data)
+      console.log(total)
+      VarTotalPoint.set(total);
+    }
+    function pt(status, kasus, quest, point) {
+      const newPoint = status && point ? point : 0;
+      setPoint(kasus, quest, newPoint);
+    }
+    function dl(ratio, kasus, quest, point, ...value) {
+      const dec = ratio.reduce((a, b) => a / b);
+      const valueRatio = value.reduce((a, b) => a / b);
+      const newPoint = dec === valueRatio ? point : 0;
+      setPoint(kasus, quest, newPoint);
+    }
+    function collectPageValues() {
+      let data = {};
+      let droplist = [];
+      for (let key in window) {
+        if (key.startsWith("Var")) {
+          try {
+            let varObj = window[key];
+            if (varObj && typeof varObj.getValue === "function") {
+              let cleanName = key.replace("Var", "");
+              let arrayName = cleanName.split("_");
+              console.log(cleanName);
+              console.log("a");
+              const allow = ["q", "droplist", "e", "i", "c", "k", "f"];
+              const filter = allow.filter((v) => arrayName[2] == v);
+              if (filter.length !== 0 && arrayName.length >= 3) {
+                console.log(arrayName);
+                if (arrayName[2] == "droplist") {
+                  const refKey =
+                    "Var" + cleanName.split("_").slice(0, -1).join("_");
+                  if (!droplist.includes(refKey)) {
+                    droplist.push(refKey);
+                    const droplistValue = Object.keys(window)
+                      .filter((k) => k.startsWith(refKey))
+                      .map((k) => window[k].getValue())
+                      .join(";");
+                    data[arrayName[1]] = droplistValue;
+                  }
+                } else {
+                  data[arrayName[1]] = varObj.getValue();
+                }
+              }
+            }
+          } catch (e) {
+            console.log("skip:", key);
+          }
+        }
+      }
+      console.log("All page values:", data);
+      return data;
+    }
+    async function login() {
+      const url = "https://" + ip() + "/api/auth/login";
+      const username =  Varusername_1.getValue();
+      const password =  Varpassword_1.getValue();
+      await axios
+        .post(url, { username, password })
+        .then(async function (response) {
+          console.log("Login sukses:", response.data);
+          if (response.data && response.data.token) {
+            VarToken.set(response.data.token);
+            await check()
+            trivExitPage("homepage_homepage.html", true);
+          } else {
+            alert("Login gagal: token tidak ditemukan.");
+          }
+        })
+        .catch(function (error) {
+          console.error("Error:", error);
+          if (error.response) {
+            alert("Login gagal: " + error.response.data.message);
+          } else {
+            alert("Tidak bisa terhubung ke server!");
+          }
+        });
+    }
+    async function signup() {
+      const url = "https://" + ip() + "/api/auth/signup";
+      const username = Varusername_1.getValue();
+      const password = Varpassword_1.getValue();
+      axios
+        .post(url, { username, password })
+        .then(function (response) {
+          console.log("Login sukses:", response.data);
+          if (response.data && response.data.token) {
+            VarToken.set(response.data.token);
+            trivExitPage("homepage_homepage.html", true);
+          } else {
+            alert("Login gagal: token tidak ditemukan.");
+          }
+        })
+        .catch(function (error) {
+          console.error("Error:", error);
+          if (error.response) {
+            alert("Login gagal: " + error.response.data.message);
+          } else {
+            alert("Tidak bisa terhubung ke server!");
+          }
+        });
+    }
+    window.collectPageValues = collectPageValues;
+    window.ip = ipLocal;
+    window.pt = pt;
+    window.essay = essay;
+    window.dl = dl;
+    window.casePoints = casePoints;
+    window.login = login;
+    window.signup = signup;
+    window.totalPoint = totalPoints;
+  });
+</script>
+<!DOCTYPE html>
+<html lang="en">
+<!--GENERATED BY:  Lectora Inspire v.18.2.3(11897) (http://www.trivantis.com) -->
+<!--TITLE: C:\Users\Nuzul Izzati\OneDrive\Documents\My Titles -->
+
+
+<head>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta charset="utf-8" />
+<meta name="viewport" content=" minimum-scale = 1.0 , initial-scale= 1" />
+<meta http-equiv="Page-Enter" content="revealTrans(Transition=34,Duration=4.0)">
+<title>Final Report_4</title>
+
+<link rel="stylesheet" href="trivantis.css" type="text/css" />
+<style type="text/css">
+</style>
+
+<!--[if lt IE 7]>
+<style type="text/css">
+    #image130175 img { filter:progid:DXImageTransform.Microsoft.Alpha(opacity=0); }
+    #image130175 { filter:progid:DXImageTransform.Microsoft.AlphaImageLoader(src='images/final_report_4_revisi.png',sizingMethod='scale'); }
+</style>
+<![endif]-->
+
+<!--[if lte IE 9]>
+<script>
+document.namespaces.add('v', 'urn:schemas-microsoft-com:vml', "#default#VML")
+</script>
+<![endif]-->
+
+<script src="trivantis.js"></script>
+<script src="trivantis-timedate.js"></script>
+<script src="es6-promise-2.0.0.min.js"></script>
+<script src="jquery-3.4.1.min.js"></script>
+<script src="trivantis-cookie.js"></script>
+<script src="trivantis-button.js"></script>
+<script src="trivantis-image.js"></script>
+<script src="trivantis-inline.js"></script>
+<script src="trivantis-text.js"></script>
+<script src="trivantis-trans.js"></script>
+<script src="trivantis-pagetracking.js"></script>
+<script src="device_desktop/kasus_4_final_report_4.js"></script>
+<script src="device_tablet/kasus_4_final_report_4.js"></script>
+<script src="device_phone/kasus_4_final_report_4.js"></script>
+<script src="trivantis-strings.js"></script>
+<script src="hammer.js"></script>
+<script>
+
+<!-- 
+
+var hmr = null;
+function initGEV(){
+   hmr = new Hammer(getDisplayDocument().getElementById(GetCurrentPageID()));
+}
+
+var trivPageScope = {};
+var pgID = 'page42006';
+trivWeb20Popups = true;
+var trivPlayer = null;
+var bPageLoaded = false;
+var pageScale = 1;
+var bDisableBrowserResize = false;
+var bScaleToWindow = false;
+var bFitToWidth = false;
+var bFitToMobile = false;
+var pageHeight = 2178;
+var bLoadedVariables = false;
+
+var arObjs = [];
+
+if(bDisableBrowserResize && !is.isMobile.any()){
+	var bTrivResponsive = false;
+	saveResponsiveData("Desktop",eval("DesktopResponsive"));
+}
+else{
+	var bTrivResponsive = true;
+	saveResponsiveData("Desktop",eval("DesktopResponsive"));
+	saveResponsiveData("Tablet",eval("TabletResponsive"));
+	saveResponsiveData("Phone",eval("PhoneResponsive"));
+}
+	var viewOverrideMap = {};
+	viewOverrideMap["PhoneLandscape"] = "TabletLandscape";
+ 	viewOverrideMap["TabletPortrait"] = "Desktop";
+ 	viewOverrideMap["TabletLandscape"] = "Desktop";
+ if( !is.min )
+  document.write( 'Your browser does not support dynamic html. Please download a current version of either <a href="http://www.microsoft.com/ie/">Microsoft Internet Explorer</a> or <a href="http://www.mozilla.com/en-US/firefox/">Mozilla Firefox </a> and try visiting our site again.  Thank You.<br /><br />' )
+
+var pageLayer = null
+var winW = getDisplayWindow().screen.width
+var winH = getDisplayWindow().screen.height
+var transformScale = 1
+
+function findWH(){	//echo LD-769
+	if (is.ie9) {
+	var vScrollAdj =  (is.ns ? 16 : 20);
+	winW = (is.ns) ? window.innerWidth - vScrollAdj : document.body.offsetWidth;
+	winH = (is.ns) ? window.innerHeight : document.body.offsetHeight;
+	}
+	else if (is.ie) {
+   winW = Math.max(Math.max(getDisplayDocument().body.scrollWidth, getDisplayDocument().documentElement.scrollWidth)-16,
+					  Math.max(getDisplayDocument().body.offsetWidth, getDisplayDocument().documentElement.offsetWidth)-16,
+					  Math.max(getDisplayDocument().body.clientWidth, getDisplayDocument().documentElement.clientWidth)-16 );
+   winH = Math.max(Math.max(getDisplayDocument().body.scrollHeight, getDisplayDocument().documentElement.scrollHeight)-16,
+					  Math.max(getDisplayDocument().body.offsetHeight, getDisplayDocument().documentElement.offsetHeight)-16,
+					  Math.max(getDisplayDocument().body.clientHeight, getDisplayDocument().documentElement.clientHeight)-16 );
+	}
+	else
+	{
+   winW =  getDisplayDocument().documentElement.clientWidth ? getDisplayDocument().documentElement.clientWidth : getDisplayDocument().body.clientWidth;
+   if(is.iOS && (navigator.userAgent.indexOf('CellCast-iPad') != -1 || navigator.userAgent.indexOf('CellCast-iPhone') != -1) )
+		 winW =  getScreenWidth();
+   winH =  getDisplayDocument().documentElement.clientHeight ? getDisplayDocument().documentElement.clientHeight : getDisplayDocument().body.clientHeight;
+	}
+}
+
+trivSetupPage();
+
+ if( isSppCapable() && window.trivPlayer === null ) setTimeout( function() { var objScrollTo =  trivGetScrollObj(window.location.href); window.location.replace("index.html?jmptopg=kasus_4_final_report_4.html#" + objScrollTo);}, 100)
+ function ReFlow() {
+  findWH()
+  var pageEleWidth = pageLayer.ele.clientWidth;
+  if (  (is.ieAny || is.edge )  && pageLayer.ele.clientWidth == 0 && isSinglePagePlayerAvail()) pageEleWidth = parseFloat(GetPageWidth()) ;
+  if (pageLayer)
+  {
+     if(bTrivResponsive){
+    var left = (winW > pageEleWidth) ? (winW-pageEleWidth)/2 : 0
+    bReviewLink = window.myTop.document.getElementById('vBodyFrame');
+    transformScale = (winW > pageEleWidth) ? 1 : (winW/pageEleWidth) 
+    if(is.isMobile.any() || bReviewLink && typeof(getDisplayWindow().myTop)!='undefined' && getDisplayWindow().myTop._respView != 'Desktop')
+			left = 0
+    if(is.iOS && isInIframe( getDisplayWindow() , 0))
+			transformScale = (getScreenWidth() > pageEleWidth) ? 1 : (getScreenWidth()/pageEleWidth) 
+    var transSty = calculateScale();
+    pageLayer.moveTo( left, 0 );
+    pageLayer.hasMoved = true;
+    pageLayer.newX = left;
+    pageLayer.newY = 0;
+    if(CanScale()){
+       pageLayer.styObj.transform =  transSty;
+       pageLayer.styObj.webkitTransform =  transSty;
+    }else
+       transformScale = 1;
+    pageLayer.styObj.transformOrigin =  '0 0';
+     }
+    if(bDisableBrowserResize && !is.isMobile.any()){
+       var left = (winW > pageEleWidth) ? (winW-pageEleWidth)/2 : 0
+       bReviewLink = window.myTop.document.getElementById('vBodyFrame');
+       if(is.isMobile.any() || bReviewLink && typeof(getDisplayWindow().myTop)!='undefined' && getDisplayWindow().myTop._respView != 'Desktop')
+			left = 0
+       pageLayer.moveTo( left, 0 );
+       pageLayer.hasMoved = true;
+       pageLayer.newX = left;
+       pageLayer.newY = 0;
+    }
+    fillBrowser();
+    adjustAllObjectsForFixedPosition();
+    setfixed();
+  }
+  Offset_qu48108()
+  Offset_qu48178()
+  Offset_qu48259()
+  Offset_qu48297()
+  Offset_qu48362()
+}
+
+var arVariables = [];
+
+VarTrivSelCap = new Variable( 'VarTrivSelCap', 'none', 0, 0, null, null, 'lkpd_gamifikasi', true )
+Varusername_1 = new Variable( 'Varusername_1', '', 0, 0, null, null, 'lkpd_gamifikasi', false )
+Varpassword_1 = new Variable( 'Varpassword_1', '', 0, 0, null, null, 'lkpd_gamifikasi', false )
+VarToken = new Variable( 'VarToken', '', 0, 0, null, null, 'lkpd_gamifikasi', false )
+Varip = new Variable( 'Varip', 'api.epistura.web.id', 0, 0, null, null, 'lkpd_gamifikasi', false )
+Var4_25_f = new Variable( 'Var4_25_f', '', 0, 0, null, 365, 'lkpd_gamifikasi', false )
+Var4_26_f = new Variable( 'Var4_26_f', '', 0, 0, null, 365, 'lkpd_gamifikasi', false )
+Var4_27_f = new Variable( 'Var4_27_f', '', 0, 0, null, 365, 'lkpd_gamifikasi', false )
+Var4_28_f = new Variable( 'Var4_28_f', '', 0, 0, null, 365, 'lkpd_gamifikasi', false )
+Var4_29_f = new Variable( 'Var4_29_f', '', 0, 0, null, 365, 'lkpd_gamifikasi', false )
+Varpoints = new Variable( 'Varpoints', '{}', 0, 0, null, null, 'lkpd_gamifikasi', false )
+VarFinalPoint = new Variable( 'VarFinalPoint', '0', 0, 0, null, null, 'lkpd_gamifikasi', false )
+VarTotalPoint = new Variable( 'VarTotalPoint', '0', 0, 0, null, null, 'lkpd_gamifikasi', false )
+Varstage = new Variable( 'Varstage', '0', 0, 0, null, 365, 'lkpd_gamifikasi', false )
+
+onload = responsiveInit
+detect();
+if( is.webkit && !is.iOSSafari )
+  onbeforeunload = finish
+else
+  onunload = finish
+
+function responsiveInit() {
+  pageLayer = new ObjLayer(GetCurrentPageID());
+  SaveStyles();
+  init();
+  adjustResponsivePage();
+  ReFlow();
+}
+
+function init() {
+  init11();
+}
+
+function init11() {
+  findWH()
+  if( is.min ){
+    trivPageTracking.InitPageTracking();
+    PreloadResources(new Array(text80151,button48493,button48487,image130175,qu48108,qu48108,text48109,text48110,radio48111,radio48111,radio48111,text48112,radio48113,radio48113,radio48113,text48114,radio48115,radio48115,radio48115,text48116,radio48117,radio48117,radio48117,qu48178,qu48178,text48179,text48180,radio48181,radio48181,radio48181,text48182,radio48183,radio48183,radio48183,text48184,radio48185,radio48185,radio48185,text48186,radio48187,radio48187,radio48187,qu48259,qu48259,text48260,text48261,radio48262,radio48262,radio48262,text48263,radio48264,radio48264,radio48264,text48265,radio48266,radio48266,radio48266,text48267,radio48268,radio48268,radio48268,qu48297,qu48297,text48298,text48299,radio48300,radio48300,radio48300,text48301,radio48302,radio48302,radio48302,text48303,radio48304,radio48304,radio48304,text48305,radio48306,radio48306,radio48306,qu48362,qu48362,text48363,text48364,radio48365,radio48365,radio48365,text48366,radio48367,radio48367,radio48367,text48368,radio48369,radio48369,radio48369,text48370,radio48371,radio48371,radio48371))
+    pageLayer.transData = {tOut:0,tNum:34,dur:4,fn:null,ol:0,ot:0,fl:0,ft:0,fr:0,fb:0,il:-1,eff:0, tb:0};
+    if(!isSinglePagePlayerAvail()){
+    if( !is.ie||is.v>8 ) setTimeout( 'pageLayer.doTrans( 0, 34, 4, null, 0, 0, 0, 0, 0, 0, -1, 0, 0 )' , 100 );
+    else pageLayer.show(true);
+    }
+    text80151.init()
+    button48493.init()
+    button48487.init()
+    image130175.init()
+    qu48108.init()
+    qu48108.init()
+    text48109.init()
+    text48110.init()
+    radio48111.init()
+    radio48111.init()
+    radio48111.init()
+    text48112.init()
+    radio48113.init()
+    radio48113.init()
+    radio48113.init()
+    text48114.init()
+    radio48115.init()
+    radio48115.init()
+    radio48115.init()
+    text48116.init()
+    radio48117.init()
+    radio48117.init()
+    radio48117.init()
+    qu48178.init()
+    qu48178.init()
+    text48179.init()
+    text48180.init()
+    radio48181.init()
+    radio48181.init()
+    radio48181.init()
+    text48182.init()
+    radio48183.init()
+    radio48183.init()
+    radio48183.init()
+    text48184.init()
+    radio48185.init()
+    radio48185.init()
+    radio48185.init()
+    text48186.init()
+    radio48187.init()
+    radio48187.init()
+    radio48187.init()
+    qu48259.init()
+    qu48259.init()
+    text48260.init()
+    text48261.init()
+    radio48262.init()
+    radio48262.init()
+    radio48262.init()
+    text48263.init()
+    radio48264.init()
+    radio48264.init()
+    radio48264.init()
+    text48265.init()
+    radio48266.init()
+    radio48266.init()
+    radio48266.init()
+    text48267.init()
+    radio48268.init()
+    radio48268.init()
+    radio48268.init()
+    qu48297.init()
+    qu48297.init()
+    text48298.init()
+    text48299.init()
+    radio48300.init()
+    radio48300.init()
+    radio48300.init()
+    text48301.init()
+    radio48302.init()
+    radio48302.init()
+    radio48302.init()
+    text48303.init()
+    radio48304.init()
+    radio48304.init()
+    radio48304.init()
+    text48305.init()
+    radio48306.init()
+    radio48306.init()
+    radio48306.init()
+    qu48362.init()
+    qu48362.init()
+    text48363.init()
+    text48364.init()
+    radio48365.init()
+    radio48365.init()
+    radio48365.init()
+    text48366.init()
+    radio48367.init()
+    radio48367.init()
+    radio48367.init()
+    text48368.init()
+    radio48369.init()
+    radio48369.init()
+    radio48369.init()
+    text48370.init()
+    radio48371.init()
+    radio48371.init()
+    radio48371.init()
+    text80151.activate()
+    button48493.activate()
+    button48487.activate()
+    image130175.activate()
+    qu48108.activate()
+    qu48108.activate()
+    text48109.activate()
+    text48110.activate()
+    radio48111.activate()
+    radio48111.activate()
+    radio48111.activate()
+    text48112.activate()
+    radio48113.activate()
+    radio48113.activate()
+    radio48113.activate()
+    text48114.activate()
+    radio48115.activate()
+    radio48115.activate()
+    radio48115.activate()
+    text48116.activate()
+    radio48117.activate()
+    radio48117.activate()
+    radio48117.activate()
+    qu48178.activate()
+    qu48178.activate()
+    text48179.activate()
+    text48180.activate()
+    radio48181.activate()
+    radio48181.activate()
+    radio48181.activate()
+    text48182.activate()
+    radio48183.activate()
+    radio48183.activate()
+    radio48183.activate()
+    text48184.activate()
+    radio48185.activate()
+    radio48185.activate()
+    radio48185.activate()
+    text48186.activate()
+    radio48187.activate()
+    radio48187.activate()
+    radio48187.activate()
+    qu48259.activate()
+    qu48259.activate()
+    text48260.activate()
+    text48261.activate()
+    radio48262.activate()
+    radio48262.activate()
+    radio48262.activate()
+    text48263.activate()
+    radio48264.activate()
+    radio48264.activate()
+    radio48264.activate()
+    text48265.activate()
+    radio48266.activate()
+    radio48266.activate()
+    radio48266.activate()
+    text48267.activate()
+    radio48268.activate()
+    radio48268.activate()
+    radio48268.activate()
+    qu48297.activate()
+    qu48297.activate()
+    text48298.activate()
+    text48299.activate()
+    radio48300.activate()
+    radio48300.activate()
+    radio48300.activate()
+    text48301.activate()
+    radio48302.activate()
+    radio48302.activate()
+    radio48302.activate()
+    text48303.activate()
+    radio48304.activate()
+    radio48304.activate()
+    radio48304.activate()
+    text48305.activate()
+    radio48306.activate()
+    radio48306.activate()
+    radio48306.activate()
+    qu48362.activate()
+    qu48362.activate()
+    text48363.activate()
+    text48364.activate()
+    radio48365.activate()
+    radio48365.activate()
+    radio48365.activate()
+    text48366.activate()
+    radio48367.activate()
+    radio48367.activate()
+    radio48367.activate()
+    text48368.activate()
+    radio48369.activate()
+    radio48369.activate()
+    radio48369.activate()
+    text48370.activate()
+    radio48371.activate()
+    radio48371.activate()
+    radio48371.activate()
+     var objToScroll = trivGetScrollObj(window.location.href) ;
+     trivScrollTo(window, objToScroll);
+    var titleManagerIndexWindow = (window && window.parent && window.parent.bIsTitleManagerIndexFile) ? window.parent : null;
+    if(titleManagerIndexWindow)  trivScrollTo(titleManagerIndexWindow, objToScroll);
+    if(!isSinglePagePlayerAvail()) postPageShowAction();
+    if( location.hash )
+    {
+      var newHash
+      if( location.hash.charAt(0) == '#' )
+        newHash = location.hash.slice( 1 )
+      else
+        newHash = location.hash
+      location.hash = newHash
+      if((typeof(bTrivRunView) != 'undefined'  && bTrivRunView) || (typeof(bTrivOffline) != 'undefined' && bTrivOffline)) window.scrollTo(0 , getTopofObj(document.getElementById(newHash)));
+    }
+    setTimeout( 'trivUpdateTOC( 1 )', 100 )
+    bPageLoaded = true;
+    ReFlow();
+    if(!isSinglePagePlayerAvail())
+       loadActions();
+  }
+  try {initGEV();} catch(e){}
+}
+  window.bLoadedVariables = true;
+function loadActions(){
+    if((window.bPageLoaded && window.bLoadedVariables && getDisplayWindow().pagePlayer &&
+	getDisplayWindow().pagePlayer.arLoadedPages && getDisplayWindow().pagePlayer.arLoadedPages.length == 1) || (window.bPageLoaded && window.bLoadedVariables && !isSinglePagePlayerAvail() )){
+      Update_qu48108()
+      Update_qu48178()
+      Update_qu48259()
+      Update_qu48297()
+      Update_qu48362()
+
+       if(typeof(updateFLVPlayer) !== 'undefined') updateFLVPlayer();
+       postPageShowAction();
+    }
+    else
+      setTimeout(loadActions, 100);
+}
+function postPageShowAction(){
+  if ( trivPageTracking.GetRangeStatus(42006) == 'notstarted' ) trivPageTracking.SetRangeStatus(42006,2);
+}  
+
+var trivGoToPage = null
+var trivCompleteCnt = 1;
+var hasProcessedExitActions = false;
+var trivActFBCnt = 0;
+var currFeedbackIdx = 0;
+var trivPageExited = false;
+var trivInTest = false;
+
+function finish() {
+}
+
+function trivOnFocus() {
+    if( trivPageExited ) return
+}
+
+function checkLeavePage() {
+    if( trivPageExited ) return
+    if( trivActFBCnt == 0 )
+    {
+        currFeedbackIdx++;
+        if( currFeedbackIdx > 4)
+        {
+            trivLeavePage();
+          return;
+        }
+        else if( !checkQuestions( true ))
+          return;
+    }
+    setTimeout( 'checkLeavePage()', 100)
+}
+
+function trivExitPage( newPage, bFeedback ) {
+    if( newPage.indexOf( "ObjLayerAction" ) >= 0 || newPage.indexOf( "javascript:app." ) >= 0 || newPage.indexOf( ".action" ) >= 0 || newPage.indexOf( "history.back()" ) >= 0) trivGoToPage = newPage
+    else trivGoToPage = 'ObjLayerActionGoTo("' + newPage + '")'
+    if( !hasProcessedExitActions ) {
+        findWH()
+        if( !checkQuestions( bFeedback ))
+          return
+        hasProcessedExitActions = true
+        setTimeout( 'checkLeavePage()', 100)
+    }
+}
+
+function trivLeavePage() {
+    trivCompleteCnt--
+    if( trivCompleteCnt <= 0 ) {
+        hasProcessedExitActions = false
+        if( trivGoToPage != null )
+        {
+			eval( trivGoToPage )
+			trivGoToPage = null;
+			if( window.closed ) trivPageExited = true;
+        }
+    }
+}
+
+function trivPrevPage() {
+    trivExitPage( 'kasus_4_irctc_4.html', true )
+}
+
+function trivNextPage() {
+    trivExitPage( 'kasus_4_final_report_4_2.html', true )
+}
+
+function trivUpdateTOC( bRecurse ) {
+    var i
+}
+
+function trivUpdateEntry() {
+}
+
+function trivResetEntry(entFld) {
+}
+
+function checkQuestions( bFeedback, bForce, bNotLeavingPage ) {
+  var onAfterFBAction = ( bNotLeavingPage ? (function(){trivActFBCnt--;}) : (function(){trivActFBCnt--;window.checkLeavePage();}) );
+  if( !bFeedback ) currFeedbackIdx = 5;
+
+  return 1
+}
+
+function doImmFeedback( objId ) {
+  var onAfterFBAction = function(){trivActFBCnt--;};
+
+  if(objId=='qu48108') {
+  var ans_Var4_25_f = Var4_25_f.getValue()
+  if(!qu48108.hasBeenProcessed) {
+    if( ans_Var4_25_f != '\u0028\u0069\u0029\u0020\u0064\u0061\u006E\u0020\u0028\u0069\u0069\u0029' && ans_Var4_25_f != '~~~null~~~' ) 
+    { //2 
+trivActFBCnt++; action48108_33(onAfterFBAction);return 0;  } //2 
+
+    else if( ans_Var4_25_f != '\u0028\u0069\u0029\u0020\u0064\u0061\u006E\u0020\u0028\u0069\u0069\u0029' && ans_Var4_25_f != '~~~null~~~' ) 
+    { //2 
+trivActFBCnt++; action48108_34(onAfterFBAction);return 0;  } //2 
+
+    else if( ans_Var4_25_f == '\u0028\u0069\u0029\u0020\u0064\u0061\u006E\u0020\u0028\u0069\u0069\u0029' ) 
+    { //1 
+        trivActFBCnt++; action48108_35(onAfterFBAction);  return 0;
+  } //1
+
+    else if( ans_Var4_25_f != '\u0028\u0069\u0029\u0020\u0064\u0061\u006E\u0020\u0028\u0069\u0069\u0029' && ans_Var4_25_f != '~~~null~~~' ) 
+    { //2 
+trivActFBCnt++; action48108_36(onAfterFBAction);return 0;  } //2 
+
+    }
+  }
+  if(objId=='qu48178') {
+  var ans_Var4_26_f = Var4_26_f.getValue()
+  if(!qu48178.hasBeenProcessed) {
+    if( ans_Var4_26_f != '\u0052\u0061\u0073\u0061\u0020\u006D\u0061\u006E\u0069\u0073\u0020\u006A\u0075\u0073\u0020\u006A\u0065\u0072\u0075\u006B\u0020\u0041\u0020\u0064\u0075\u0061\u0020\u006B\u0061\u006C\u0069\u0020\u006C\u0069\u0070\u0061\u0074\u0020\u0064\u0061\u0072\u0069\u0020\u006A\u0075\u0073\u0020\u006A\u0065\u0072\u0075\u006B\u0020\u0042' && ans_Var4_26_f != '~~~null~~~' ) 
+    { //2 
+trivActFBCnt++; action48178_33(onAfterFBAction);return 0;  } //2 
+
+    else if( ans_Var4_26_f == '\u0052\u0061\u0073\u0061\u0020\u006D\u0061\u006E\u0069\u0073\u0020\u006A\u0075\u0073\u0020\u006A\u0065\u0072\u0075\u006B\u0020\u0041\u0020\u0064\u0075\u0061\u0020\u006B\u0061\u006C\u0069\u0020\u006C\u0069\u0070\u0061\u0074\u0020\u0064\u0061\u0072\u0069\u0020\u006A\u0075\u0073\u0020\u006A\u0065\u0072\u0075\u006B\u0020\u0042' ) 
+    { //1 
+        trivActFBCnt++; action48178_34(onAfterFBAction);  return 0;
+  } //1
+
+    else if( ans_Var4_26_f != '\u0052\u0061\u0073\u0061\u0020\u006D\u0061\u006E\u0069\u0073\u0020\u006A\u0075\u0073\u0020\u006A\u0065\u0072\u0075\u006B\u0020\u0041\u0020\u0064\u0075\u0061\u0020\u006B\u0061\u006C\u0069\u0020\u006C\u0069\u0070\u0061\u0074\u0020\u0064\u0061\u0072\u0069\u0020\u006A\u0075\u0073\u0020\u006A\u0065\u0072\u0075\u006B\u0020\u0042' && ans_Var4_26_f != '~~~null~~~' ) 
+    { //2 
+trivActFBCnt++; action48178_35(onAfterFBAction);return 0;  } //2 
+
+    else if( ans_Var4_26_f != '\u0052\u0061\u0073\u0061\u0020\u006D\u0061\u006E\u0069\u0073\u0020\u006A\u0075\u0073\u0020\u006A\u0065\u0072\u0075\u006B\u0020\u0041\u0020\u0064\u0075\u0061\u0020\u006B\u0061\u006C\u0069\u0020\u006C\u0069\u0070\u0061\u0074\u0020\u0064\u0061\u0072\u0069\u0020\u006A\u0075\u0073\u0020\u006A\u0065\u0072\u0075\u006B\u0020\u0042' && ans_Var4_26_f != '~~~null~~~' ) 
+    { //2 
+trivActFBCnt++; action48178_36(onAfterFBAction);return 0;  } //2 
+
+    }
+  }
+  if(objId=='qu48259') {
+  var ans_Var4_27_f = Var4_27_f.getValue()
+  if(!qu48259.hasBeenProcessed) {
+    if( ans_Var4_27_f != '\u0052\u0070\u0034\u0030\u002E\u0030\u0030\u0030' && ans_Var4_27_f != '~~~null~~~' ) 
+    { //2 
+trivActFBCnt++; action48259_33(onAfterFBAction);return 0;  } //2 
+
+    else if( ans_Var4_27_f == '\u0052\u0070\u0034\u0030\u002E\u0030\u0030\u0030' ) 
+    { //1 
+        trivActFBCnt++; action48259_34(onAfterFBAction);  return 0;
+  } //1
+
+    else if( ans_Var4_27_f != '\u0052\u0070\u0034\u0030\u002E\u0030\u0030\u0030' && ans_Var4_27_f != '~~~null~~~' ) 
+    { //2 
+trivActFBCnt++; action48259_35(onAfterFBAction);return 0;  } //2 
+
+    else if( ans_Var4_27_f != '\u0052\u0070\u0034\u0030\u002E\u0030\u0030\u0030' && ans_Var4_27_f != '~~~null~~~' ) 
+    { //2 
+trivActFBCnt++; action48259_36(onAfterFBAction);return 0;  } //2 
+
+    }
+  }
+  if(objId=='qu48297') {
+  var ans_Var4_28_f = Var4_28_f.getValue()
+  if(!qu48297.hasBeenProcessed) {
+    if( ans_Var4_28_f == '\u0034\u0020\u0068\u0061\u0072\u0069' ) 
+    { //1 
+        trivActFBCnt++; action48297_33(onAfterFBAction);  return 0;
+  } //1
+
+    else if( ans_Var4_28_f != '\u0034\u0020\u0068\u0061\u0072\u0069' && ans_Var4_28_f != '~~~null~~~' ) 
+    { //2 
+trivActFBCnt++; action48297_34(onAfterFBAction);return 0;  } //2 
+
+    else if( ans_Var4_28_f != '\u0034\u0020\u0068\u0061\u0072\u0069' && ans_Var4_28_f != '~~~null~~~' ) 
+    { //2 
+trivActFBCnt++; action48297_35(onAfterFBAction);return 0;  } //2 
+
+    else if( ans_Var4_28_f != '\u0034\u0020\u0068\u0061\u0072\u0069' && ans_Var4_28_f != '~~~null~~~' ) 
+    { //2 
+trivActFBCnt++; action48297_36(onAfterFBAction);return 0;  } //2 
+
+    }
+  }
+  if(objId=='qu48362') {
+  var ans_Var4_29_f = Var4_29_f.getValue()
+  if(!qu48362.hasBeenProcessed) {
+    if( ans_Var4_29_f != '\u0032\u0020\u006A\u0061\u006D' && ans_Var4_29_f != '~~~null~~~' ) 
+    { //2 
+trivActFBCnt++; action48362_33(onAfterFBAction);return 0;  } //2 
+
+    else if( ans_Var4_29_f == '\u0032\u0020\u006A\u0061\u006D' ) 
+    { //1 
+        trivActFBCnt++; action48362_34(onAfterFBAction);  return 0;
+  } //1
+
+    else if( ans_Var4_29_f != '\u0032\u0020\u006A\u0061\u006D' && ans_Var4_29_f != '~~~null~~~' ) 
+    { //2 
+trivActFBCnt++; action48362_35(onAfterFBAction);return 0;  } //2 
+
+    else if( ans_Var4_29_f != '\u0032\u0020\u006A\u0061\u006D' && ans_Var4_29_f != '~~~null~~~' ) 
+    { //2 
+trivActFBCnt++; action48362_36(onAfterFBAction);return 0;  } //2 
+
+    }
+  }
+  return 1
+}
+
+function OnDeviceRotate() {
+
+}
+
+function action48494(fn){
+    trivExitPage('kasus_4_final_report_4_2.html',true); 
+    if(fn && typeof(fn) == 'string' ) eval(fn);
+    else if(fn && typeof(fn) == 'function' ) fn();
+}
+
+function button48493onUp() {
+  action48494();
+}
+
+function action48488(fn){
+    trivExitPage('kasus_4_irctc_4.html',true); 
+    if(fn && typeof(fn) == 'string' ) eval(fn);
+    else if(fn && typeof(fn) == 'function' ) fn();
+}
+
+function button48487onUp() {
+  action48488();
+}
+
+function Offset_qu48108(bDevRotate) {
+}
+
+function Update_qu48108(value) {
+ if(typeof(value) !== "undefined")  Var4_25_f.set(value)
+  var val = Var4_25_f.getValue()
+  radio48111.objLyr.doc.getElementById("radio48111id").checked=(val=='(i)')
+  radio48113.objLyr.doc.getElementById("radio48113id").checked=(val=='(ii)')
+  radio48115.objLyr.doc.getElementById("radio48115id").checked=(val=='(i) dan (ii)')
+  radio48117.objLyr.doc.getElementById("radio48117id").checked=(val=='Tidak ada yang benar')
+   qu48108Object.hasBeenProcessed=false;
+}
+
+function action48108_33(fn){
+    try{
+     pt(0,4,25,50); 
+     } catch (e) {
+     alert('[] ' + e);
+     }
+    if(fn && typeof(fn) == 'string' ) eval(fn);
+    else if(fn && typeof(fn) == 'function' ) fn();
+}
+
+function action48108_34(fn){
+    try{
+     pt(0,4,25,50); 
+     } catch (e) {
+     alert('[] ' + e);
+     }
+    if(fn && typeof(fn) == 'string' ) eval(fn);
+    else if(fn && typeof(fn) == 'function' ) fn();
+}
+
+function action48108_35(fn){
+    try{
+     pt(1,4,25,50); 
+     } catch (e) {
+     alert('[] ' + e);
+     }
+    if(fn && typeof(fn) == 'string' ) eval(fn);
+    else if(fn && typeof(fn) == 'function' ) fn();
+}
+
+function action48108_36(fn){
+    try{
+     pt(0,4,25,50); 
+     } catch (e) {
+     alert('[] ' + e);
+     }
+    if(fn && typeof(fn) == 'string' ) eval(fn);
+    else if(fn && typeof(fn) == 'function' ) fn();
+}
+
+function Offset_qu48178(bDevRotate) {
+}
+
+function Update_qu48178(value) {
+ if(typeof(value) !== "undefined")  Var4_26_f.set(value)
+  var val = Var4_26_f.getValue()
+  radio48181.objLyr.doc.getElementById("radio48181id").checked=(val=='Jus jeruk A ditambah dua sendok gula dari jus jeruk B')
+  radio48183.objLyr.doc.getElementById("radio48183id").checked=(val=='Rasa manis jus jeruk A dua kali lipat dari jus jeruk B')
+  radio48185.objLyr.doc.getElementById("radio48185id").checked=(val=='Jus jeruk B lebih manis daripada jus jeruk A')
+  radio48187.objLyr.doc.getElementById("radio48187id").checked=(val=='Kedua jus sama manisnya')
+   qu48178Object.hasBeenProcessed=false;
+}
+
+function action48178_33(fn){
+    try{
+     pt(0,4,26,50); 
+     } catch (e) {
+     alert('[] ' + e);
+     }
+    if(fn && typeof(fn) == 'string' ) eval(fn);
+    else if(fn && typeof(fn) == 'function' ) fn();
+}
+
+function action48178_34(fn){
+    try{
+     pt(1,4,26,50); 
+     } catch (e) {
+     alert('[] ' + e);
+     }
+    if(fn && typeof(fn) == 'string' ) eval(fn);
+    else if(fn && typeof(fn) == 'function' ) fn();
+}
+
+function action48178_35(fn){
+    try{
+     pt(0,4,26,50); 
+     } catch (e) {
+     alert('[] ' + e);
+     }
+    if(fn && typeof(fn) == 'string' ) eval(fn);
+    else if(fn && typeof(fn) == 'function' ) fn();
+}
+
+function action48178_36(fn){
+    try{
+     pt(0,4,26,50); 
+     } catch (e) {
+     alert('[] ' + e);
+     }
+    if(fn && typeof(fn) == 'string' ) eval(fn);
+    else if(fn && typeof(fn) == 'function' ) fn();
+}
+
+function Offset_qu48259(bDevRotate) {
+}
+
+function Update_qu48259(value) {
+ if(typeof(value) !== "undefined")  Var4_27_f.set(value)
+  var val = Var4_27_f.getValue()
+  radio48262.objLyr.doc.getElementById("radio48262id").checked=(val=='Rp35.000')
+  radio48264.objLyr.doc.getElementById("radio48264id").checked=(val=='Rp40.000')
+  radio48266.objLyr.doc.getElementById("radio48266id").checked=(val=='Rp45.000')
+  radio48268.objLyr.doc.getElementById("radio48268id").checked=(val=='Rp50.000')
+   qu48259Object.hasBeenProcessed=false;
+}
+
+function action48259_33(fn){
+    try{
+     pt(0,4,27,50); 
+     } catch (e) {
+     alert('[] ' + e);
+     }
+    if(fn && typeof(fn) == 'string' ) eval(fn);
+    else if(fn && typeof(fn) == 'function' ) fn();
+}
+
+function action48259_34(fn){
+    try{
+     pt(1,4,27,50); 
+     } catch (e) {
+     alert('[] ' + e);
+     }
+    if(fn && typeof(fn) == 'string' ) eval(fn);
+    else if(fn && typeof(fn) == 'function' ) fn();
+}
+
+function action48259_35(fn){
+    try{
+     pt(0,4,27,50); 
+     } catch (e) {
+     alert('[] ' + e);
+     }
+    if(fn && typeof(fn) == 'string' ) eval(fn);
+    else if(fn && typeof(fn) == 'function' ) fn();
+}
+
+function action48259_36(fn){
+    try{
+     pt(0,4,27,50); 
+     } catch (e) {
+     alert('[] ' + e);
+     }
+    if(fn && typeof(fn) == 'string' ) eval(fn);
+    else if(fn && typeof(fn) == 'function' ) fn();
+}
+
+function Offset_qu48297(bDevRotate) {
+}
+
+function Update_qu48297(value) {
+ if(typeof(value) !== "undefined")  Var4_28_f.set(value)
+  var val = Var4_28_f.getValue()
+  radio48300.objLyr.doc.getElementById("radio48300id").checked=(val=='4 hari')
+  radio48302.objLyr.doc.getElementById("radio48302id").checked=(val=='6 hari')
+  radio48304.objLyr.doc.getElementById("radio48304id").checked=(val=='8 hari')
+  radio48306.objLyr.doc.getElementById("radio48306id").checked=(val=='9 hari')
+   qu48297Object.hasBeenProcessed=false;
+}
+
+function action48297_33(fn){
+    try{
+     pt(1,4,28,50); 
+     } catch (e) {
+     alert('[] ' + e);
+     }
+    if(fn && typeof(fn) == 'string' ) eval(fn);
+    else if(fn && typeof(fn) == 'function' ) fn();
+}
+
+function action48297_34(fn){
+    try{
+     pt(0,4,28,50); 
+     } catch (e) {
+     alert('[] ' + e);
+     }
+    if(fn && typeof(fn) == 'string' ) eval(fn);
+    else if(fn && typeof(fn) == 'function' ) fn();
+}
+
+function action48297_35(fn){
+    try{
+     pt(0,4,28,50); 
+     } catch (e) {
+     alert('[] ' + e);
+     }
+    if(fn && typeof(fn) == 'string' ) eval(fn);
+    else if(fn && typeof(fn) == 'function' ) fn();
+}
+
+function action48297_36(fn){
+    try{
+     pt(0,4,28,50); 
+     } catch (e) {
+     alert('[] ' + e);
+     }
+    if(fn && typeof(fn) == 'string' ) eval(fn);
+    else if(fn && typeof(fn) == 'function' ) fn();
+}
+
+function Offset_qu48362(bDevRotate) {
+}
+
+function Update_qu48362(value) {
+ if(typeof(value) !== "undefined")  Var4_29_f.set(value)
+  var val = Var4_29_f.getValue()
+  radio48365.objLyr.doc.getElementById("radio48365id").checked=(val=='1 jam')
+  radio48367.objLyr.doc.getElementById("radio48367id").checked=(val=='2 jam')
+  radio48369.objLyr.doc.getElementById("radio48369id").checked=(val=='4 jam')
+  radio48371.objLyr.doc.getElementById("radio48371id").checked=(val=='8 jam')
+   qu48362Object.hasBeenProcessed=false;
+}
+
+function action48362_33(fn){
+    try{
+     pt(0,4,29,50); 
+     } catch (e) {
+     alert('[] ' + e);
+     }
+    if(fn && typeof(fn) == 'string' ) eval(fn);
+    else if(fn && typeof(fn) == 'function' ) fn();
+}
+
+function action48362_34(fn){
+    try{
+     pt(1,4,29,50); 
+     } catch (e) {
+     alert('[] ' + e);
+     }
+    if(fn && typeof(fn) == 'string' ) eval(fn);
+    else if(fn && typeof(fn) == 'function' ) fn();
+}
+
+function action48362_35(fn){
+    try{
+     pt(0,4,29,50); 
+     } catch (e) {
+     alert('[] ' + e);
+     }
+    if(fn && typeof(fn) == 'string' ) eval(fn);
+    else if(fn && typeof(fn) == 'function' ) fn();
+}
+
+function action48362_36(fn){
+    try{
+     pt(0,4,29,50); 
+     } catch (e) {
+     alert('[] ' + e);
+     }
+    if(fn && typeof(fn) == 'string' ) eval(fn);
+    else if(fn && typeof(fn) == 'function' ) fn();
+}
+
+if( is.min ){
+text80151 = new ObjText('text80151',null,359,2134,402,23,1,66,null,'div',null,0 )
+text80151.initSLine(0)
+text80151.initHasBullet(0)
+text80151.initRotateAngle(0,0,0)
+text80151.initHasOuterShadow(0)
+text80151.initHasTextShadow(0)
+text80151.initHasBorder(0)
+text80151.initHasOutline(0)
+text80151.initHasMargin(0)
+text80151.addIe8Attr(359, 2134, 402, 23, 0, 0)
+text80151.addHeading(0)
+text80151.addOpacity(100)
+text80151.arrCSSStyles = new Array();
+text80151.arrCSSStyles.push('span.text80151Font1 { font-size:13px; font-family:"Montserrat"; color:#ffffff; font-style:italic;}');
+text80151.addInnerText('<div id=\"text80151\" aria-hidden=\"true\" ><a id=\"text80151anc\" style=\"display:block;height:0px;width:0px;\"></a>\n<p  style=\"margin-left:0px;text-indent:0px;margin-top:0px;margin-bottom:0px;text-align:right;\" >\n<span class=\"text80151Font1\"  >Generated by gemini.google.com\n</span ></p >\n</div>\n');
+text80151.build()
+
+button48493 = new ObjButton('button48493', 'Button_Lanjut44',496,2007,217.000000,69.000000,1,67,'div','',1,0)
+button48493.setFillStyle(2)
+button48493.setUniqueFillID('kasus_4_final_report_4_button48493')
+button48493.initRotateAngle(0,0,0,-0.000000,-0.000000,216,68)
+button48493.initHasShadow(0)
+button48493.initHasReflection(0)
+button48493.setImages('images/transbtn.gif', '', '','');
+button48493.setStateOpacity( 0.000000, 0.000000, 0.000000, 0.000000 );
+button48493.addIe8Attr(496.000000, 2007.000000, 217.000000, 69.000000, 0, 0)
+button48493.addOpacity(0)
+button48493.initImageMap('34,0,182,0,189,1,195,3,201,6,206,10,210,15,213,21,215,27,216,34,216,34,215,41,213,47,210,53,206,58,201,62,195,65,189,67,182,68,34,68,27,67,21,65,15,62,10,58,6,53,3,47,1,41,0,34,0,34,1,27,3,21,6,15,10,10,15,6,21,3,27,1,34,0','M 34.000000 0.000000 L 182.000000 0.000000 L 188.875000 0.687500 L 195.250000 2.687500 L 201.000000 5.812500 L 206.062500 10.000000 L 210.187500 15.000000 L 213.312500 20.750000 L 215.312500 27.125000 L 216.000000 34.000000 L 216.000000 34.000000 L 215.312500 40.875000 L 213.312500 47.250000 L 210.187500 53.000000 L 206.062500 58.062500 L 201.000000 62.187500 L 195.250000 65.312500 L 188.875000 67.312500 L 182.000000 68.000000 L 34.000000 68.000000 L 27.375000 67.375000 L 21.000000 65.437500 L 15.187500 62.312500 L 10.000000 58.062500 L 5.750000 52.875000 L 2.625000 47.062500 L 0.687500 40.687500 L 0.000000 34.000000 L 0.000000 34.000000 L 0.687500 27.125000 L 2.687500 20.750000 L 5.812500 15.000000 L 10.000000 10.000000 L 15.000000 5.812500 L 20.750000 2.687500 L 27.125000 0.687500 L 34.000000 0.000000 z')
+button48493.setFills('                <pattern id="Picture_kasus_4_final_report_4_button48493" x="0" y="0" width="217.000000" height="69.000000" patternUnits="userSpaceOnUse">                <image xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAANkAAABFCAYAAADHGkNOAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAABRSURBVHhe7cExAQAAAMKg9U9tCy+gAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAE4G6jkAAQdYx/4AAAAASUVORK5CYII=" x="0" y="0" width="217.000000" height="69.000000"  preserveAspectRatio="none"/>           </pattern>       ','                <pattern id="Picture_kasus_4_final_report_4_button48493_over" x="0" y="0" width="217.000000" height="69.000000" patternUnits="userSpaceOnUse">                <image xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAANkAAABFCAYAAADHGkNOAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAABRSURBVHhe7cExAQAAAMKg9U9tCy+gAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAE4G6jkAAQdYx/4AAAAASUVORK5CYII=" x="0" y="0" width="217.000000" height="69.000000"  preserveAspectRatio="none"/>           </pattern>       ','                <pattern id="Picture_kasus_4_final_report_4_button48493_down" x="0" y="0" width="219.000000" height="71.000000" patternUnits="userSpaceOnUse">                <image xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAANsAAABHCAYAAACOJzJ4AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAABTSURBVHhe7cExAQAAAMKg9U9tCj+gAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAOBnzOwAB9VfxwgAAAABJRU5ErkJggg==" x="0" y="0" width="219.000000" height="71.000000"  preserveAspectRatio="none"/>           </pattern>       ','                <pattern id="Picture_kasus_4_final_report_4_button48493_disabled" x="0" y="0" width="217.000000" height="69.000000" patternUnits="userSpaceOnUse">                <image xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAANkAAABFCAYAAADHGkNOAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAABRSURBVHhe7cExAQAAAMKg9U9tCy+gAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAE4G6jkAAQdYx/4AAAAASUVORK5CYII=" x="0" y="0" width="217.000000" height="69.000000"  preserveAspectRatio="none"/>           </pattern>       ','fill:url(#Picture_kasus_4_final_report_4_button48493);"','fill:url(#Picture_kasus_4_final_report_4_button48493_over);"','stroke:#0963B1; stroke-width:2; stroke-linejoin:round;stroke-dasharray: none; fill:url(#Picture_kasus_4_final_report_4_button48493_down);"','fill:url(#Picture_kasus_4_final_report_4_button48493_disabled);"')
+button48493.setTextVal('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAANkAAABFCAYAAADHGkNOAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAABRSURBVHhe7cExAQAAAMKg9U9tCy+gAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAE4G6jkAAQdYx/4AAAAASUVORK5CYII=' , 'fill:url(#Text_kasus_4_final_report_4_button48493)', 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAANkAAABFCAYAAADHGkNOAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAABRSURBVHhe7cExAQAAAMKg9U9tCy+gAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAE4G6jkAAQdYx/4AAAAASUVORK5CYII=', 'fill:url(#Text_kasus_4_final_report_4_button48493_over)', 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAANsAAABHCAYAAACOJzJ4AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAABTSURBVHhe7cExAQAAAMKg9U9tCj+gAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAOBnzOwAB9VfxwgAAAABJRU5ErkJggg==', 'fill:url(#Text_kasus_4_final_report_4_button48493_down)', 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAANkAAABFCAYAAADHGkNOAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAABRSURBVHhe7cExAQAAAMKg9U9tCy+gAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAE4G6jkAAQdYx/4AAAAASUVORK5CYII=', 'fill:url(#Text_kasus_4_final_report_4_button48493_disabled)')
+button48493.setBase64Images( 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAANkAAABFCAYAAADHGkNOAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAABRSURBVHhe7cExAQAAAMKg9U9tCy+gAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAE4G6jkAAQdYx/4AAAAASUVORK5CYII=' , 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAANkAAABFCAYAAADHGkNOAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAABRSURBVHhe7cExAQAAAMKg9U9tCy+gAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAE4G6jkAAQdYx/4AAAAASUVORK5CYII=' , 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAANsAAABHCAYAAACOJzJ4AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAABTSURBVHhe7cExAQAAAMKg9U9tCj+gAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAOBnzOwAB9VfxwgAAAABJRU5ErkJggg==' , 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAANkAAABFCAYAAADHGkNOAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAABRSURBVHhe7cExAQAAAMKg9U9tCy+gAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAE4G6jkAAQdYx/4AAAAASUVORK5CYII=' )
+button48493.setImgFillVal('fill:url(#Picture_kasus_4_final_report_4_button48493)','data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAANkAAABFCAYAAADHGkNOAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAABRSURBVHhe7cExAQAAAMKg9U9tCy+gAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAE4G6jkAAQdYx/4AAAAASUVORK5CYII=','fill:url(#Picture_kasus_4_final_report_4_button48493_over)','data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAANkAAABFCAYAAADHGkNOAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAABRSURBVHhe7cExAQAAAMKg9U9tCy+gAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAE4G6jkAAQdYx/4AAAAASUVORK5CYII=','fill:url(#Picture_kasus_4_final_report_4_button48493_down)','data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAANsAAABHCAYAAACOJzJ4AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAABTSURBVHhe7cExAQAAAMKg9U9tCj+gAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAOBnzOwAB9VfxwgAAAABJRU5ErkJggg==','fill:url(#Picture_kasus_4_final_report_4_button48493_disabled)','data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAANkAAABFCAYAAADHGkNOAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAABRSURBVHhe7cExAQAAAMKg9U9tCy+gAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAE4G6jkAAQdYx/4AAAAASUVORK5CYII=' )
+button48493.initLineWeight('0')
+button48493.onUp = button48493onUp
+button48493.hasOnUp = true
+button48493.capture=4
+button48493.build()
+
+button48487 = new ObjButton('button48487', 'Button_Kembali44',74,2007,217.000000,69.000000,1,68,'div','',1,0)
+button48487.setFillStyle(2)
+button48487.setUniqueFillID('kasus_4_final_report_4_button48487')
+button48487.initRotateAngle(0,0,0,-0.000000,-0.000000,216,68)
+button48487.initHasShadow(0)
+button48487.initHasReflection(0)
+button48487.setImages('images/transbtn.gif', '', '','');
+button48487.setStateOpacity( 0.000000, 0.000000, 0.000000, 0.000000 );
+button48487.addIe8Attr(74.000000, 2007.000000, 217.000000, 69.000000, 0, 0)
+button48487.addOpacity(0)
+button48487.initImageMap('34,0,182,0,189,1,195,3,201,6,206,10,210,15,213,21,215,27,216,34,216,34,215,41,213,47,210,53,206,58,201,62,195,65,189,67,182,68,34,68,27,67,21,65,15,62,10,58,6,53,3,47,1,41,0,34,0,34,1,27,3,21,6,15,10,10,15,6,21,3,27,1,34,0','M 34.000000 0.000000 L 182.000000 0.000000 L 188.875000 0.687500 L 195.250000 2.687500 L 201.000000 5.812500 L 206.062500 10.000000 L 210.187500 15.000000 L 213.312500 20.750000 L 215.312500 27.125000 L 216.000000 34.000000 L 216.000000 34.000000 L 215.312500 40.875000 L 213.312500 47.250000 L 210.187500 53.000000 L 206.062500 58.062500 L 201.000000 62.187500 L 195.250000 65.312500 L 188.875000 67.312500 L 182.000000 68.000000 L 34.000000 68.000000 L 27.375000 67.375000 L 21.000000 65.437500 L 15.187500 62.312500 L 10.000000 58.062500 L 5.750000 52.875000 L 2.625000 47.062500 L 0.687500 40.687500 L 0.000000 34.000000 L 0.000000 34.000000 L 0.687500 27.125000 L 2.687500 20.750000 L 5.812500 15.000000 L 10.000000 10.000000 L 15.000000 5.812500 L 20.750000 2.687500 L 27.125000 0.687500 L 34.000000 0.000000 z')
+button48487.setFills('                <pattern id="Picture_kasus_4_final_report_4_button48487" x="0" y="0" width="217.000000" height="69.000000" patternUnits="userSpaceOnUse">                <image xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAANkAAABFCAYAAADHGkNOAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAABRSURBVHhe7cExAQAAAMKg9U9tCy+gAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAE4G6jkAAQdYx/4AAAAASUVORK5CYII=" x="0" y="0" width="217.000000" height="69.000000"  preserveAspectRatio="none"/>           </pattern>       ','                <pattern id="Picture_kasus_4_final_report_4_button48487_over" x="0" y="0" width="217.000000" height="69.000000" patternUnits="userSpaceOnUse">                <image xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAANkAAABFCAYAAADHGkNOAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAABRSURBVHhe7cExAQAAAMKg9U9tCy+gAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAE4G6jkAAQdYx/4AAAAASUVORK5CYII=" x="0" y="0" width="217.000000" height="69.000000"  preserveAspectRatio="none"/>           </pattern>       ','                <pattern id="Picture_kasus_4_final_report_4_button48487_down" x="0" y="0" width="219.000000" height="71.000000" patternUnits="userSpaceOnUse">                <image xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAANsAAABHCAYAAACOJzJ4AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAABTSURBVHhe7cExAQAAAMKg9U9tCj+gAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAOBnzOwAB9VfxwgAAAABJRU5ErkJggg==" x="0" y="0" width="219.000000" height="71.000000"  preserveAspectRatio="none"/>           </pattern>       ','                <pattern id="Picture_kasus_4_final_report_4_button48487_disabled" x="0" y="0" width="217.000000" height="69.000000" patternUnits="userSpaceOnUse">                <image xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAANkAAABFCAYAAADHGkNOAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAABRSURBVHhe7cExAQAAAMKg9U9tCy+gAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAE4G6jkAAQdYx/4AAAAASUVORK5CYII=" x="0" y="0" width="217.000000" height="69.000000"  preserveAspectRatio="none"/>           </pattern>       ','fill:url(#Picture_kasus_4_final_report_4_button48487);"','fill:url(#Picture_kasus_4_final_report_4_button48487_over);"','stroke:#0963B1; stroke-width:2; stroke-linejoin:round;stroke-dasharray: none; fill:url(#Picture_kasus_4_final_report_4_button48487_down);"','fill:url(#Picture_kasus_4_final_report_4_button48487_disabled);"')
+button48487.setTextVal('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAANkAAABFCAYAAADHGkNOAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAABRSURBVHhe7cExAQAAAMKg9U9tCy+gAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAE4G6jkAAQdYx/4AAAAASUVORK5CYII=' , 'fill:url(#Text_kasus_4_final_report_4_button48487)', 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAANkAAABFCAYAAADHGkNOAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAABRSURBVHhe7cExAQAAAMKg9U9tCy+gAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAE4G6jkAAQdYx/4AAAAASUVORK5CYII=', 'fill:url(#Text_kasus_4_final_report_4_button48487_over)', 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAANsAAABHCAYAAACOJzJ4AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAABTSURBVHhe7cExAQAAAMKg9U9tCj+gAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAOBnzOwAB9VfxwgAAAABJRU5ErkJggg==', 'fill:url(#Text_kasus_4_final_report_4_button48487_down)', 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAANkAAABFCAYAAADHGkNOAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAABRSURBVHhe7cExAQAAAMKg9U9tCy+gAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAE4G6jkAAQdYx/4AAAAASUVORK5CYII=', 'fill:url(#Text_kasus_4_final_report_4_button48487_disabled)')
+button48487.setBase64Images( 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAANkAAABFCAYAAADHGkNOAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAABRSURBVHhe7cExAQAAAMKg9U9tCy+gAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAE4G6jkAAQdYx/4AAAAASUVORK5CYII=' , 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAANkAAABFCAYAAADHGkNOAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAABRSURBVHhe7cExAQAAAMKg9U9tCy+gAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAE4G6jkAAQdYx/4AAAAASUVORK5CYII=' , 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAANsAAABHCAYAAACOJzJ4AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAABTSURBVHhe7cExAQAAAMKg9U9tCj+gAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAOBnzOwAB9VfxwgAAAABJRU5ErkJggg==' , 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAANkAAABFCAYAAADHGkNOAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAABRSURBVHhe7cExAQAAAMKg9U9tCy+gAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAE4G6jkAAQdYx/4AAAAASUVORK5CYII=' )
+button48487.setImgFillVal('fill:url(#Picture_kasus_4_final_report_4_button48487)','data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAANkAAABFCAYAAADHGkNOAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAABRSURBVHhe7cExAQAAAMKg9U9tCy+gAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAE4G6jkAAQdYx/4AAAAASUVORK5CYII=','fill:url(#Picture_kasus_4_final_report_4_button48487_over)','data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAANkAAABFCAYAAADHGkNOAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAABRSURBVHhe7cExAQAAAMKg9U9tCy+gAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAE4G6jkAAQdYx/4AAAAASUVORK5CYII=','fill:url(#Picture_kasus_4_final_report_4_button48487_down)','data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAANsAAABHCAYAAACOJzJ4AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAABTSURBVHhe7cExAQAAAMKg9U9tCj+gAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAOBnzOwAB9VfxwgAAAABJRU5ErkJggg==','fill:url(#Picture_kasus_4_final_report_4_button48487_disabled)','data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAANkAAABFCAYAAADHGkNOAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAABRSURBVHhe7cExAQAAAMKg9U9tCy+gAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAE4G6jkAAQdYx/4AAAAASUVORK5CYII=' )
+button48487.initLineWeight('0')
+button48487.onUp = button48487onUp
+button48487.hasOnUp = true
+button48487.capture=4
+button48487.build()
+
+image130175 = new ObjImage('image130175','images/final_report_4_revisi.png','final_report_4_revisi',24,136,720,1664,1,5,'div',null, 0 )
+image130175.initRotateAngle(0,0,0,0,0,0,0)
+image130175.initHasShadow(0)
+image130175.initHasReflection(0)
+image130175.addIe8Attr(24, 136, 720, 1664, 0, 0)
+image130175.initImageMap(1,'0,0,720,0,720,1664,0,1664,0,0','M 0 0 L 720 0 L 720 1664 L 0 1664 L 0 0 z')
+image130175.addBorder(0)
+image130175.addOpacity(100)
+image130175.build()
+
+qu48108 = new ObjInline('qu48108',null,60,131,411,233,1,0)
+qu48108.isGrp = true
+qu48108.addChild('text48109')
+qu48108.addChild('text48110')
+qu48108.addChild('radio48111')
+qu48108.addChild('text48112')
+qu48108.addChild('radio48113')
+qu48108.addChild('text48114')
+qu48108.addChild('radio48115')
+qu48108.addChild('text48116')
+qu48108.addChild('radio48117')
+qu48108.ansVar=Var4_25_f;
+qu48108.build()
+
+text48109 = new ObjText('text48109',null,95,459,633,73,1,6,null,'div',null,0 )
+text48109.initSLine(0)
+text48109.initHasBullet(0)
+text48109.initRotateAngle(0,0,0)
+text48109.initHasOuterShadow(0)
+text48109.initHasTextShadow(0)
+text48109.initHasBorder(0)
+text48109.initHasOutline(0)
+text48109.initHasMargin(0)
+text48109.addIe8Attr(95, 459, 633, 73, 0, 0)
+text48109.addHeading(0)
+text48109.addOpacity(100)
+text48109.arrCSSStyles = new Array();
+text48109.arrCSSStyles.push('span.text48109Font1 { font-size:16px; font-family:"Arial", sans-serif; color:#010101;}');
+text48109.addInnerText('<legend><div id=\"text48109\" aria-hidden=\"true\" ><a id=\"text48109anc\" style=\"display:block;height:0px;width:0px;\"></a>\n<p  style=\"margin-left:0px;text-indent:0px;margin-top:0px;margin-bottom:0px;text-align:left;\" >\n<span class=\"text48109Font1\"  >&nbsp;\n</span ></p >\n</div>\n</legend>\n');
+text48109.build()
+
+text48110 = new ObjText('text48110',null,128,536,479,37,1,7,null,'div',null,0 )
+text48110.initSLine(1)
+text48110.initHasBullet(0)
+text48110.initRotateAngle(0,0,0)
+text48110.initHasOuterShadow(0)
+text48110.initHasTextShadow(0)
+text48110.initHasBorder(0)
+text48110.initHasOutline(0)
+text48110.initHasMargin(0)
+text48110.addIe8Attr(128, 536, 479, 37, 0, 0)
+text48110.addHeading(0)
+text48110.addOpacity(100)
+text48110.arrCSSStyles = new Array();
+text48110.arrCSSStyles.push('span.text48110Font1 { font-size:13px; font-family:"Montserrat"; color:#000000;}');
+text48110.arrCSSStyles.push('span.text48110Font2 { font-size:13px; font-family:"Arial", sans-serif; color:#000000;}');
+text48110.addInnerText('<div id=\"text48110\" aria-hidden=\"true\" ><a id=\"text48110anc\" style=\"display:block;height:0px;width:0px;\"></a>\n<label id=\"label48111id\" for=\"radio48111id\" ><p  style=\"margin-left:0px;text-indent:0px;margin-top:0px;margin-bottom:0px;text-align:left;\" >\n<span class=\"text48110Font1\"  >(i)</span ><span class=\"text48110Font2\" style=\"background-color:transparent\" >\n</span ></p >\n</label></div>\n');
+text48110.build()
+
+radio48111 = new ObjInline('radio48111',null,(is.ie?98:97),(is.ie?539:538),null,null,1,8, 0, null, null, 0)
+radio48111.arrCSSStyles = new Array();
+radio48111.arrCSSStyles.push('');
+radio48111.build()
+
+text48112 = new ObjText('text48112',null,128,583,479,37,1,9,null,'div',null,0 )
+text48112.initSLine(1)
+text48112.initHasBullet(0)
+text48112.initRotateAngle(0,0,0)
+text48112.initHasOuterShadow(0)
+text48112.initHasTextShadow(0)
+text48112.initHasBorder(0)
+text48112.initHasOutline(0)
+text48112.initHasMargin(0)
+text48112.addIe8Attr(128, 583, 479, 37, 0, 0)
+text48112.addHeading(0)
+text48112.addOpacity(100)
+text48112.arrCSSStyles = new Array();
+text48112.arrCSSStyles.push('span.text48112Font1 { font-size:13px; font-family:"Montserrat"; color:#000000;}');
+text48112.arrCSSStyles.push('span.text48112Font2 { font-size:13px; font-family:"Arial", sans-serif; color:#000000;}');
+text48112.addInnerText('<div id=\"text48112\" aria-hidden=\"true\" ><a id=\"text48112anc\" style=\"display:block;height:0px;width:0px;\"></a>\n<label id=\"label48113id\" for=\"radio48113id\" ><p  style=\"margin-left:0px;text-indent:0px;margin-top:0px;margin-bottom:0px;text-align:left;\" >\n<span class=\"text48112Font1\"  >(ii)</span ><span class=\"text48112Font2\" style=\"background-color:transparent\" >\n</span ></p >\n</label></div>\n');
+text48112.build()
+
+radio48113 = new ObjInline('radio48113',null,(is.ie?98:97),(is.ie?586:585),null,null,1,10, 0, null, null, 0)
+radio48113.arrCSSStyles = new Array();
+radio48113.arrCSSStyles.push('');
+radio48113.build()
+
+text48114 = new ObjText('text48114',null,128,630,479,37,1,11,null,'div',null,0 )
+text48114.initSLine(1)
+text48114.initHasBullet(0)
+text48114.initRotateAngle(0,0,0)
+text48114.initHasOuterShadow(0)
+text48114.initHasTextShadow(0)
+text48114.initHasBorder(0)
+text48114.initHasOutline(0)
+text48114.initHasMargin(0)
+text48114.addIe8Attr(128, 630, 479, 37, 0, 0)
+text48114.addHeading(0)
+text48114.addOpacity(100)
+text48114.arrCSSStyles = new Array();
+text48114.arrCSSStyles.push('span.text48114Font1 { font-size:13px; font-family:"Montserrat"; color:#000000;}');
+text48114.arrCSSStyles.push('span.text48114Font2 { font-size:13px; font-family:"Arial", sans-serif; color:#000000;}');
+text48114.addInnerText('<div id=\"text48114\" aria-hidden=\"true\" ><a id=\"text48114anc\" style=\"display:block;height:0px;width:0px;\"></a>\n<label id=\"label48115id\" for=\"radio48115id\" ><p  style=\"margin-left:0px;text-indent:0px;margin-top:0px;margin-bottom:0px;text-align:left;\" >\n<span class=\"text48114Font1\"  >(i) dan (ii)</span ><span class=\"text48114Font2\" style=\"background-color:transparent\" >\n</span ></p >\n</label></div>\n');
+text48114.build()
+
+radio48115 = new ObjInline('radio48115',null,(is.ie?98:97),(is.ie?633:632),null,null,1,12, 0, null, null, 0)
+radio48115.arrCSSStyles = new Array();
+radio48115.arrCSSStyles.push('');
+radio48115.build()
+
+text48116 = new ObjText('text48116',null,128,677,479,37,1,13,null,'div',null,0 )
+text48116.initSLine(1)
+text48116.initHasBullet(0)
+text48116.initRotateAngle(0,0,0)
+text48116.initHasOuterShadow(0)
+text48116.initHasTextShadow(0)
+text48116.initHasBorder(0)
+text48116.initHasOutline(0)
+text48116.initHasMargin(0)
+text48116.addIe8Attr(128, 677, 479, 37, 0, 0)
+text48116.addHeading(0)
+text48116.addOpacity(100)
+text48116.arrCSSStyles = new Array();
+text48116.arrCSSStyles.push('span.text48116Font1 { font-size:13px; font-family:"Montserrat"; color:#000000;}');
+text48116.arrCSSStyles.push('span.text48116Font2 { font-size:13px; font-family:"Arial", sans-serif; color:#000000;}');
+text48116.addInnerText('<div id=\"text48116\" aria-hidden=\"true\" ><a id=\"text48116anc\" style=\"display:block;height:0px;width:0px;\"></a>\n<label id=\"label48117id\" for=\"radio48117id\" ><p  style=\"margin-left:0px;text-indent:0px;margin-top:0px;margin-bottom:0px;text-align:left;\" >\n<span class=\"text48116Font1\"  >Tidak ada yang benar</span ><span class=\"text48116Font2\" style=\"background-color:transparent\" >\n</span ></p >\n</label></div>\n');
+text48116.build()
+
+radio48117 = new ObjInline('radio48117',null,(is.ie?98:97),(is.ie?680:679),null,null,1,14, 0, null, null, 0)
+radio48117.arrCSSStyles = new Array();
+radio48117.arrCSSStyles.push('');
+radio48117.build()
+
+qu48178 = new ObjInline('qu48178',null,60,347,411,154,1,0)
+qu48178.isGrp = true
+qu48178.addChild('text48179')
+qu48178.addChild('text48180')
+qu48178.addChild('radio48181')
+qu48178.addChild('text48182')
+qu48178.addChild('radio48183')
+qu48178.addChild('text48184')
+qu48178.addChild('radio48185')
+qu48178.addChild('text48186')
+qu48178.addChild('radio48187')
+qu48178.ansVar=Var4_26_f;
+qu48178.build()
+
+text48179 = new ObjText('text48179',null,95,717,633,83,1,15,null,'div',null,0 )
+text48179.initSLine(0)
+text48179.initHasBullet(0)
+text48179.initRotateAngle(0,0,0)
+text48179.initHasOuterShadow(0)
+text48179.initHasTextShadow(0)
+text48179.initHasBorder(0)
+text48179.initHasOutline(0)
+text48179.initHasMargin(0)
+text48179.addIe8Attr(95, 717, 633, 83, 0, 0)
+text48179.addHeading(0)
+text48179.addOpacity(100)
+text48179.arrCSSStyles = new Array();
+text48179.arrCSSStyles.push('span.text48179Font1 { font-size:16px; font-family:"Arial", sans-serif; color:#010101;}');
+text48179.addInnerText('<legend><div id=\"text48179\" aria-hidden=\"true\" ><a id=\"text48179anc\" style=\"display:block;height:0px;width:0px;\"></a>\n<p  style=\"margin-left:0px;text-indent:0px;margin-top:0px;margin-bottom:0px;text-align:left;\" >\n<span class=\"text48179Font1\"  >&nbsp;\n</span ></p >\n</div>\n</legend>\n');
+text48179.build()
+
+text48180 = new ObjText('text48180',null,128,804,595,40,1,16,null,'div',null,0 )
+text48180.initSLine(0)
+text48180.initHasBullet(0)
+text48180.initRotateAngle(0,0,0)
+text48180.initHasOuterShadow(0)
+text48180.initHasTextShadow(0)
+text48180.initHasBorder(0)
+text48180.initHasOutline(0)
+text48180.initHasMargin(0)
+text48180.addIe8Attr(128, 804, 595, 40, 0, 0)
+text48180.addHeading(0)
+text48180.addOpacity(100)
+text48180.arrCSSStyles = new Array();
+text48180.arrCSSStyles.push('span.text48180Font1 { font-size:13px; font-family:"Montserrat"; color:#000000;}');
+text48180.arrCSSStyles.push('span.text48180Font2 { font-size:13px; font-family:"Arial", sans-serif; color:#000000;}');
+text48180.addInnerText('<div id=\"text48180\" aria-hidden=\"true\" ><a id=\"text48180anc\" style=\"display:block;height:0px;width:0px;\" href=\"javascript:radio48181id.click();\"></a>\n<label id=\"label48181id\" for=\"radio48181id\" ><p  style=\"margin-left:0px;text-indent:0px;margin-top:0px;margin-bottom:0px;text-align:justify;\" >\n<span class=\"text48180Font1\"  >Jus jeruk A ditambah dua sendok gula dari jus jeruk B</span ><span class=\"text48180Font2\" style=\"background-color:transparent\" >\n</span ></p >\n</label></div>\n');
+text48180.build()
+
+radio48181 = new ObjInline('radio48181',null,(is.ie?98:97),(is.ie?807:806),null,null,1,17, 0, null, null, 0)
+radio48181.arrCSSStyles = new Array();
+radio48181.arrCSSStyles.push('');
+radio48181.build()
+
+text48182 = new ObjText('text48182',null,128,856,576,37,1,18,null,'div',null,0 )
+text48182.initSLine(0)
+text48182.initHasBullet(0)
+text48182.initRotateAngle(0,0,0)
+text48182.initHasOuterShadow(0)
+text48182.initHasTextShadow(0)
+text48182.initHasBorder(0)
+text48182.initHasOutline(0)
+text48182.initHasMargin(0)
+text48182.addIe8Attr(128, 856, 576, 37, 0, 0)
+text48182.addHeading(0)
+text48182.addOpacity(100)
+text48182.arrCSSStyles = new Array();
+text48182.arrCSSStyles.push('span.text48182Font1 { font-size:13px; font-family:"Montserrat"; color:#000000;}');
+text48182.arrCSSStyles.push('span.text48182Font2 { font-size:13px; font-family:"Arial", sans-serif; color:#000000;}');
+text48182.addInnerText('<div id=\"text48182\" aria-hidden=\"true\" ><a id=\"text48182anc\" style=\"display:block;height:0px;width:0px;\" href=\"javascript:radio48183id.click();\"></a>\n<label id=\"label48183id\" for=\"radio48183id\" ><p  style=\"margin-left:0px;text-indent:0px;margin-top:0px;margin-bottom:0px;text-align:justify;\" >\n<span class=\"text48182Font1\"  >Rasa manis jus jeruk A dua kali lipat dari jus jeruk B</span ><span class=\"text48182Font2\" style=\"background-color:transparent\" >\n</span ></p >\n</label></div>\n');
+text48182.build()
+
+radio48183 = new ObjInline('radio48183',null,(is.ie?98:97),(is.ie?859:858),null,null,1,19, 0, null, null, 0)
+radio48183.arrCSSStyles = new Array();
+radio48183.arrCSSStyles.push('');
+radio48183.build()
+
+text48184 = new ObjText('text48184',null,128,909,479,37,1,20,null,'div',null,0 )
+text48184.initSLine(0)
+text48184.initHasBullet(0)
+text48184.initRotateAngle(0,0,0)
+text48184.initHasOuterShadow(0)
+text48184.initHasTextShadow(0)
+text48184.initHasBorder(0)
+text48184.initHasOutline(0)
+text48184.initHasMargin(0)
+text48184.addIe8Attr(128, 909, 479, 37, 0, 0)
+text48184.addHeading(0)
+text48184.addOpacity(100)
+text48184.arrCSSStyles = new Array();
+text48184.arrCSSStyles.push('span.text48184Font1 { font-size:13px; font-family:"Montserrat"; color:#000000;}');
+text48184.arrCSSStyles.push('span.text48184Font2 { font-size:13px; font-family:"Arial", sans-serif; color:#000000;}');
+text48184.addInnerText('<div id=\"text48184\" aria-hidden=\"true\" ><a id=\"text48184anc\" style=\"display:block;height:0px;width:0px;\" href=\"javascript:radio48185id.click();\"></a>\n<label id=\"label48185id\" for=\"radio48185id\" ><p  style=\"margin-left:0px;text-indent:0px;margin-top:0px;margin-bottom:0px;text-align:justify;\" >\n<span class=\"text48184Font1\"  >Jus jeruk B lebih manis daripada jus jeruk A</span ><span class=\"text48184Font2\" style=\"background-color:transparent\" >\n</span ></p >\n</label></div>\n');
+text48184.build()
+
+radio48185 = new ObjInline('radio48185',null,(is.ie?98:97),(is.ie?912:911),null,null,1,21, 0, null, null, 0)
+radio48185.arrCSSStyles = new Array();
+radio48185.arrCSSStyles.push('');
+radio48185.build()
+
+text48186 = new ObjText('text48186',null,128,960,479,37,1,22,null,'div',null,0 )
+text48186.initSLine(0)
+text48186.initHasBullet(0)
+text48186.initRotateAngle(0,0,0)
+text48186.initHasOuterShadow(0)
+text48186.initHasTextShadow(0)
+text48186.initHasBorder(0)
+text48186.initHasOutline(0)
+text48186.initHasMargin(0)
+text48186.addIe8Attr(128, 960, 479, 37, 0, 0)
+text48186.addHeading(0)
+text48186.addOpacity(100)
+text48186.arrCSSStyles = new Array();
+text48186.arrCSSStyles.push('span.text48186Font1 { font-size:13px; font-family:"Montserrat"; color:#000000;}');
+text48186.arrCSSStyles.push('span.text48186Font2 { font-size:13px; font-family:"Arial", sans-serif; color:#000000;}');
+text48186.addInnerText('<div id=\"text48186\" aria-hidden=\"true\" ><a id=\"text48186anc\" style=\"display:block;height:0px;width:0px;\" href=\"javascript:radio48187id.click();\"></a>\n<label id=\"label48187id\" for=\"radio48187id\" ><p  style=\"margin-left:0px;text-indent:0px;margin-top:0px;margin-bottom:0px;text-align:justify;\" >\n<span class=\"text48186Font1\"  >Kedua jus sama manisnya</span ><span class=\"text48186Font2\" style=\"background-color:transparent\" >\n</span ></p >\n</label></div>\n');
+text48186.build()
+
+radio48187 = new ObjInline('radio48187',null,(is.ie?98:97),(is.ie?963:962),null,null,1,23, 0, null, null, 0)
+radio48187.arrCSSStyles = new Array();
+radio48187.arrCSSStyles.push('');
+radio48187.build()
+
+qu48259 = new ObjInline('qu48259',null,60,488,418,200,1,0)
+qu48259.isGrp = true
+qu48259.addChild('text48260')
+qu48259.addChild('text48261')
+qu48259.addChild('radio48262')
+qu48259.addChild('text48263')
+qu48259.addChild('radio48264')
+qu48259.addChild('text48265')
+qu48259.addChild('radio48266')
+qu48259.addChild('text48267')
+qu48259.addChild('radio48268')
+qu48259.ansVar=Var4_27_f;
+qu48259.build()
+
+text48260 = new ObjText('text48260',null,95,995,633,176,1,24,null,'div',null,0 )
+text48260.initSLine(0)
+text48260.initHasBullet(0)
+text48260.initRotateAngle(0,0,0)
+text48260.initHasOuterShadow(0)
+text48260.initHasTextShadow(0)
+text48260.initHasBorder(0)
+text48260.initHasOutline(0)
+text48260.initHasMargin(0)
+text48260.addIe8Attr(95, 995, 633, 176, 0, 0)
+text48260.addHeading(0)
+text48260.addOpacity(100)
+text48260.arrCSSStyles = new Array();
+text48260.arrCSSStyles.push('span.text48260Font1 { font-size:16px; font-family:"Arial", sans-serif; color:#010101;}');
+text48260.addInnerText('<legend><div id=\"text48260\" aria-hidden=\"true\" ><a id=\"text48260anc\" style=\"display:block;height:0px;width:0px;\"></a>\n<p  style=\"margin-left:0px;text-indent:0px;margin-top:0px;margin-bottom:0px;text-align:left;\" >\n<span class=\"text48260Font1\"  >&nbsp;\n</span ></p >\n</div>\n</legend>\n');
+text48260.build()
+
+text48261 = new ObjText('text48261',null,128,1181,595,40,1,25,null,'div',null,0 )
+text48261.initSLine(1)
+text48261.initHasBullet(0)
+text48261.initRotateAngle(0,0,0)
+text48261.initHasOuterShadow(0)
+text48261.initHasTextShadow(0)
+text48261.initHasBorder(0)
+text48261.initHasOutline(0)
+text48261.initHasMargin(0)
+text48261.addIe8Attr(128, 1181, 595, 40, 0, 0)
+text48261.addHeading(0)
+text48261.addOpacity(100)
+text48261.arrCSSStyles = new Array();
+text48261.arrCSSStyles.push('span.text48261Font1 { font-size:13px; font-family:"Montserrat"; color:#000000;}');
+text48261.arrCSSStyles.push('span.text48261Font2 { font-size:13px; font-family:"Arial", sans-serif; color:#000000;}');
+text48261.addInnerText('<div id=\"text48261\" aria-hidden=\"true\" ><a id=\"text48261anc\" style=\"display:block;height:0px;width:0px;\"></a>\n<label id=\"label48262id\" for=\"radio48262id\" ><p  style=\"margin-left:0px;text-indent:0px;margin-top:0px;margin-bottom:0px;text-align:left;\" >\n<span class=\"text48261Font1\"  >Rp35.000</span ><span class=\"text48261Font2\" style=\"background-color:transparent\" >\n</span ></p >\n</label></div>\n');
+text48261.build()
+
+radio48262 = new ObjInline('radio48262',null,(is.ie?98:97),(is.ie?1184:1183),null,null,1,26, 0, null, null, 0)
+radio48262.arrCSSStyles = new Array();
+radio48262.arrCSSStyles.push('');
+radio48262.build()
+
+text48263 = new ObjText('text48263',null,128,1233,576,37,1,27,null,'div',null,0 )
+text48263.initSLine(1)
+text48263.initHasBullet(0)
+text48263.initRotateAngle(0,0,0)
+text48263.initHasOuterShadow(0)
+text48263.initHasTextShadow(0)
+text48263.initHasBorder(0)
+text48263.initHasOutline(0)
+text48263.initHasMargin(0)
+text48263.addIe8Attr(128, 1233, 576, 37, 0, 0)
+text48263.addHeading(0)
+text48263.addOpacity(100)
+text48263.arrCSSStyles = new Array();
+text48263.arrCSSStyles.push('span.text48263Font1 { font-size:13px; font-family:"Montserrat"; color:#000000;}');
+text48263.arrCSSStyles.push('span.text48263Font2 { font-size:13px; font-family:"Arial", sans-serif; color:#000000;}');
+text48263.addInnerText('<div id=\"text48263\" aria-hidden=\"true\" ><a id=\"text48263anc\" style=\"display:block;height:0px;width:0px;\"></a>\n<label id=\"label48264id\" for=\"radio48264id\" ><p  style=\"margin-left:0px;text-indent:0px;margin-top:0px;margin-bottom:0px;text-align:left;\" >\n<span class=\"text48263Font1\"  >Rp40.000</span ><span class=\"text48263Font2\" style=\"background-color:transparent\" >\n</span ></p >\n</label></div>\n');
+text48263.build()
+
+radio48264 = new ObjInline('radio48264',null,(is.ie?98:97),(is.ie?1236:1235),null,null,1,28, 0, null, null, 0)
+radio48264.arrCSSStyles = new Array();
+radio48264.arrCSSStyles.push('');
+radio48264.build()
+
+text48265 = new ObjText('text48265',null,128,1286,479,37,1,29,null,'div',null,0 )
+text48265.initSLine(1)
+text48265.initHasBullet(0)
+text48265.initRotateAngle(0,0,0)
+text48265.initHasOuterShadow(0)
+text48265.initHasTextShadow(0)
+text48265.initHasBorder(0)
+text48265.initHasOutline(0)
+text48265.initHasMargin(0)
+text48265.addIe8Attr(128, 1286, 479, 37, 0, 0)
+text48265.addHeading(0)
+text48265.addOpacity(100)
+text48265.arrCSSStyles = new Array();
+text48265.arrCSSStyles.push('span.text48265Font1 { font-size:13px; font-family:"Montserrat"; color:#000000;}');
+text48265.arrCSSStyles.push('span.text48265Font2 { font-size:13px; font-family:"Arial", sans-serif; color:#000000;}');
+text48265.addInnerText('<div id=\"text48265\" aria-hidden=\"true\" ><a id=\"text48265anc\" style=\"display:block;height:0px;width:0px;\"></a>\n<label id=\"label48266id\" for=\"radio48266id\" ><p  style=\"margin-left:0px;text-indent:0px;margin-top:0px;margin-bottom:0px;text-align:left;\" >\n<span class=\"text48265Font1\"  >Rp45.000</span ><span class=\"text48265Font2\" style=\"background-color:transparent\" >\n</span ></p >\n</label></div>\n');
+text48265.build()
+
+radio48266 = new ObjInline('radio48266',null,(is.ie?98:97),(is.ie?1289:1288),null,null,1,30, 0, null, null, 0)
+radio48266.arrCSSStyles = new Array();
+radio48266.arrCSSStyles.push('');
+radio48266.build()
+
+text48267 = new ObjText('text48267',null,128,1337,479,37,1,31,null,'div',null,0 )
+text48267.initSLine(1)
+text48267.initHasBullet(0)
+text48267.initRotateAngle(0,0,0)
+text48267.initHasOuterShadow(0)
+text48267.initHasTextShadow(0)
+text48267.initHasBorder(0)
+text48267.initHasOutline(0)
+text48267.initHasMargin(0)
+text48267.addIe8Attr(128, 1337, 479, 37, 0, 0)
+text48267.addHeading(0)
+text48267.addOpacity(100)
+text48267.arrCSSStyles = new Array();
+text48267.arrCSSStyles.push('span.text48267Font1 { font-size:13px; font-family:"Montserrat"; color:#000000;}');
+text48267.arrCSSStyles.push('span.text48267Font2 { font-size:13px; font-family:"Arial", sans-serif; color:#000000;}');
+text48267.addInnerText('<div id=\"text48267\" aria-hidden=\"true\" ><a id=\"text48267anc\" style=\"display:block;height:0px;width:0px;\"></a>\n<label id=\"label48268id\" for=\"radio48268id\" ><p  style=\"margin-left:0px;text-indent:0px;margin-top:0px;margin-bottom:0px;text-align:left;\" >\n<span class=\"text48267Font1\"  >Rp50.000</span ><span class=\"text48267Font2\" style=\"background-color:transparent\" >\n</span ></p >\n</label></div>\n');
+text48267.build()
+
+radio48268 = new ObjInline('radio48268',null,(is.ie?98:97),(is.ie?1340:1339),null,null,1,32, 0, null, null, 0)
+radio48268.arrCSSStyles = new Array();
+radio48268.arrCSSStyles.push('');
+radio48268.build()
+
+qu48297 = new ObjInline('qu48297',null,85,122,339,238,1,0)
+qu48297.isGrp = true
+qu48297.addChild('text48298')
+qu48297.addChild('text48299')
+qu48297.addChild('radio48300')
+qu48297.addChild('text48301')
+qu48297.addChild('radio48302')
+qu48297.addChild('text48303')
+qu48297.addChild('radio48304')
+qu48297.addChild('text48305')
+qu48297.addChild('radio48306')
+qu48297.ansVar=Var4_28_f;
+qu48297.build()
+
+text48298 = new ObjText('text48298',null,95,1372,633,123,1,33,null,'div',null,0 )
+text48298.initSLine(0)
+text48298.initHasBullet(0)
+text48298.initRotateAngle(0,0,0)
+text48298.initHasOuterShadow(0)
+text48298.initHasTextShadow(0)
+text48298.initHasBorder(0)
+text48298.initHasOutline(0)
+text48298.initHasMargin(0)
+text48298.addIe8Attr(95, 1372, 633, 123, 0, 0)
+text48298.addHeading(0)
+text48298.addOpacity(100)
+text48298.arrCSSStyles = new Array();
+text48298.arrCSSStyles.push('span.text48298Font1 { font-size:16px; font-family:"Arial", sans-serif; color:#010101;}');
+text48298.addInnerText('<legend><div id=\"text48298\" aria-hidden=\"true\" ><a id=\"text48298anc\" style=\"display:block;height:0px;width:0px;\"></a>\n<p  style=\"margin-left:0px;text-indent:0px;margin-top:0px;margin-bottom:0px;text-align:left;\" >\n<span class=\"text48298Font1\"  >&nbsp;\n</span ></p >\n</div>\n</legend>\n');
+text48298.build()
+
+text48299 = new ObjText('text48299',null,128,1494,595,40,1,34,null,'div',null,0 )
+text48299.initSLine(1)
+text48299.initHasBullet(0)
+text48299.initRotateAngle(0,0,0)
+text48299.initHasOuterShadow(0)
+text48299.initHasTextShadow(0)
+text48299.initHasBorder(0)
+text48299.initHasOutline(0)
+text48299.initHasMargin(0)
+text48299.addIe8Attr(128, 1494, 595, 40, 0, 0)
+text48299.addHeading(0)
+text48299.addOpacity(100)
+text48299.arrCSSStyles = new Array();
+text48299.arrCSSStyles.push('span.text48299Font1 { font-size:21px; font-family:"Montserrat"; color:#000000;}');
+text48299.arrCSSStyles.push('span.text48299Font2 { font-size:16px; font-family:"Arial", sans-serif; color:#010101;}');
+text48299.addInnerText('<div id=\"text48299\" aria-hidden=\"true\" ><a id=\"text48299anc\" style=\"display:block;height:0px;width:0px;\"></a>\n<label id=\"label48300id\" for=\"radio48300id\" ><p  style=\"margin-left:0px;text-indent:0px;margin-top:0px;margin-bottom:0px;text-align:left;\" >\n<span class=\"text48299Font1\"  >4 hari</span ><span class=\"text48299Font2\" style=\"background-color:transparent\" >\n</span ></p >\n</label></div>\n');
+text48299.build()
+
+radio48300 = new ObjInline('radio48300',null,(is.ie?98:97),(is.ie?1497:1496),null,null,1,35, 0, null, null, 0)
+radio48300.arrCSSStyles = new Array();
+radio48300.arrCSSStyles.push('');
+radio48300.build()
+
+text48301 = new ObjText('text48301',null,128,1546,576,37,1,36,null,'div',null,0 )
+text48301.initSLine(1)
+text48301.initHasBullet(0)
+text48301.initRotateAngle(0,0,0)
+text48301.initHasOuterShadow(0)
+text48301.initHasTextShadow(0)
+text48301.initHasBorder(0)
+text48301.initHasOutline(0)
+text48301.initHasMargin(0)
+text48301.addIe8Attr(128, 1546, 576, 37, 0, 0)
+text48301.addHeading(0)
+text48301.addOpacity(100)
+text48301.arrCSSStyles = new Array();
+text48301.arrCSSStyles.push('span.text48301Font1 { font-size:21px; font-family:"Montserrat"; color:#000000;}');
+text48301.arrCSSStyles.push('span.text48301Font2 { font-size:16px; font-family:"Arial", sans-serif; color:#010101;}');
+text48301.addInnerText('<div id=\"text48301\" aria-hidden=\"true\" ><a id=\"text48301anc\" style=\"display:block;height:0px;width:0px;\"></a>\n<label id=\"label48302id\" for=\"radio48302id\" ><p  style=\"margin-left:0px;text-indent:0px;margin-top:0px;margin-bottom:0px;text-align:left;\" >\n<span class=\"text48301Font1\"  >6 hari</span ><span class=\"text48301Font2\" style=\"background-color:transparent\" >\n</span ></p >\n</label></div>\n');
+text48301.build()
+
+radio48302 = new ObjInline('radio48302',null,(is.ie?98:97),(is.ie?1549:1548),null,null,1,37, 0, null, null, 0)
+radio48302.arrCSSStyles = new Array();
+radio48302.arrCSSStyles.push('');
+radio48302.build()
+
+text48303 = new ObjText('text48303',null,128,1599,479,37,1,38,null,'div',null,0 )
+text48303.initSLine(1)
+text48303.initHasBullet(0)
+text48303.initRotateAngle(0,0,0)
+text48303.initHasOuterShadow(0)
+text48303.initHasTextShadow(0)
+text48303.initHasBorder(0)
+text48303.initHasOutline(0)
+text48303.initHasMargin(0)
+text48303.addIe8Attr(128, 1599, 479, 37, 0, 0)
+text48303.addHeading(0)
+text48303.addOpacity(100)
+text48303.arrCSSStyles = new Array();
+text48303.arrCSSStyles.push('span.text48303Font1 { font-size:21px; font-family:"Montserrat"; color:#000000;}');
+text48303.arrCSSStyles.push('span.text48303Font2 { font-size:16px; font-family:"Arial", sans-serif; color:#010101;}');
+text48303.addInnerText('<div id=\"text48303\" aria-hidden=\"true\" ><a id=\"text48303anc\" style=\"display:block;height:0px;width:0px;\"></a>\n<label id=\"label48304id\" for=\"radio48304id\" ><p  style=\"margin-left:0px;text-indent:0px;margin-top:0px;margin-bottom:0px;text-align:left;\" >\n<span class=\"text48303Font1\"  >8 hari</span ><span class=\"text48303Font2\" style=\"background-color:transparent\" >\n</span ></p >\n</label></div>\n');
+text48303.build()
+
+radio48304 = new ObjInline('radio48304',null,(is.ie?98:97),(is.ie?1602:1601),null,null,1,39, 0, null, null, 0)
+radio48304.arrCSSStyles = new Array();
+radio48304.arrCSSStyles.push('');
+radio48304.build()
+
+text48305 = new ObjText('text48305',null,128,1650,479,37,1,40,null,'div',null,0 )
+text48305.initSLine(1)
+text48305.initHasBullet(0)
+text48305.initRotateAngle(0,0,0)
+text48305.initHasOuterShadow(0)
+text48305.initHasTextShadow(0)
+text48305.initHasBorder(0)
+text48305.initHasOutline(0)
+text48305.initHasMargin(0)
+text48305.addIe8Attr(128, 1650, 479, 37, 0, 0)
+text48305.addHeading(0)
+text48305.addOpacity(100)
+text48305.arrCSSStyles = new Array();
+text48305.arrCSSStyles.push('span.text48305Font1 { font-size:21px; font-family:"Montserrat"; color:#000000;}');
+text48305.arrCSSStyles.push('span.text48305Font2 { font-size:16px; font-family:"Arial", sans-serif; color:#010101;}');
+text48305.addInnerText('<div id=\"text48305\" aria-hidden=\"true\" ><a id=\"text48305anc\" style=\"display:block;height:0px;width:0px;\"></a>\n<label id=\"label48306id\" for=\"radio48306id\" ><p  style=\"margin-left:0px;text-indent:0px;margin-top:0px;margin-bottom:0px;text-align:left;\" >\n<span class=\"text48305Font1\"  >9 hari</span ><span class=\"text48305Font2\" style=\"background-color:transparent\" >\n</span ></p >\n</label></div>\n');
+text48305.build()
+
+radio48306 = new ObjInline('radio48306',null,(is.ie?98:97),(is.ie?1653:1652),null,null,1,41, 0, null, null, 0)
+radio48306.arrCSSStyles = new Array();
+radio48306.arrCSSStyles.push('');
+radio48306.build()
+
+qu48362 = new ObjInline('qu48362',null,85,122,339,238,1,0)
+qu48362.isGrp = true
+qu48362.addChild('text48363')
+qu48362.addChild('text48364')
+qu48362.addChild('radio48365')
+qu48362.addChild('text48366')
+qu48362.addChild('radio48367')
+qu48362.addChild('text48368')
+qu48362.addChild('radio48369')
+qu48362.addChild('text48370')
+qu48362.addChild('radio48371')
+qu48362.ansVar=Var4_29_f;
+qu48362.build()
+
+text48363 = new ObjText('text48363',null,95,1686,633,123,1,42,null,'div',null,0 )
+text48363.initSLine(0)
+text48363.initHasBullet(0)
+text48363.initRotateAngle(0,0,0)
+text48363.initHasOuterShadow(0)
+text48363.initHasTextShadow(0)
+text48363.initHasBorder(0)
+text48363.initHasOutline(0)
+text48363.initHasMargin(0)
+text48363.addIe8Attr(95, 1686, 633, 123, 0, 0)
+text48363.addHeading(0)
+text48363.addOpacity(100)
+text48363.arrCSSStyles = new Array();
+text48363.arrCSSStyles.push('span.text48363Font1 { font-size:16px; font-family:"Arial", sans-serif; color:#010101;}');
+text48363.addInnerText('<legend><div id=\"text48363\" aria-hidden=\"true\" ><a id=\"text48363anc\" style=\"display:block;height:0px;width:0px;\"></a>\n<p  style=\"margin-left:0px;text-indent:0px;margin-top:0px;margin-bottom:0px;text-align:left;\" >\n<span class=\"text48363Font1\"  >&nbsp;\n</span ></p >\n</div>\n</legend>\n');
+text48363.build()
+
+text48364 = new ObjText('text48364',null,128,1821,142,40,1,43,null,'div',null,0 )
+text48364.initSLine(1)
+text48364.initHasBullet(0)
+text48364.initRotateAngle(0,0,0)
+text48364.initHasOuterShadow(0)
+text48364.initHasTextShadow(0)
+text48364.initHasBorder(0)
+text48364.initHasOutline(0)
+text48364.initHasMargin(0)
+text48364.addIe8Attr(128, 1821, 142, 40, 0, 0)
+text48364.addHeading(0)
+text48364.addOpacity(100)
+text48364.arrCSSStyles = new Array();
+text48364.arrCSSStyles.push('span.text48364Font1 { font-size:21px; font-family:"Montserrat"; color:#000000;}');
+text48364.arrCSSStyles.push('span.text48364Font2 { font-size:16px; font-family:"Arial", sans-serif; color:#010101;}');
+text48364.addInnerText('<div id=\"text48364\" aria-hidden=\"true\" ><a id=\"text48364anc\" style=\"display:block;height:0px;width:0px;\"></a>\n<label id=\"label48365id\" for=\"radio48365id\" ><p  style=\"margin-left:0px;text-indent:0px;margin-top:0px;margin-bottom:0px;text-align:left;\" >\n<span class=\"text48364Font1\"  >1 jam</span ><span class=\"text48364Font2\" style=\"background-color:transparent\" >\n</span ></p >\n</label></div>\n');
+text48364.build()
+
+radio48365 = new ObjInline('radio48365',null,(is.ie?98:97),(is.ie?1824:1823),null,null,1,44, 0, null, null, 0)
+radio48365.arrCSSStyles = new Array();
+radio48365.arrCSSStyles.push('');
+radio48365.build()
+
+text48366 = new ObjText('text48366',null,128,1873,155,37,1,45,null,'div',null,0 )
+text48366.initSLine(1)
+text48366.initHasBullet(0)
+text48366.initRotateAngle(0,0,0)
+text48366.initHasOuterShadow(0)
+text48366.initHasTextShadow(0)
+text48366.initHasBorder(0)
+text48366.initHasOutline(0)
+text48366.initHasMargin(0)
+text48366.addIe8Attr(128, 1873, 155, 37, 0, 0)
+text48366.addHeading(0)
+text48366.addOpacity(100)
+text48366.arrCSSStyles = new Array();
+text48366.arrCSSStyles.push('span.text48366Font1 { font-size:21px; font-family:"Montserrat"; color:#000000;}');
+text48366.arrCSSStyles.push('span.text48366Font2 { font-size:16px; font-family:"Arial", sans-serif; color:#010101;}');
+text48366.addInnerText('<div id=\"text48366\" aria-hidden=\"true\" ><a id=\"text48366anc\" style=\"display:block;height:0px;width:0px;\"></a>\n<label id=\"label48367id\" for=\"radio48367id\" ><p  style=\"margin-left:0px;text-indent:0px;margin-top:0px;margin-bottom:0px;text-align:left;\" >\n<span class=\"text48366Font1\"  >2 jam</span ><span class=\"text48366Font2\" style=\"background-color:transparent\" >\n</span ></p >\n</label></div>\n');
+text48366.build()
+
+radio48367 = new ObjInline('radio48367',null,(is.ie?98:97),(is.ie?1876:1875),null,null,1,46, 0, null, null, 0)
+radio48367.arrCSSStyles = new Array();
+radio48367.arrCSSStyles.push('');
+radio48367.build()
+
+text48368 = new ObjText('text48368',null,393,1821,167,37,1,47,null,'div',null,0 )
+text48368.initSLine(1)
+text48368.initHasBullet(0)
+text48368.initRotateAngle(0,0,0)
+text48368.initHasOuterShadow(0)
+text48368.initHasTextShadow(0)
+text48368.initHasBorder(0)
+text48368.initHasOutline(0)
+text48368.initHasMargin(0)
+text48368.addIe8Attr(393, 1821, 167, 37, 0, 0)
+text48368.addHeading(0)
+text48368.addOpacity(100)
+text48368.arrCSSStyles = new Array();
+text48368.arrCSSStyles.push('span.text48368Font1 { font-size:21px; font-family:"Montserrat"; color:#000000;}');
+text48368.arrCSSStyles.push('span.text48368Font2 { font-size:16px; font-family:"Arial", sans-serif; color:#010101;}');
+text48368.addInnerText('<div id=\"text48368\" aria-hidden=\"true\" ><a id=\"text48368anc\" style=\"display:block;height:0px;width:0px;\"></a>\n<label id=\"label48369id\" for=\"radio48369id\" ><p  style=\"margin-left:0px;text-indent:0px;margin-top:0px;margin-bottom:0px;text-align:left;\" >\n<span class=\"text48368Font1\"  >4 jam</span ><span class=\"text48368Font2\" style=\"background-color:transparent\" >\n</span ></p >\n</label></div>\n');
+text48368.build()
+
+radio48369 = new ObjInline('radio48369',null,(is.ie?363:362),(is.ie?1824:1823),null,null,1,48, 0, null, null, 0)
+radio48369.arrCSSStyles = new Array();
+radio48369.arrCSSStyles.push('');
+radio48369.build()
+
+text48370 = new ObjText('text48370',null,393,1873,178,37,1,49,null,'div',null,0 )
+text48370.initSLine(1)
+text48370.initHasBullet(0)
+text48370.initRotateAngle(0,0,0)
+text48370.initHasOuterShadow(0)
+text48370.initHasTextShadow(0)
+text48370.initHasBorder(0)
+text48370.initHasOutline(0)
+text48370.initHasMargin(0)
+text48370.addIe8Attr(393, 1873, 178, 37, 0, 0)
+text48370.addHeading(0)
+text48370.addOpacity(100)
+text48370.arrCSSStyles = new Array();
+text48370.arrCSSStyles.push('span.text48370Font1 { font-size:21px; font-family:"Montserrat"; color:#000000;}');
+text48370.arrCSSStyles.push('span.text48370Font2 { font-size:16px; font-family:"Arial", sans-serif; color:#010101;}');
+text48370.addInnerText('<div id=\"text48370\" aria-hidden=\"true\" ><a id=\"text48370anc\" style=\"display:block;height:0px;width:0px;\"></a>\n<label id=\"label48371id\" for=\"radio48371id\" ><p  style=\"margin-left:0px;text-indent:0px;margin-top:0px;margin-bottom:0px;text-align:left;\" >\n<span class=\"text48370Font1\"  >8 jam</span ><span class=\"text48370Font2\" style=\"background-color:transparent\" >\n</span ></p >\n</label></div>\n');
+text48370.build()
+
+radio48371 = new ObjInline('radio48371',null,(is.ie?363:362),(is.ie?1876:1875),null,null,1,50, 0, null, null, 0)
+radio48371.arrCSSStyles = new Array();
+radio48371.arrCSSStyles.push('');
+radio48371.build()
+
+var trivQuestionArray=[qu48108,qu48178,qu48259,qu48297,qu48362];
+arObjs.push(text80151);
+arObjs.push(button48493);
+arObjs.push(button48487);
+arObjs.push(image130175);
+arObjs.push(qu48108);
+arObjs.push(qu48108);
+arObjs.push(text48109);
+arObjs.push(text48110);
+arObjs.push(radio48111);
+arObjs.push(radio48111);
+arObjs.push(radio48111);
+arObjs.push(text48112);
+arObjs.push(radio48113);
+arObjs.push(radio48113);
+arObjs.push(radio48113);
+arObjs.push(text48114);
+arObjs.push(radio48115);
+arObjs.push(radio48115);
+arObjs.push(radio48115);
+arObjs.push(text48116);
+arObjs.push(radio48117);
+arObjs.push(radio48117);
+arObjs.push(radio48117);
+arObjs.push(qu48178);
+arObjs.push(qu48178);
+arObjs.push(text48179);
+arObjs.push(text48180);
+arObjs.push(radio48181);
+arObjs.push(radio48181);
+arObjs.push(radio48181);
+arObjs.push(text48182);
+arObjs.push(radio48183);
+arObjs.push(radio48183);
+arObjs.push(radio48183);
+arObjs.push(text48184);
+arObjs.push(radio48185);
+arObjs.push(radio48185);
+arObjs.push(radio48185);
+arObjs.push(text48186);
+arObjs.push(radio48187);
+arObjs.push(radio48187);
+arObjs.push(radio48187);
+arObjs.push(qu48259);
+arObjs.push(qu48259);
+arObjs.push(text48260);
+arObjs.push(text48261);
+arObjs.push(radio48262);
+arObjs.push(radio48262);
+arObjs.push(radio48262);
+arObjs.push(text48263);
+arObjs.push(radio48264);
+arObjs.push(radio48264);
+arObjs.push(radio48264);
+arObjs.push(text48265);
+arObjs.push(radio48266);
+arObjs.push(radio48266);
+arObjs.push(radio48266);
+arObjs.push(text48267);
+arObjs.push(radio48268);
+arObjs.push(radio48268);
+arObjs.push(radio48268);
+arObjs.push(qu48297);
+arObjs.push(qu48297);
+arObjs.push(text48298);
+arObjs.push(text48299);
+arObjs.push(radio48300);
+arObjs.push(radio48300);
+arObjs.push(radio48300);
+arObjs.push(text48301);
+arObjs.push(radio48302);
+arObjs.push(radio48302);
+arObjs.push(radio48302);
+arObjs.push(text48303);
+arObjs.push(radio48304);
+arObjs.push(radio48304);
+arObjs.push(radio48304);
+arObjs.push(text48305);
+arObjs.push(radio48306);
+arObjs.push(radio48306);
+arObjs.push(radio48306);
+arObjs.push(qu48362);
+arObjs.push(qu48362);
+arObjs.push(text48363);
+arObjs.push(text48364);
+arObjs.push(radio48365);
+arObjs.push(radio48365);
+arObjs.push(radio48365);
+arObjs.push(text48366);
+arObjs.push(radio48367);
+arObjs.push(radio48367);
+arObjs.push(radio48367);
+arObjs.push(text48368);
+arObjs.push(radio48369);
+arObjs.push(radio48369);
+arObjs.push(radio48369);
+arObjs.push(text48370);
+arObjs.push(radio48371);
+arObjs.push(radio48371);
+arObjs.push(radio48371);
+
+
+writeStyleSheets(arObjs);}
+// -->
+
+</script>
+</head>
+
+<body onfocus="trivOnFocus()" onResize="ReFlow()">
+
+    <DIV style="visibility:hidden;" id="pageDIV" class="pageDIV">
+   </DIV>
+<script>
+if( is.min ){
+    findWH()
+    var left = (winW > 786) ? (winW-786)/2 : 0
+    document.write('<style type="text/css">.pageDIV { position: absolute; top:0px; left: ' + left + 'px; width:786px; height:2178px; clip:rect(0px 786px 2178px 0px); overflow:hidden;' )
+    if(is.iOS)
+		document.write('-webkit-text-size-adjust:100%;')
+    document.write('} </style>')
+}
+</script>
+
+<script>
+if( is.min ){
+    appendElement(text80151, null, null);
+    appendElement(button48493, null, null);
+    appendElement(button48487, null, null);
+    appendElement(image130175, null, null);
+    appendElement( qu48108, '<fieldset id="qu48108_fieldset" style="border:0;"></fieldset>', '<div id="qu48108"><a id="qu48108anc"></a></div>');
+    appendElement(text48109, '<fieldset id="qu48108_fieldset" style="border:0;"></fieldset>', null);
+    appendElement(text48110, '<fieldset id="qu48108_fieldset" style="border:0;"></fieldset>', null);
+    appendElement(null, '<fieldset id="qu48108_fieldset" style="border:0;"></fieldset>', '<div id="radio48111"><a id="radio48111anc"></a></div>');
+    appendElement(null, radio48111.div, '<input type="radio" name="qu48108" id="radio48111id" value="(i)" onClick="Update_qu48108(this.value);doImmFeedback(\'qu48108\');" >');
+    appendElement(text48112, '<fieldset id="qu48108_fieldset" style="border:0;"></fieldset>', null);
+    appendElement(null, '<fieldset id="qu48108_fieldset" style="border:0;"></fieldset>', '<div id="radio48113"><a id="radio48113anc"></a></div>');
+    appendElement(null, radio48113.div, '<input type="radio" name="qu48108" id="radio48113id" value="(ii)" onClick="Update_qu48108(this.value);doImmFeedback(\'qu48108\');" >');
+    appendElement(text48114, '<fieldset id="qu48108_fieldset" style="border:0;"></fieldset>', null);
+    appendElement(null, '<fieldset id="qu48108_fieldset" style="border:0;"></fieldset>', '<div id="radio48115"><a id="radio48115anc"></a></div>');
+    appendElement(null, radio48115.div, '<input type="radio" name="qu48108" id="radio48115id" value="(i) dan (ii)" onClick="Update_qu48108(this.value);doImmFeedback(\'qu48108\');" >');
+    appendElement(text48116, '<fieldset id="qu48108_fieldset" style="border:0;"></fieldset>', null);
+    appendElement(null, '<fieldset id="qu48108_fieldset" style="border:0;"></fieldset>', '<div id="radio48117"><a id="radio48117anc"></a></div>');
+    appendElement(null, radio48117.div, '<input type="radio" name="qu48108" id="radio48117id" value="Tidak ada yang benar" onClick="Update_qu48108(this.value);doImmFeedback(\'qu48108\');" >');
+    appendElement( qu48178, '<fieldset id="qu48178_fieldset" style="border:0;"></fieldset>', '<div id="qu48178"><a id="qu48178anc"></a></div>');
+    appendElement(text48179, '<fieldset id="qu48178_fieldset" style="border:0;"></fieldset>', null);
+    appendElement(text48180, '<fieldset id="qu48178_fieldset" style="border:0;"></fieldset>', null);
+    appendElement(null, '<fieldset id="qu48178_fieldset" style="border:0;"></fieldset>', '<div id="radio48181"><a id="radio48181anc"></a></div>');
+    appendElement(null, radio48181.div, '<input type="radio" name="qu48178" id="radio48181id" value="Jus jeruk A ditambah dua sendok gula dari jus jeruk B" onClick="Update_qu48178(this.value);doImmFeedback(\'qu48178\');" >');
+    appendElement(text48182, '<fieldset id="qu48178_fieldset" style="border:0;"></fieldset>', null);
+    appendElement(null, '<fieldset id="qu48178_fieldset" style="border:0;"></fieldset>', '<div id="radio48183"><a id="radio48183anc"></a></div>');
+    appendElement(null, radio48183.div, '<input type="radio" name="qu48178" id="radio48183id" value="Rasa manis jus jeruk A dua kali lipat dari jus jeruk B" onClick="Update_qu48178(this.value);doImmFeedback(\'qu48178\');" >');
+    appendElement(text48184, '<fieldset id="qu48178_fieldset" style="border:0;"></fieldset>', null);
+    appendElement(null, '<fieldset id="qu48178_fieldset" style="border:0;"></fieldset>', '<div id="radio48185"><a id="radio48185anc"></a></div>');
+    appendElement(null, radio48185.div, '<input type="radio" name="qu48178" id="radio48185id" value="Jus jeruk B lebih manis daripada jus jeruk A" onClick="Update_qu48178(this.value);doImmFeedback(\'qu48178\');" >');
+    appendElement(text48186, '<fieldset id="qu48178_fieldset" style="border:0;"></fieldset>', null);
+    appendElement(null, '<fieldset id="qu48178_fieldset" style="border:0;"></fieldset>', '<div id="radio48187"><a id="radio48187anc"></a></div>');
+    appendElement(null, radio48187.div, '<input type="radio" name="qu48178" id="radio48187id" value="Kedua jus sama manisnya" onClick="Update_qu48178(this.value);doImmFeedback(\'qu48178\');" >');
+    appendElement( qu48259, '<fieldset id="qu48259_fieldset" style="border:0;"></fieldset>', '<div id="qu48259"><a id="qu48259anc"></a></div>');
+    appendElement(text48260, '<fieldset id="qu48259_fieldset" style="border:0;"></fieldset>', null);
+    appendElement(text48261, '<fieldset id="qu48259_fieldset" style="border:0;"></fieldset>', null);
+    appendElement(null, '<fieldset id="qu48259_fieldset" style="border:0;"></fieldset>', '<div id="radio48262"><a id="radio48262anc"></a></div>');
+    appendElement(null, radio48262.div, '<input type="radio" name="qu48259" id="radio48262id" value="Rp35.000" onClick="Update_qu48259(this.value);doImmFeedback(\'qu48259\');" >');
+    appendElement(text48263, '<fieldset id="qu48259_fieldset" style="border:0;"></fieldset>', null);
+    appendElement(null, '<fieldset id="qu48259_fieldset" style="border:0;"></fieldset>', '<div id="radio48264"><a id="radio48264anc"></a></div>');
+    appendElement(null, radio48264.div, '<input type="radio" name="qu48259" id="radio48264id" value="Rp40.000" onClick="Update_qu48259(this.value);doImmFeedback(\'qu48259\');" >');
+    appendElement(text48265, '<fieldset id="qu48259_fieldset" style="border:0;"></fieldset>', null);
+    appendElement(null, '<fieldset id="qu48259_fieldset" style="border:0;"></fieldset>', '<div id="radio48266"><a id="radio48266anc"></a></div>');
+    appendElement(null, radio48266.div, '<input type="radio" name="qu48259" id="radio48266id" value="Rp45.000" onClick="Update_qu48259(this.value);doImmFeedback(\'qu48259\');" >');
+    appendElement(text48267, '<fieldset id="qu48259_fieldset" style="border:0;"></fieldset>', null);
+    appendElement(null, '<fieldset id="qu48259_fieldset" style="border:0;"></fieldset>', '<div id="radio48268"><a id="radio48268anc"></a></div>');
+    appendElement(null, radio48268.div, '<input type="radio" name="qu48259" id="radio48268id" value="Rp50.000" onClick="Update_qu48259(this.value);doImmFeedback(\'qu48259\');" >');
+    appendElement( qu48297, '<fieldset id="qu48297_fieldset" style="border:0;"></fieldset>', '<div id="qu48297"><a id="qu48297anc"></a></div>');
+    appendElement(text48298, '<fieldset id="qu48297_fieldset" style="border:0;"></fieldset>', null);
+    appendElement(text48299, '<fieldset id="qu48297_fieldset" style="border:0;"></fieldset>', null);
+    appendElement(null, '<fieldset id="qu48297_fieldset" style="border:0;"></fieldset>', '<div id="radio48300"><a id="radio48300anc"></a></div>');
+    appendElement(null, radio48300.div, '<input type="radio" name="qu48297" id="radio48300id" value="4 hari" onClick="Update_qu48297(this.value);doImmFeedback(\'qu48297\');" >');
+    appendElement(text48301, '<fieldset id="qu48297_fieldset" style="border:0;"></fieldset>', null);
+    appendElement(null, '<fieldset id="qu48297_fieldset" style="border:0;"></fieldset>', '<div id="radio48302"><a id="radio48302anc"></a></div>');
+    appendElement(null, radio48302.div, '<input type="radio" name="qu48297" id="radio48302id" value="6 hari" onClick="Update_qu48297(this.value);doImmFeedback(\'qu48297\');" >');
+    appendElement(text48303, '<fieldset id="qu48297_fieldset" style="border:0;"></fieldset>', null);
+    appendElement(null, '<fieldset id="qu48297_fieldset" style="border:0;"></fieldset>', '<div id="radio48304"><a id="radio48304anc"></a></div>');
+    appendElement(null, radio48304.div, '<input type="radio" name="qu48297" id="radio48304id" value="8 hari" onClick="Update_qu48297(this.value);doImmFeedback(\'qu48297\');" >');
+    appendElement(text48305, '<fieldset id="qu48297_fieldset" style="border:0;"></fieldset>', null);
+    appendElement(null, '<fieldset id="qu48297_fieldset" style="border:0;"></fieldset>', '<div id="radio48306"><a id="radio48306anc"></a></div>');
+    appendElement(null, radio48306.div, '<input type="radio" name="qu48297" id="radio48306id" value="9 hari" onClick="Update_qu48297(this.value);doImmFeedback(\'qu48297\');" >');
+    appendElement( qu48362, '<fieldset id="qu48362_fieldset" style="border:0;"></fieldset>', '<div id="qu48362"><a id="qu48362anc"></a></div>');
+    appendElement(text48363, '<fieldset id="qu48362_fieldset" style="border:0;"></fieldset>', null);
+    appendElement(text48364, '<fieldset id="qu48362_fieldset" style="border:0;"></fieldset>', null);
+    appendElement(null, '<fieldset id="qu48362_fieldset" style="border:0;"></fieldset>', '<div id="radio48365"><a id="radio48365anc"></a></div>');
+    appendElement(null, radio48365.div, '<input type="radio" name="qu48362" id="radio48365id" value="1 jam" onClick="Update_qu48362(this.value);doImmFeedback(\'qu48362\');" >');
+    appendElement(text48366, '<fieldset id="qu48362_fieldset" style="border:0;"></fieldset>', null);
+    appendElement(null, '<fieldset id="qu48362_fieldset" style="border:0;"></fieldset>', '<div id="radio48367"><a id="radio48367anc"></a></div>');
+    appendElement(null, radio48367.div, '<input type="radio" name="qu48362" id="radio48367id" value="2 jam" onClick="Update_qu48362(this.value);doImmFeedback(\'qu48362\');" >');
+    appendElement(text48368, '<fieldset id="qu48362_fieldset" style="border:0;"></fieldset>', null);
+    appendElement(null, '<fieldset id="qu48362_fieldset" style="border:0;"></fieldset>', '<div id="radio48369"><a id="radio48369anc"></a></div>');
+    appendElement(null, radio48369.div, '<input type="radio" name="qu48362" id="radio48369id" value="4 jam" onClick="Update_qu48362(this.value);doImmFeedback(\'qu48362\');" >');
+    appendElement(text48370, '<fieldset id="qu48362_fieldset" style="border:0;"></fieldset>', null);
+    appendElement(null, '<fieldset id="qu48362_fieldset" style="border:0;"></fieldset>', '<div id="radio48371"><a id="radio48371anc"></a></div>');
+    appendElement(null, radio48371.div, '<input type="radio" name="qu48362" id="radio48371id" value="8 jam" onClick="Update_qu48362(this.value);doImmFeedback(\'qu48362\');" >');
+}
+</script>
+
+</body>
+</html>

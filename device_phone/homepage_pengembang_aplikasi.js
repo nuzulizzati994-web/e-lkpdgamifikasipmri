@@ -1,0 +1,36 @@
+PhoneResponsive={"785":{
+"pageLayer":{"w":480,"h":3269,"bgColor":"#ffffff"}
+,
+"text78098":{"x":357,"y":3246,"w":401,"h":23,"txtscale":100,"bOffBottom":0}
+,
+"button6766":{"x":403,"y":94,"w":41.000000,"h":41.000000,"stylemods":[{"sel":"div.button6766Text","decl":" { position:fixed; left:10px; top:4px; width:20px; height:32px;}"},{"sel":"span.button6766Text","decl":" { display:table-cell; position:relative; width:20px; height:32px; vertical-align:middle; text-align:center; line-height:16px; font-size:16px; font-family:\"Lucida Sans Unicode\"; color:#ffffff;}"}],"bOffBottom":0  ,"td": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACkAAAApCAYAAACoYAD2AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAdSURBVFhH7cExAQAAAMKg9U9tB2+gAAAAAAAA4DQabQABsh9w1AAAAABJRU5ErkJggg==" ,"tdO": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACkAAAApCAYAAACoYAD2AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAdSURBVFhH7cExAQAAAMKg9U9tB2+gAAAAAAAA4DQabQABsh9w1AAAAABJRU5ErkJggg==" ,"tdD": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACsAAAArCAYAAADhXXHAAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAeSURBVFhH7cEBDQAAAMKg909tDwcUAAAAAAAAwKUBHQ8AARruXL0AAAAASUVORK5CYII=" ,"tdDi": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACkAAAApCAYAAACoYAD2AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAdSURBVFhH7cExAQAAAMKg9U9tB2+gAAAAAAAA4DQabQABsh9w1AAAAABJRU5ErkJggg=="  ,"fd": "" ,"fdO": "" ,"fdD": "" ,"fdDi": "" ,"p": "M 0.000000 20.000000 L 0.437500 16.000000 L 1.562500 12.250000 L 3.437500 8.812500 L 5.875000 5.875000 L 8.812500 3.437500 L 12.250000 1.562500 L 16.000000 0.437500 L 20.000000 0.000000 L 24.062500 0.437500 L 27.812500 1.562500 L 31.187500 3.437500 L 34.125000 5.875000 L 36.562500 8.812500 L 38.437500 12.250000 L 39.625000 16.000000 L 40.000000 20.000000 L 39.625000 24.062500 L 38.437500 27.812500 L 36.562500 31.187500 L 34.125000 34.125000 L 31.187500 36.562500 L 27.812500 38.437500 L 24.062500 39.625000 L 20.000000 40.000000 L 16.000000 39.625000 L 12.250000 38.437500 L 8.812500 36.562500 L 5.875000 34.125000 L 3.437500 31.187500 L 1.562500 27.812500 L 0.437500 24.062500 L 0.000000 20.000000 z"}
+,
+"":{"x":122,"y":71,"w":300,"h":200,"bOffBottom":0}
+,
+"image90985":{"x":0,"y":1,"w":482,"h":766,"bOffBottom":0,"i":"images/developer-page.png"}
+,
+"RCDResetQuestion":function(){
+try{if(window.dragMgr)window.dragMgr.clearDropZones();}catch(e){if(e&&e.message)console.log(e.message);}
+}
+,
+"RCDResultResize":function(){}
+,"preload":[]
+},
+"480":{
+"pageLayer":{"w":480,"h":766,"bgColor":"#ffffff"}
+,
+"text78098":{"x":200,"y":735,"w":245,"h":16,"txtscale":100,"bOffBottom":0}
+,
+"button6766":{"x":403,"y":94,"w":41.000000,"h":41.000000,"stylemods":[{"sel":"div.button6766Text","decl":" { position:fixed; left:10px; top:4px; width:20px; height:32px;}"},{"sel":"span.button6766Text","decl":" { display:table-cell; position:relative; width:20px; height:32px; vertical-align:middle; text-align:center; line-height:16px; font-size:16px; font-family:\"Lucida Sans Unicode\"; color:#ffffff;}"}],"bOffBottom":0  ,"td": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACkAAAApCAYAAACoYAD2AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAdSURBVFhH7cExAQAAAMKg9U9tB2+gAAAAAAAA4DQabQABsh9w1AAAAABJRU5ErkJggg==" ,"tdO": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACkAAAApCAYAAACoYAD2AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAdSURBVFhH7cExAQAAAMKg9U9tB2+gAAAAAAAA4DQabQABsh9w1AAAAABJRU5ErkJggg==" ,"tdD": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACsAAAArCAYAAADhXXHAAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAeSURBVFhH7cEBDQAAAMKg909tDwcUAAAAAAAAwKUBHQ8AARruXL0AAAAASUVORK5CYII=" ,"tdDi": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACkAAAApCAYAAACoYAD2AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAdSURBVFhH7cExAQAAAMKg9U9tB2+gAAAAAAAA4DQabQABsh9w1AAAAABJRU5ErkJggg=="  ,"fd": "" ,"fdO": "" ,"fdD": "" ,"fdDi": "" ,"p": "M 0.000000 20.000000 L 0.437500 16.000000 L 1.562500 12.250000 L 3.437500 8.812500 L 5.875000 5.875000 L 8.812500 3.437500 L 12.250000 1.562500 L 16.000000 0.437500 L 20.000000 0.000000 L 24.062500 0.437500 L 27.812500 1.562500 L 31.187500 3.437500 L 34.125000 5.875000 L 36.562500 8.812500 L 38.437500 12.250000 L 39.625000 16.000000 L 40.000000 20.000000 L 39.625000 24.062500 L 38.437500 27.812500 L 36.562500 31.187500 L 34.125000 34.125000 L 31.187500 36.562500 L 27.812500 38.437500 L 24.062500 39.625000 L 20.000000 40.000000 L 16.000000 39.625000 L 12.250000 38.437500 L 8.812500 36.562500 L 5.875000 34.125000 L 3.437500 31.187500 L 1.562500 27.812500 L 0.437500 24.062500 L 0.000000 20.000000 z"}
+,
+"":{"x":122,"y":71,"w":300,"h":200,"bOffBottom":0}
+,
+"image90985":{"x":0,"y":-2,"w":482,"h":766,"bOffBottom":0,"i":"images/developer-page.png"}
+,
+"RCDResetQuestion":function(){
+try{if(window.dragMgr)window.dragMgr.clearDropZones();}catch(e){if(e&&e.message)console.log(e.message);}
+}
+,
+"RCDResultResize":function(){}
+,"preload":[]
+}}

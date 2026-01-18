@@ -1,0 +1,788 @@
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link
+  href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300..700&display=swap"
+  rel="stylesheet"
+/>
+<style>
+  .no-border input {
+    font-family: "Fredoka" !important;
+    border: none;
+    outline: none;
+  }
+  .circle-paint {
+    height: 100px;
+    width: 100px;
+    border-radius: 1000px;
+    background: #000000;
+    transition: all 0.3s ease;
+  }
+</style>
+<script>
+  function safeParseMaybeString(v) {
+    if (typeof v === "string") {
+      try {
+        return JSON.parse(v);
+      } catch {
+        return v;
+      }
+    }
+    return v;
+  }
+  window.ip = function () {
+    if (typeof Varip === "undefined") return null;
+    return Varip.getValue();
+  };
+  document.addEventListener("DOMContentLoaded", async () => {
+    const api = axios.create({
+      baseURL: `https://${ip()}/api`,
+      timeout: 10000,
+    });
+    api.interceptors.request.use(
+      (config) => {
+        try {
+          if (window.VarToken?.getValue) {
+            const token = VarToken.getValue();
+            if (token) {
+              config.headers.Authorization = `Bearer ${token}`;
+            }
+          }
+        } catch (e) {
+          console.warn("Token belum siap");
+        }
+        return config;
+      },
+      (error) => Promise.reject(error)
+    );
+    window.api = api;
+    async function check() {
+      try {
+        const token = VarToken.getValue();
+        const request = await api.post("/auth/check", {
+          token,
+        });
+        if (
+          request.data.status == "failed" &&
+          !window.location.href.includes("login")
+        ) {
+          trivExitPage("splash_screen_login_page_login.html", true);
+        }
+        if (request.data.status == "success") {
+          if (window.location.href.includes("login") && !window.location.href.includes("page_splash")) {
+            trivExitPage("homepage_homepage.html", true);
+          }
+          Varpoints.set(JSON.stringify(request.data.progress.points));
+          Varstage.set(request.data.progress.stage);
+          totalPoints(request.data.progress.points);
+        }
+      } catch (error) {
+        console.error("Error:", error);
+      }
+    }
+    await check();
+    let pointsRaw =
+      typeof Varpoints !== "undefined" ? Varpoints.getValue() : "{}";
+    let points = safeParseMaybeString(pointsRaw);
+    if (!points || typeof points !== "object") points = {};
+    console.log("initial points:", points);
+    function ipLocal() {
+      return typeof Varip !== "undefined" ? Varip.getValue() : null;
+    }
+    function essay(array, answer, kasus, quest, point) {
+      let acc = 0;
+      const lowerAns = (answer || "").toLowerCase();
+      array.forEach((item) => {
+        const check = item.some((key) => {
+          if (typeof key === "object") {
+            let checker = false;
+            key.forEach((value) => {
+              if (lowerAns.includes(value)) checker = true;
+              else {
+                checker = false;
+                return;
+              }
+            });
+            return checker;
+          } else {
+            return lowerAns.includes(key);
+          }
+        });
+        if (check) acc += point;
+      });
+      setPoint(kasus, quest, acc);
+    }
+    async function setPoint(kasus, quest, pointValue) {
+      try {
+        const temp = points["case" + kasus] || {};
+        temp[quest] = pointValue;
+        points["case" + kasus] = temp;
+        if (typeof Varpoints !== "undefined") {
+          Varpoints.set(JSON.stringify(points));
+        }
+        console.log("points updated:", points);
+        const data = collectPageValues();
+        const stage = parseInt(Varstage.getValue());
+        const request = await api.post(
+          "https://" + ip() + "/api/progress/save",
+          {
+            caseId: kasus,
+            data,
+            point: points,
+            stage,
+          }
+        );
+        if (request.status == 200) {
+          console.log("Success");
+        }
+      } catch (error) {
+        console.error("Error:", error);
+      }
+    }
+    async function casePoints(kasus, minPoint) {
+      try {
+        const target = points["case" + kasus] || {};
+        const point =
+          Object.keys(target).length > 0
+            ? Object.values(target).reduce((a, b) => a + b, 0)
+            : 0;
+            let totalPoint = 0;
+        Object.values(points).forEach((point) => {
+          totalPoint += Object.values(point).reduce((a, b) => a + b, 0);
+        });
+        if (typeof VarTotalPoint !== "undefined") VarTotalPoint.set(totalPoint);
+        if (typeof VarFinalPoint !== "undefined") VarFinalPoint.set(point);
+        console.log(point, minPoint);
+        const status = point >= minPoint;
+        if (status) Varstage.set(kasus);
+        const data = collectPageValues();
+        const stage = Varstage. getValue()
+        const request = await api.post(
+          "https://" + ip() + "/api/progress/save",
+          {
+            caseId: kasus,
+            data,
+            point: points,
+            stage: stage && kasus,
+          }
+        );
+        if (request.status == 200) {
+          console.log("Success");
+        }
+        trivExitPage(
+          `kasus_${kasus}_result_${kasus}${status ? "" : "x"}.html`,
+          true
+        );
+      } catch (error) {
+        console.error("Error:", error);
+      }
+    }
+    function totalPoints(data) {
+     
+      let total = 0;
+      Object.values(data || points).forEach((k) => {
+        total += Object.values(k).reduce((a, b) => a + b, 0);
+      });
+      console.log(data)
+      console.log(total)
+      VarTotalPoint.set(total);
+    }
+    function pt(status, kasus, quest, point) {
+      const newPoint = status && point ? point : 0;
+      setPoint(kasus, quest, newPoint);
+    }
+    function dl(ratio, kasus, quest, point, ...value) {
+      const dec = ratio.reduce((a, b) => a / b);
+      const valueRatio = value.reduce((a, b) => a / b);
+      const newPoint = dec === valueRatio ? point : 0;
+      setPoint(kasus, quest, newPoint);
+    }
+    function collectPageValues() {
+      let data = {};
+      let droplist = [];
+      for (let key in window) {
+        if (key.startsWith("Var")) {
+          try {
+            let varObj = window[key];
+            if (varObj && typeof varObj.getValue === "function") {
+              let cleanName = key.replace("Var", "");
+              let arrayName = cleanName.split("_");
+              console.log(cleanName);
+              console.log("a");
+              const allow = ["q", "droplist", "e", "i", "c", "k", "f"];
+              const filter = allow.filter((v) => arrayName[2] == v);
+              if (filter.length !== 0 && arrayName.length >= 3) {
+                console.log(arrayName);
+                if (arrayName[2] == "droplist") {
+                  const refKey =
+                    "Var" + cleanName.split("_").slice(0, -1).join("_");
+                  if (!droplist.includes(refKey)) {
+                    droplist.push(refKey);
+                    const droplistValue = Object.keys(window)
+                      .filter((k) => k.startsWith(refKey))
+                      .map((k) => window[k].getValue())
+                      .join(";");
+                    data[arrayName[1]] = droplistValue;
+                  }
+                } else {
+                  data[arrayName[1]] = varObj.getValue();
+                }
+              }
+            }
+          } catch (e) {
+            console.log("skip:", key);
+          }
+        }
+      }
+      console.log("All page values:", data);
+      return data;
+    }
+    async function login() {
+      const url = "https://" + ip() + "/api/auth/login";
+      const username =  Varusername_1.getValue();
+      const password =  Varpassword_1.getValue();
+      await axios
+        .post(url, { username, password })
+        .then(async function (response) {
+          console.log("Login sukses:", response.data);
+          if (response.data && response.data.token) {
+            VarToken.set(response.data.token);
+            await check()
+            trivExitPage("homepage_homepage.html", true);
+          } else {
+            alert("Login gagal: token tidak ditemukan.");
+          }
+        })
+        .catch(function (error) {
+          console.error("Error:", error);
+          if (error.response) {
+            alert("Login gagal: " + error.response.data.message);
+          } else {
+            alert("Tidak bisa terhubung ke server!");
+          }
+        });
+    }
+    async function signup() {
+      const url = "https://" + ip() + "/api/auth/signup";
+      const username = Varusername_1.getValue();
+      const password = Varpassword_1.getValue();
+      axios
+        .post(url, { username, password })
+        .then(function (response) {
+          console.log("Login sukses:", response.data);
+          if (response.data && response.data.token) {
+            VarToken.set(response.data.token);
+            trivExitPage("homepage_homepage.html", true);
+          } else {
+            alert("Login gagal: token tidak ditemukan.");
+          }
+        })
+        .catch(function (error) {
+          console.error("Error:", error);
+          if (error.response) {
+            alert("Login gagal: " + error.response.data.message);
+          } else {
+            alert("Tidak bisa terhubung ke server!");
+          }
+        });
+    }
+    window.collectPageValues = collectPageValues;
+    window.ip = ipLocal;
+    window.pt = pt;
+    window.essay = essay;
+    window.dl = dl;
+    window.casePoints = casePoints;
+    window.login = login;
+    window.signup = signup;
+    window.totalPoint = totalPoints;
+  });
+</script>
+<!DOCTYPE html>
+<html lang="en">
+<!--GENERATED BY:  Lectora Inspire v.18.2.3(11897) (http://www.trivantis.com) -->
+<!--TITLE: C:\Users\Nuzul Izzati\OneDrive\Documents\My Titles -->
+
+
+<head>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta charset="utf-8" />
+<meta name="viewport" content=" minimum-scale = 1.0 , initial-scale= 1" />
+<meta http-equiv="Page-Enter" content="revealTrans(Transition=34,Duration=4.0)">
+<title>LOGIN</title>
+
+<link rel="stylesheet" href="trivantis.css" type="text/css" />
+<style type="text/css">
+</style>
+
+<!--[if lt IE 7]>
+<style type="text/css">
+    #image86452 img { filter:progid:DXImageTransform.Microsoft.Alpha(opacity=0); }
+    #image86452 { filter:progid:DXImageTransform.Microsoft.AlphaImageLoader(src='images/login-page.png',sizingMethod='scale'); }
+</style>
+<![endif]-->
+
+<!--[if lte IE 9]>
+<script>
+document.namespaces.add('v', 'urn:schemas-microsoft-com:vml', "#default#VML")
+</script>
+<![endif]-->
+
+<script src="trivantis.js"></script>
+<script src="trivantis-timedate.js"></script>
+<script src="es6-promise-2.0.0.min.js"></script>
+<script src="jquery-3.4.1.min.js"></script>
+<script src="trivantis-cookie.js"></script>
+<script src="trivantis-button.js"></script>
+<script src="trivantis-image.js"></script>
+<script src="trivantis-inline.js"></script>
+<script src="trivantis-trans.js"></script>
+<script src="trivantis-pagetracking.js"></script>
+<script src="device_desktop/splash_screen_login_page_login.js"></script>
+<script src="device_tablet/splash_screen_login_page_login.js"></script>
+<script src="device_phone/splash_screen_login_page_login.js"></script>
+<script src="trivantis-strings.js"></script>
+<script src="hammer.js"></script>
+<script>
+
+<!-- 
+
+var hmr = null;
+function initGEV(){
+   hmr = new Hammer(getDisplayDocument().getElementById(GetCurrentPageID()));
+}
+
+var trivPageScope = {};
+var pgID = 'page20066';
+trivWeb20Popups = true;
+var trivPlayer = null;
+var bPageLoaded = false;
+var pageScale = 1;
+var bDisableBrowserResize = false;
+var bScaleToWindow = false;
+var bFitToWidth = false;
+var bFitToMobile = false;
+var pageHeight = 766;
+var bLoadedVariables = false;
+
+var arObjs = [];
+
+if(bDisableBrowserResize && !is.isMobile.any()){
+	var bTrivResponsive = false;
+	saveResponsiveData("Desktop",eval("DesktopResponsive"));
+}
+else{
+	var bTrivResponsive = true;
+	saveResponsiveData("Desktop",eval("DesktopResponsive"));
+	saveResponsiveData("Tablet",eval("TabletResponsive"));
+	saveResponsiveData("Phone",eval("PhoneResponsive"));
+}
+	var viewOverrideMap = {};
+	viewOverrideMap["PhoneLandscape"] = "TabletLandscape";
+ 	viewOverrideMap["TabletPortrait"] = "Desktop";
+ 	viewOverrideMap["TabletLandscape"] = "Desktop";
+ if( !is.min )
+  document.write( 'Your browser does not support dynamic html. Please download a current version of either <a href="http://www.microsoft.com/ie/">Microsoft Internet Explorer</a> or <a href="http://www.mozilla.com/en-US/firefox/">Mozilla Firefox </a> and try visiting our site again.  Thank You.<br /><br />' )
+
+var pageLayer = null
+var winW = getDisplayWindow().screen.width
+var winH = getDisplayWindow().screen.height
+var transformScale = 1
+
+function findWH(){	//echo LD-769
+	if (is.ie9) {
+	var vScrollAdj =  (is.ns ? 16 : 20);
+	winW = (is.ns) ? window.innerWidth - vScrollAdj : document.body.offsetWidth;
+	winH = (is.ns) ? window.innerHeight : document.body.offsetHeight;
+	}
+	else if (is.ie) {
+   winW = Math.max(Math.max(getDisplayDocument().body.scrollWidth, getDisplayDocument().documentElement.scrollWidth)-16,
+					  Math.max(getDisplayDocument().body.offsetWidth, getDisplayDocument().documentElement.offsetWidth)-16,
+					  Math.max(getDisplayDocument().body.clientWidth, getDisplayDocument().documentElement.clientWidth)-16 );
+   winH = Math.max(Math.max(getDisplayDocument().body.scrollHeight, getDisplayDocument().documentElement.scrollHeight)-16,
+					  Math.max(getDisplayDocument().body.offsetHeight, getDisplayDocument().documentElement.offsetHeight)-16,
+					  Math.max(getDisplayDocument().body.clientHeight, getDisplayDocument().documentElement.clientHeight)-16 );
+	}
+	else
+	{
+   winW =  getDisplayDocument().documentElement.clientWidth ? getDisplayDocument().documentElement.clientWidth : getDisplayDocument().body.clientWidth;
+   if(is.iOS && (navigator.userAgent.indexOf('CellCast-iPad') != -1 || navigator.userAgent.indexOf('CellCast-iPhone') != -1) )
+		 winW =  getScreenWidth();
+   winH =  getDisplayDocument().documentElement.clientHeight ? getDisplayDocument().documentElement.clientHeight : getDisplayDocument().body.clientHeight;
+	}
+}
+
+trivSetupPage();
+
+ if( isSppCapable() && window.trivPlayer === null ) setTimeout( function() { var objScrollTo =  trivGetScrollObj(window.location.href); window.location.replace("index.html?jmptopg=splash_screen_login_page_login.html#" + objScrollTo);}, 100)
+ function ReFlow() {
+  findWH()
+  var pageEleWidth = pageLayer.ele.clientWidth;
+  if (  (is.ieAny || is.edge )  && pageLayer.ele.clientWidth == 0 && isSinglePagePlayerAvail()) pageEleWidth = parseFloat(GetPageWidth()) ;
+  if (pageLayer)
+  {
+     if(bTrivResponsive){
+    var left = (winW > pageEleWidth) ? (winW-pageEleWidth)/2 : 0
+    bReviewLink = window.myTop.document.getElementById('vBodyFrame');
+    transformScale = (winW > pageEleWidth) ? 1 : (winW/pageEleWidth) 
+    if(is.isMobile.any() || bReviewLink && typeof(getDisplayWindow().myTop)!='undefined' && getDisplayWindow().myTop._respView != 'Desktop')
+			left = 0
+    if(is.iOS && isInIframe( getDisplayWindow() , 0))
+			transformScale = (getScreenWidth() > pageEleWidth) ? 1 : (getScreenWidth()/pageEleWidth) 
+    var transSty = calculateScale();
+    pageLayer.moveTo( left, 0 );
+    pageLayer.hasMoved = true;
+    pageLayer.newX = left;
+    pageLayer.newY = 0;
+    if(CanScale()){
+       pageLayer.styObj.transform =  transSty;
+       pageLayer.styObj.webkitTransform =  transSty;
+    }else
+       transformScale = 1;
+    pageLayer.styObj.transformOrigin =  '0 0';
+     }
+    if(bDisableBrowserResize && !is.isMobile.any()){
+       var left = (winW > pageEleWidth) ? (winW-pageEleWidth)/2 : 0
+       bReviewLink = window.myTop.document.getElementById('vBodyFrame');
+       if(is.isMobile.any() || bReviewLink && typeof(getDisplayWindow().myTop)!='undefined' && getDisplayWindow().myTop._respView != 'Desktop')
+			left = 0
+       pageLayer.moveTo( left, 0 );
+       pageLayer.hasMoved = true;
+       pageLayer.newX = left;
+       pageLayer.newY = 0;
+    }
+    fillBrowser();
+    adjustAllObjectsForFixedPosition();
+    setfixed();
+  }
+}
+
+var arVariables = [];
+
+VarTrivSelCap = new Variable( 'VarTrivSelCap', 'none', 0, 0, null, null, 'lkpd_gamifikasi', true )
+Varusername_1 = new Variable( 'Varusername_1', '', 0, 0, null, null, 'lkpd_gamifikasi', false )
+Varpassword_1 = new Variable( 'Varpassword_1', '', 0, 0, null, null, 'lkpd_gamifikasi', false )
+VarToken = new Variable( 'VarToken', '', 0, 0, null, null, 'lkpd_gamifikasi', false )
+Varip = new Variable( 'Varip', 'api.epistura.web.id', 0, 0, null, null, 'lkpd_gamifikasi', false )
+Varpoints = new Variable( 'Varpoints', '{}', 0, 0, null, null, 'lkpd_gamifikasi', false )
+VarFinalPoint = new Variable( 'VarFinalPoint', '0', 0, 0, null, null, 'lkpd_gamifikasi', false )
+VarTotalPoint = new Variable( 'VarTotalPoint', '0', 0, 0, null, null, 'lkpd_gamifikasi', false )
+Varstage = new Variable( 'Varstage', '0', 0, 0, null, 365, 'lkpd_gamifikasi', false )
+
+onload = responsiveInit
+detect();
+if( is.webkit && !is.iOSSafari )
+  onbeforeunload = finish
+else
+  onunload = finish
+
+function responsiveInit() {
+  pageLayer = new ObjLayer(GetCurrentPageID());
+  SaveStyles();
+  init();
+  adjustResponsivePage();
+  ReFlow();
+}
+
+function init() {
+  init11();
+}
+
+function init11() {
+  findWH()
+  if( is.min ){
+    trivPageTracking.InitPageTracking();
+    PreloadResources(new Array(button20207,button20704,image86452,entry21538,entry21538,entry21538,entry21538,entry21564,entry21564,entry21564,entry21564))
+    pageLayer.transData = {tOut:0,tNum:34,dur:4,fn:null,ol:0,ot:0,fl:0,ft:0,fr:0,fb:0,il:-1,eff:0, tb:0};
+    if(!isSinglePagePlayerAvail()){
+    if( !is.ie||is.v>8 ) setTimeout( 'pageLayer.doTrans( 0, 34, 4, null, 0, 0, 0, 0, 0, 0, -1, 0, 0 )' , 100 );
+    else pageLayer.show(true);
+    }
+    button20207.init()
+    button20704.init()
+    image86452.init()
+    entry21538.init()
+    entry21538.init()
+    entry21538.init()
+    entry21538.init()
+    entry21564.init()
+    entry21564.init()
+    entry21564.init()
+    entry21564.init()
+    button20207.activate()
+    button20704.activate()
+    image86452.activate()
+    entry21538.activate()
+    entry21538.activate()
+    entry21538.activate()
+    entry21538.activate()
+    entry21564.activate()
+    entry21564.activate()
+    entry21564.activate()
+    entry21564.activate()
+     var objToScroll = trivGetScrollObj(window.location.href) ;
+     trivScrollTo(window, objToScroll);
+    var titleManagerIndexWindow = (window && window.parent && window.parent.bIsTitleManagerIndexFile) ? window.parent : null;
+    if(titleManagerIndexWindow)  trivScrollTo(titleManagerIndexWindow, objToScroll);
+    if(!isSinglePagePlayerAvail()) postPageShowAction();
+    if( location.hash )
+    {
+      var newHash
+      if( location.hash.charAt(0) == '#' )
+        newHash = location.hash.slice( 1 )
+      else
+        newHash = location.hash
+      location.hash = newHash
+      if((typeof(bTrivRunView) != 'undefined'  && bTrivRunView) || (typeof(bTrivOffline) != 'undefined' && bTrivOffline)) window.scrollTo(0 , getTopofObj(document.getElementById(newHash)));
+    }
+    setTimeout( 'trivUpdateTOC( 1 )', 100 )
+    bPageLoaded = true;
+    ReFlow();
+    if(!isSinglePagePlayerAvail())
+       loadActions();
+  }
+  try {initGEV();} catch(e){}
+}
+  window.bLoadedVariables = true;
+function loadActions(){
+    if((window.bPageLoaded && window.bLoadedVariables && getDisplayWindow().pagePlayer &&
+	getDisplayWindow().pagePlayer.arLoadedPages && getDisplayWindow().pagePlayer.arLoadedPages.length == 1) || (window.bPageLoaded && window.bLoadedVariables && !isSinglePagePlayerAvail() )){
+      var valVarusername_1 = Varusername_1.getValue()
+      if(valVarusername_1!='~~~null~~~')entry21538.objLyr.doc.forms["entry21538form"]["username"].value=valVarusername_1
+      var valVarpassword_1 = Varpassword_1.getValue()
+      if(valVarpassword_1!='~~~null~~~')entry21564.objLyr.doc.forms["entry21564form"]["password"].value=valVarpassword_1
+
+       if(typeof(updateFLVPlayer) !== 'undefined') updateFLVPlayer();
+       postPageShowAction();
+    }
+    else
+      setTimeout(loadActions, 100);
+}
+function postPageShowAction(){
+  if ( trivPageTracking.GetRangeStatus(20066) == 'notstarted' ) trivPageTracking.SetRangeStatus(20066,2);
+}  
+
+var trivGoToPage = null
+var trivCompleteCnt = 1;
+var hasProcessedExitActions = false;
+var trivActFBCnt = 0;
+var currFeedbackIdx = 0;
+var trivPageExited = false;
+var trivInTest = false;
+
+function finish() {
+}
+
+function trivOnFocus() {
+    if( trivPageExited ) return
+}
+
+function checkLeavePage() {
+    if( trivPageExited ) return
+    if( trivActFBCnt == 0 )
+    {
+        currFeedbackIdx++;
+        if( currFeedbackIdx > -1)
+        {
+            trivLeavePage();
+          return;
+        }
+        else if( !checkQuestions( true ))
+          return;
+    }
+    setTimeout( 'checkLeavePage()', 100)
+}
+
+function trivExitPage( newPage, bFeedback ) {
+    if( newPage.indexOf( "ObjLayerAction" ) >= 0 || newPage.indexOf( "javascript:app." ) >= 0 || newPage.indexOf( ".action" ) >= 0 || newPage.indexOf( "history.back()" ) >= 0) trivGoToPage = newPage
+    else trivGoToPage = 'ObjLayerActionGoTo("' + newPage + '")'
+    if( !hasProcessedExitActions ) {
+        findWH()
+        hasProcessedExitActions = true
+        setTimeout( 'checkLeavePage()', 100)
+    }
+}
+
+function trivLeavePage() {
+    trivCompleteCnt--
+    if( trivCompleteCnt <= 0 ) {
+        hasProcessedExitActions = false
+        if( trivGoToPage != null )
+        {
+			eval( trivGoToPage )
+			trivGoToPage = null;
+			if( window.closed ) trivPageExited = true;
+        }
+    }
+}
+
+function trivPrevPage() {
+    trivExitPage( 'splash_screen_login_page_splash_screen.html', true )
+}
+
+function trivNextPage() {
+    trivExitPage( 'splash_screen_login_page_sign_up.html', true )
+}
+
+function trivUpdateTOC( bRecurse ) {
+    var i
+}
+
+function trivUpdateEntry() {
+  entry21538.objLyr.doc.forms["entry21538form"]["username"].blur();
+  entry21564.objLyr.doc.forms["entry21564form"]["password"].blur();
+}
+
+function trivResetEntry(entFld) {
+  if ( entFld == null || entFld == entry21538 ) entry21538.objLyr.doc.forms["entry21538form"]["username"].value='';
+  if ( entFld == null || entFld == entry21564 ) entry21564.objLyr.doc.forms["entry21564form"]["password"].value='';
+}
+
+function OnDeviceRotate() {
+
+}
+
+function action20212(fn){
+    trivExitPage('splash_screen_login_page_sign_up.html',true); 
+    if(fn && typeof(fn) == 'string' ) eval(fn);
+    else if(fn && typeof(fn) == 'function' ) fn();
+}
+
+function button20207onUp() {
+  action20212();
+}
+
+function action20705else(fn){
+    
+    if(fn && typeof(fn) == 'string' ) eval(fn);
+    else if(fn && typeof(fn) == 'function' ) fn();
+}
+
+function action20705(fn){
+    if(!Varusername_1.equals('~~~null~~~')&&!Varpassword_1.equals('~~~null~~~'))
+    {try{
+     login(); 
+     } catch (e) {
+     alert('[OnMClkRunJS] ' + e);
+     }
+    }else{ action20705else();}
+    if(fn && typeof(fn) == 'string' ) eval(fn);
+    else if(fn && typeof(fn) == 'function' ) fn();
+}
+
+function button20704onUp() {
+  action20705();
+}
+
+if( is.min ){
+button20207 = new ObjButton('button20207', 'Button_signup1',109,534,265.000000,31.000000,1,17,'div','',1,0)
+button20207.setFillStyle(2)
+button20207.setUniqueFillID('splash_screen_login_page_login_button20207')
+button20207.initRotateAngle(0,0,0,-0.000000,-0.000000,264,30)
+button20207.initHasShadow(0)
+button20207.initHasReflection(0)
+button20207.setImages('images/transbtn.gif', '', '','');
+button20207.setStateOpacity( 0.000000, 0.000000, 0.000000, 0.000000 );
+button20207.addIe8Attr(109.000000, 534.000000, 265.000000, 31.000000, 0, 0)
+button20207.addOpacity(0)
+button20207.initImageMap('15,0,249,0,252,0,255,1,257,3,260,4,261,7,263,9,264,12,264,15,264,15,264,18,263,21,261,23,260,26,257,27,255,29,252,30,249,30,15,30,12,30,9,29,7,28,4,26,3,23,1,21,0,18,0,15,0,15,0,12,1,9,3,7,4,4,7,3,9,1,12,0,15,0','M 15.000000 0.000000 L 249.000000 0.000000 L 252.000000 0.312500 L 254.875000 1.187500 L 257.375000 2.562500 L 259.625000 4.437500 L 261.437500 6.625000 L 262.812500 9.187500 L 263.687500 12.000000 L 264.000000 15.000000 L 264.000000 15.000000 L 263.687500 18.000000 L 262.812500 20.875000 L 261.437500 23.375000 L 259.625000 25.625000 L 257.375000 27.437500 L 254.875000 28.812500 L 252.000000 29.687500 L 249.000000 30.000000 L 15.000000 30.000000 L 12.062500 29.687500 L 9.312500 28.875000 L 6.750000 27.500000 L 4.437500 25.625000 L 2.562500 23.312500 L 1.187500 20.750000 L 0.312500 17.937500 L 0.000000 15.000000 L 0.000000 15.000000 L 0.312500 12.000000 L 1.187500 9.187500 L 2.562500 6.625000 L 4.437500 4.437500 L 6.625000 2.562500 L 9.187500 1.187500 L 12.000000 0.312500 L 15.000000 0.000000 z')
+button20207.setFills('                <pattern id="Picture_splash_screen_login_page_login_button20207" x="0" y="0" width="265.000000" height="31.000000" patternUnits="userSpaceOnUse">                <image xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAQkAAAAfCAYAAAD0kDhWAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAA3SURBVHhe7cExAQAAAMKg9U9tDB+gAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAICjAYB7AAGIGTKpAAAAAElFTkSuQmCC" x="0" y="0" width="265.000000" height="31.000000"  preserveAspectRatio="none"/>           </pattern>       ','                <pattern id="Picture_splash_screen_login_page_login_button20207_over" x="0" y="0" width="265.000000" height="31.000000" patternUnits="userSpaceOnUse">                <image xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAQkAAAAfCAYAAAD0kDhWAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAA3SURBVHhe7cExAQAAAMKg9U9tDB+gAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAICjAYB7AAGIGTKpAAAAAElFTkSuQmCC" x="0" y="0" width="265.000000" height="31.000000"  preserveAspectRatio="none"/>           </pattern>       ','                <pattern id="Picture_splash_screen_login_page_login_button20207_down" x="0" y="0" width="267.000000" height="33.000000" patternUnits="userSpaceOnUse">                <image xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAQsAAAAhCAYAAADOFY62AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAA5SURBVHhe7cEBDQAAAMKg909tDjegAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAI4Nic0AAaB08hcAAAAASUVORK5CYII=" x="0" y="0" width="267.000000" height="33.000000"  preserveAspectRatio="none"/>           </pattern>       ','                <pattern id="Picture_splash_screen_login_page_login_button20207_disabled" x="0" y="0" width="265.000000" height="31.000000" patternUnits="userSpaceOnUse">                <image xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAQkAAAAfCAYAAAD0kDhWAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAA3SURBVHhe7cExAQAAAMKg9U9tDB+gAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAICjAYB7AAGIGTKpAAAAAElFTkSuQmCC" x="0" y="0" width="265.000000" height="31.000000"  preserveAspectRatio="none"/>           </pattern>       ','fill:url(#Picture_splash_screen_login_page_login_button20207);"','fill:url(#Picture_splash_screen_login_page_login_button20207_over);"','stroke:#0963B1; stroke-width:2; stroke-linejoin:round;stroke-dasharray: none; fill:url(#Picture_splash_screen_login_page_login_button20207_down);"','fill:url(#Picture_splash_screen_login_page_login_button20207_disabled);"')
+button20207.setTextVal('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAQkAAAAfCAYAAAD0kDhWAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAA3SURBVHhe7cExAQAAAMKg9U9tDB+gAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAICjAYB7AAGIGTKpAAAAAElFTkSuQmCC' , 'fill:url(#Text_splash_screen_login_page_login_button20207)', 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAQkAAAAfCAYAAAD0kDhWAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAA3SURBVHhe7cExAQAAAMKg9U9tDB+gAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAICjAYB7AAGIGTKpAAAAAElFTkSuQmCC', 'fill:url(#Text_splash_screen_login_page_login_button20207_over)', 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAQsAAAAhCAYAAADOFY62AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAA5SURBVHhe7cEBDQAAAMKg909tDjegAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAI4Nic0AAaB08hcAAAAASUVORK5CYII=', 'fill:url(#Text_splash_screen_login_page_login_button20207_down)', 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAQkAAAAfCAYAAAD0kDhWAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAA3SURBVHhe7cExAQAAAMKg9U9tDB+gAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAICjAYB7AAGIGTKpAAAAAElFTkSuQmCC', 'fill:url(#Text_splash_screen_login_page_login_button20207_disabled)')
+button20207.setBase64Images( 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAQkAAAAfCAYAAAD0kDhWAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAA3SURBVHhe7cExAQAAAMKg9U9tDB+gAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAICjAYB7AAGIGTKpAAAAAElFTkSuQmCC' , 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAQkAAAAfCAYAAAD0kDhWAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAA3SURBVHhe7cExAQAAAMKg9U9tDB+gAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAICjAYB7AAGIGTKpAAAAAElFTkSuQmCC' , 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAQsAAAAhCAYAAADOFY62AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAA5SURBVHhe7cEBDQAAAMKg909tDjegAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAI4Nic0AAaB08hcAAAAASUVORK5CYII=' , 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAQkAAAAfCAYAAAD0kDhWAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAA3SURBVHhe7cExAQAAAMKg9U9tDB+gAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAICjAYB7AAGIGTKpAAAAAElFTkSuQmCC' )
+button20207.setImgFillVal('fill:url(#Picture_splash_screen_login_page_login_button20207)','data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAQkAAAAfCAYAAAD0kDhWAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAA3SURBVHhe7cExAQAAAMKg9U9tDB+gAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAICjAYB7AAGIGTKpAAAAAElFTkSuQmCC','fill:url(#Picture_splash_screen_login_page_login_button20207_over)','data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAQkAAAAfCAYAAAD0kDhWAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAA3SURBVHhe7cExAQAAAMKg9U9tDB+gAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAICjAYB7AAGIGTKpAAAAAElFTkSuQmCC','fill:url(#Picture_splash_screen_login_page_login_button20207_down)','data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAQsAAAAhCAYAAADOFY62AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAA5SURBVHhe7cEBDQAAAMKg909tDjegAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAI4Nic0AAaB08hcAAAAASUVORK5CYII=','fill:url(#Picture_splash_screen_login_page_login_button20207_disabled)','data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAQkAAAAfCAYAAAD0kDhWAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAA3SURBVHhe7cExAQAAAMKg9U9tDB+gAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAICjAYB7AAGIGTKpAAAAAElFTkSuQmCC' )
+button20207.initLineWeight('0')
+button20207.onUp = button20207onUp
+button20207.hasOnUp = true
+button20207.capture=4
+button20207.build()
+
+button20704 = new ObjButton('button20704', 'Button_login1',109,474,263.000000,32.000000,1,18,'div','',1,0)
+button20704.setFillStyle(2)
+button20704.setUniqueFillID('splash_screen_login_page_login_button20704')
+button20704.initRotateAngle(0,0,0,-0.000000,-0.000000,262,31)
+button20704.initHasShadow(0)
+button20704.initHasReflection(0)
+button20704.setImages('images/transbtn.gif', '', '','');
+button20704.setStateOpacity( 0.000000, 0.000000, 0.000000, 0.000000 );
+button20704.addIe8Attr(109.000000, 474.000000, 263.000000, 32.000000, 0, 0)
+button20704.addOpacity(0)
+button20704.initImageMap('15,0,247,0,250,0,253,1,255,3,258,4,259,7,261,9,262,12,262,15,262,16,262,19,261,22,259,24,258,27,255,28,253,30,250,31,247,31,15,31,12,31,9,30,7,29,4,27,3,24,1,22,0,19,0,16,0,15,0,12,1,9,3,7,4,4,7,3,9,1,12,0,15,0','M 15.000000 0.000000 L 247.000000 0.000000 L 250.000000 0.312500 L 252.875000 1.187500 L 255.375000 2.562500 L 257.625000 4.437500 L 259.437500 6.625000 L 260.812500 9.187500 L 261.687500 12.000000 L 262.000000 15.000000 L 262.000000 16.000000 L 261.687500 19.000000 L 260.812500 21.875000 L 259.437500 24.375000 L 257.625000 26.625000 L 255.375000 28.437500 L 252.875000 29.812500 L 250.000000 30.687500 L 247.000000 31.000000 L 15.000000 31.000000 L 12.062500 30.687500 L 9.312500 29.875000 L 6.750000 28.500000 L 4.437500 26.625000 L 2.562500 24.312500 L 1.187500 21.750000 L 0.312500 18.937500 L 0.000000 16.000000 L 0.000000 15.000000 L 0.312500 12.000000 L 1.187500 9.187500 L 2.562500 6.625000 L 4.437500 4.437500 L 6.625000 2.562500 L 9.187500 1.187500 L 12.000000 0.312500 L 15.000000 0.000000 z')
+button20704.setFills('                <pattern id="Picture_splash_screen_login_page_login_button20704" x="0" y="0" width="263.000000" height="32.000000" patternUnits="userSpaceOnUse">                <image xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAQcAAAAgCAYAAAAfdb2dAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAA4SURBVHhe7cExAQAAAMKg9U9tDQ+gAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADg1wCDoAABIaeWZAAAAABJRU5ErkJggg==" x="0" y="0" width="263.000000" height="32.000000"  preserveAspectRatio="none"/>           </pattern>       ','                <pattern id="Picture_splash_screen_login_page_login_button20704_over" x="0" y="0" width="263.000000" height="32.000000" patternUnits="userSpaceOnUse">                <image xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAQcAAAAgCAYAAAAfdb2dAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAA4SURBVHhe7cExAQAAAMKg9U9tDQ+gAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADg1wCDoAABIaeWZAAAAABJRU5ErkJggg==" x="0" y="0" width="263.000000" height="32.000000"  preserveAspectRatio="none"/>           </pattern>       ','                <pattern id="Picture_splash_screen_login_page_login_button20704_down" x="0" y="0" width="265.000000" height="34.000000" patternUnits="userSpaceOnUse">                <image xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAQkAAAAiCAYAAABMdCwlAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAA5SURBVHhe7cEBDQAAAMKg909tDwcUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPBnjOoAAXn+0HkAAAAASUVORK5CYII=" x="0" y="0" width="265.000000" height="34.000000"  preserveAspectRatio="none"/>           </pattern>       ','                <pattern id="Picture_splash_screen_login_page_login_button20704_disabled" x="0" y="0" width="263.000000" height="32.000000" patternUnits="userSpaceOnUse">                <image xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAQcAAAAgCAYAAAAfdb2dAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAA4SURBVHhe7cExAQAAAMKg9U9tDQ+gAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADg1wCDoAABIaeWZAAAAABJRU5ErkJggg==" x="0" y="0" width="263.000000" height="32.000000"  preserveAspectRatio="none"/>           </pattern>       ','fill:url(#Picture_splash_screen_login_page_login_button20704);"','fill:url(#Picture_splash_screen_login_page_login_button20704_over);"','stroke:#0963B1; stroke-width:2; stroke-linejoin:round;stroke-dasharray: none; fill:url(#Picture_splash_screen_login_page_login_button20704_down);"','fill:url(#Picture_splash_screen_login_page_login_button20704_disabled);"')
+button20704.setTextVal('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAQcAAAAgCAYAAAAfdb2dAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAA4SURBVHhe7cExAQAAAMKg9U9tDQ+gAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADg1wCDoAABIaeWZAAAAABJRU5ErkJggg==' , 'fill:url(#Text_splash_screen_login_page_login_button20704)', 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAQcAAAAgCAYAAAAfdb2dAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAA4SURBVHhe7cExAQAAAMKg9U9tDQ+gAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADg1wCDoAABIaeWZAAAAABJRU5ErkJggg==', 'fill:url(#Text_splash_screen_login_page_login_button20704_over)', 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAQkAAAAiCAYAAABMdCwlAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAA5SURBVHhe7cEBDQAAAMKg909tDwcUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPBnjOoAAXn+0HkAAAAASUVORK5CYII=', 'fill:url(#Text_splash_screen_login_page_login_button20704_down)', 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAQcAAAAgCAYAAAAfdb2dAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAA4SURBVHhe7cExAQAAAMKg9U9tDQ+gAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADg1wCDoAABIaeWZAAAAABJRU5ErkJggg==', 'fill:url(#Text_splash_screen_login_page_login_button20704_disabled)')
+button20704.setBase64Images( 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAQcAAAAgCAYAAAAfdb2dAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAA4SURBVHhe7cExAQAAAMKg9U9tDQ+gAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADg1wCDoAABIaeWZAAAAABJRU5ErkJggg==' , 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAQcAAAAgCAYAAAAfdb2dAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAA4SURBVHhe7cExAQAAAMKg9U9tDQ+gAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADg1wCDoAABIaeWZAAAAABJRU5ErkJggg==' , 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAQkAAAAiCAYAAABMdCwlAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAA5SURBVHhe7cEBDQAAAMKg909tDwcUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPBnjOoAAXn+0HkAAAAASUVORK5CYII=' , 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAQcAAAAgCAYAAAAfdb2dAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAA4SURBVHhe7cExAQAAAMKg9U9tDQ+gAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADg1wCDoAABIaeWZAAAAABJRU5ErkJggg==' )
+button20704.setImgFillVal('fill:url(#Picture_splash_screen_login_page_login_button20704)','data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAQcAAAAgCAYAAAAfdb2dAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAA4SURBVHhe7cExAQAAAMKg9U9tDQ+gAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADg1wCDoAABIaeWZAAAAABJRU5ErkJggg==','fill:url(#Picture_splash_screen_login_page_login_button20704_over)','data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAQcAAAAgCAYAAAAfdb2dAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAA4SURBVHhe7cExAQAAAMKg9U9tDQ+gAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADg1wCDoAABIaeWZAAAAABJRU5ErkJggg==','fill:url(#Picture_splash_screen_login_page_login_button20704_down)','data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAQkAAAAiCAYAAABMdCwlAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAA5SURBVHhe7cEBDQAAAMKg909tDwcUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPBnjOoAAXn+0HkAAAAASUVORK5CYII=','fill:url(#Picture_splash_screen_login_page_login_button20704_disabled)','data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAQcAAAAgCAYAAAAfdb2dAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAA4SURBVHhe7cExAQAAAMKg9U9tDQ+gAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADg1wCDoAABIaeWZAAAAABJRU5ErkJggg==' )
+button20704.initLineWeight('0')
+button20704.onUp = button20704onUp
+button20704.hasOnUp = true
+button20704.capture=4
+button20704.build()
+
+image86452 = new ObjImage('image86452','images/login-page.png','login-page',0,-1,482,766,1,4,'div',null, 0 )
+image86452.initRotateAngle(0,0,0,0,0,0,0)
+image86452.initHasShadow(0)
+image86452.initHasReflection(0)
+image86452.addIe8Attr(0, -1, 482, 766, 0, 0)
+image86452.initImageMap(1,'0,0,482,0,482,766,0,766,0,0','M 0 0 L 482 0 L 482 766 L 0 766 L 0 0 z')
+image86452.addBorder(0)
+image86452.addOpacity(100)
+image86452.build()
+
+entry21538 = new ObjInline('entry21538',null,(is.ie?123:123),(is.ie?303:302),null,null,1,5, 0, null, null, 0)
+entry21538.arrCSSStyles = new Array();
+entry21538.arrCSSStyles.push('input.entry21538 { font-size:32px; font-family:"Arial", sans-serif; color:#000000; width:234px; height:26px; -webkit-appearance:none; background-color:transparent; }');
+entry21538.build()
+
+entry21564 = new ObjInline('entry21564',null,(is.ie?123:123),(is.ie?397:396),null,null,1,6, 0, null, null, 0)
+entry21564.arrCSSStyles = new Array();
+entry21564.arrCSSStyles.push('input.entry21564 { font-size:32px; font-family:"Arial", sans-serif; color:#000000; width:232px; height:28px; -webkit-appearance:none; background-color:#feffff; }');
+entry21564.build()
+
+arObjs.push(button20207);
+arObjs.push(button20704);
+arObjs.push(image86452);
+arObjs.push(entry21538);
+arObjs.push(entry21538);
+arObjs.push(entry21538);
+arObjs.push(entry21538);
+arObjs.push(entry21564);
+arObjs.push(entry21564);
+arObjs.push(entry21564);
+arObjs.push(entry21564);
+
+
+writeStyleSheets(arObjs);}
+// -->
+
+</script>
+</head>
+
+<body onfocus="trivOnFocus()" onResize="ReFlow()">
+
+    <DIV style="visibility:hidden;" id="pageDIV" class="pageDIV">
+   </DIV>
+<script>
+if( is.min ){
+    findWH()
+    var left = (winW > 480) ? (winW-480)/2 : 0
+    document.write('<style type="text/css">.pageDIV { position: absolute; top:0px; left: ' + left + 'px; width:480px; height:766px; clip:rect(0px 480px 766px 0px); overflow:hidden;' )
+    if(is.iOS)
+		document.write('-webkit-text-size-adjust:100%;')
+    document.write('} </style>')
+}
+</script>
+
+<script>
+if( is.min ){
+    appendElement(button20207, null, null);
+    appendElement(button20704, null, null);
+    appendElement(image86452, null, null);
+    appendElement(null, null, '<div id="entry21538" class="no-border"><a id="entry21538anc"></a></div>');
+    appendElement(null, '<div id="entry21538" class="no-border"><a id="entry21538anc"></a></div>', '<form id="entry21538form"  name="entry21538form" onSubmit="return false;"></form>');
+    appendElement(null, '<form id="entry21538form"  name="entry21538form" onSubmit="return false;"></form>', '<input class="entry21538" type="text" name="username" title="username" id="entry21538id" size="9" maxlength="40" onPropertyChange="if( !Varusername_1.equals(this.value) ) { Varusername_1.set(this.value); }" onChange="if( !Varusername_1.equals(this.value) ) { Varusername_1.set(this.value); }" onKeyUp="Varusername_1.set(this.value);;" onBlur="" >');
+    appendElement(null, null, '<div id="entry21564" class="no-border"><a id="entry21564anc"></a></div>');
+    appendElement(null, '<div id="entry21564" class="no-border"><a id="entry21564anc"></a></div>', '<form id="entry21564form"  name="entry21564form" onSubmit="return false;"></form>');
+    appendElement(null, '<form id="entry21564form"  name="entry21564form" onSubmit="return false;"></form>', '<input class="entry21564" type="text" name="password" title="password" id="entry21564id" size="9" maxlength="40" onPropertyChange="if( !Varpassword_1.equals(this.value) ) { Varpassword_1.set(this.value); }" onChange="if( !Varpassword_1.equals(this.value) ) { Varpassword_1.set(this.value); }" onKeyUp="Varpassword_1.set(this.value);;" onBlur="" >');
+}
+</script>
+
+</body>
+</html>

@@ -1,0 +1,1451 @@
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link
+  href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300..700&display=swap"
+  rel="stylesheet"
+/>
+<style>
+  .no-border input {
+    font-family: "Fredoka" !important;
+    border: none;
+    outline: none;
+  }
+  .circle-paint {
+    height: 100px;
+    width: 100px;
+    border-radius: 1000px;
+    background: #000000;
+    transition: all 0.3s ease;
+  }
+</style>
+<script>
+  function safeParseMaybeString(v) {
+    if (typeof v === "string") {
+      try {
+        return JSON.parse(v);
+      } catch {
+        return v;
+      }
+    }
+    return v;
+  }
+  window.ip = function () {
+    if (typeof Varip === "undefined") return null;
+    return Varip.getValue();
+  };
+  document.addEventListener("DOMContentLoaded", async () => {
+    const api = axios.create({
+      baseURL: `https://${ip()}/api`,
+      timeout: 10000,
+    });
+    api.interceptors.request.use(
+      (config) => {
+        try {
+          if (window.VarToken?.getValue) {
+            const token = VarToken.getValue();
+            if (token) {
+              config.headers.Authorization = `Bearer ${token}`;
+            }
+          }
+        } catch (e) {
+          console.warn("Token belum siap");
+        }
+        return config;
+      },
+      (error) => Promise.reject(error)
+    );
+    window.api = api;
+    async function check() {
+      try {
+        const token = VarToken.getValue();
+        const request = await api.post("/auth/check", {
+          token,
+        });
+        if (
+          request.data.status == "failed" &&
+          !window.location.href.includes("login")
+        ) {
+          trivExitPage("splash_screen_login_page_login.html", true);
+        }
+        if (request.data.status == "success") {
+          if (window.location.href.includes("login") && !window.location.href.includes("page_splash")) {
+            trivExitPage("homepage_homepage.html", true);
+          }
+          Varpoints.set(JSON.stringify(request.data.progress.points));
+          Varstage.set(request.data.progress.stage);
+          totalPoints(request.data.progress.points);
+        }
+      } catch (error) {
+        console.error("Error:", error);
+      }
+    }
+    await check();
+    let pointsRaw =
+      typeof Varpoints !== "undefined" ? Varpoints.getValue() : "{}";
+    let points = safeParseMaybeString(pointsRaw);
+    if (!points || typeof points !== "object") points = {};
+    console.log("initial points:", points);
+    function ipLocal() {
+      return typeof Varip !== "undefined" ? Varip.getValue() : null;
+    }
+    function essay(array, answer, kasus, quest, point) {
+      let acc = 0;
+      const lowerAns = (answer || "").toLowerCase();
+      array.forEach((item) => {
+        const check = item.some((key) => {
+          if (typeof key === "object") {
+            let checker = false;
+            key.forEach((value) => {
+              if (lowerAns.includes(value)) checker = true;
+              else {
+                checker = false;
+                return;
+              }
+            });
+            return checker;
+          } else {
+            return lowerAns.includes(key);
+          }
+        });
+        if (check) acc += point;
+      });
+      setPoint(kasus, quest, acc);
+    }
+    async function setPoint(kasus, quest, pointValue) {
+      try {
+        const temp = points["case" + kasus] || {};
+        temp[quest] = pointValue;
+        points["case" + kasus] = temp;
+        if (typeof Varpoints !== "undefined") {
+          Varpoints.set(JSON.stringify(points));
+        }
+        console.log("points updated:", points);
+        const data = collectPageValues();
+        const stage = parseInt(Varstage.getValue());
+        const request = await api.post(
+          "https://" + ip() + "/api/progress/save",
+          {
+            caseId: kasus,
+            data,
+            point: points,
+            stage,
+          }
+        );
+        if (request.status == 200) {
+          console.log("Success");
+        }
+      } catch (error) {
+        console.error("Error:", error);
+      }
+    }
+    async function casePoints(kasus, minPoint) {
+      try {
+        const target = points["case" + kasus] || {};
+        const point =
+          Object.keys(target).length > 0
+            ? Object.values(target).reduce((a, b) => a + b, 0)
+            : 0;
+            let totalPoint = 0;
+        Object.values(points).forEach((point) => {
+          totalPoint += Object.values(point).reduce((a, b) => a + b, 0);
+        });
+        if (typeof VarTotalPoint !== "undefined") VarTotalPoint.set(totalPoint);
+        if (typeof VarFinalPoint !== "undefined") VarFinalPoint.set(point);
+        console.log(point, minPoint);
+        const status = point >= minPoint;
+        if (status) Varstage.set(kasus);
+        const data = collectPageValues();
+        const stage = Varstage. getValue()
+        const request = await api.post(
+          "https://" + ip() + "/api/progress/save",
+          {
+            caseId: kasus,
+            data,
+            point: points,
+            stage: stage && kasus,
+          }
+        );
+        if (request.status == 200) {
+          console.log("Success");
+        }
+        trivExitPage(
+          `kasus_${kasus}_result_${kasus}${status ? "" : "x"}.html`,
+          true
+        );
+      } catch (error) {
+        console.error("Error:", error);
+      }
+    }
+    function totalPoints(data) {
+     
+      let total = 0;
+      Object.values(data || points).forEach((k) => {
+        total += Object.values(k).reduce((a, b) => a + b, 0);
+      });
+      console.log(data)
+      console.log(total)
+      VarTotalPoint.set(total);
+    }
+    function pt(status, kasus, quest, point) {
+      const newPoint = status && point ? point : 0;
+      setPoint(kasus, quest, newPoint);
+    }
+    function dl(ratio, kasus, quest, point, ...value) {
+      const dec = ratio.reduce((a, b) => a / b);
+      const valueRatio = value.reduce((a, b) => a / b);
+      const newPoint = dec === valueRatio ? point : 0;
+      setPoint(kasus, quest, newPoint);
+    }
+    function collectPageValues() {
+      let data = {};
+      let droplist = [];
+      for (let key in window) {
+        if (key.startsWith("Var")) {
+          try {
+            let varObj = window[key];
+            if (varObj && typeof varObj.getValue === "function") {
+              let cleanName = key.replace("Var", "");
+              let arrayName = cleanName.split("_");
+              console.log(cleanName);
+              console.log("a");
+              const allow = ["q", "droplist", "e", "i", "c", "k", "f"];
+              const filter = allow.filter((v) => arrayName[2] == v);
+              if (filter.length !== 0 && arrayName.length >= 3) {
+                console.log(arrayName);
+                if (arrayName[2] == "droplist") {
+                  const refKey =
+                    "Var" + cleanName.split("_").slice(0, -1).join("_");
+                  if (!droplist.includes(refKey)) {
+                    droplist.push(refKey);
+                    const droplistValue = Object.keys(window)
+                      .filter((k) => k.startsWith(refKey))
+                      .map((k) => window[k].getValue())
+                      .join(";");
+                    data[arrayName[1]] = droplistValue;
+                  }
+                } else {
+                  data[arrayName[1]] = varObj.getValue();
+                }
+              }
+            }
+          } catch (e) {
+            console.log("skip:", key);
+          }
+        }
+      }
+      console.log("All page values:", data);
+      return data;
+    }
+    async function login() {
+      const url = "https://" + ip() + "/api/auth/login";
+      const username =  Varusername_1.getValue();
+      const password =  Varpassword_1.getValue();
+      await axios
+        .post(url, { username, password })
+        .then(async function (response) {
+          console.log("Login sukses:", response.data);
+          if (response.data && response.data.token) {
+            VarToken.set(response.data.token);
+            await check()
+            trivExitPage("homepage_homepage.html", true);
+          } else {
+            alert("Login gagal: token tidak ditemukan.");
+          }
+        })
+        .catch(function (error) {
+          console.error("Error:", error);
+          if (error.response) {
+            alert("Login gagal: " + error.response.data.message);
+          } else {
+            alert("Tidak bisa terhubung ke server!");
+          }
+        });
+    }
+    async function signup() {
+      const url = "https://" + ip() + "/api/auth/signup";
+      const username = Varusername_1.getValue();
+      const password = Varpassword_1.getValue();
+      axios
+        .post(url, { username, password })
+        .then(function (response) {
+          console.log("Login sukses:", response.data);
+          if (response.data && response.data.token) {
+            VarToken.set(response.data.token);
+            trivExitPage("homepage_homepage.html", true);
+          } else {
+            alert("Login gagal: token tidak ditemukan.");
+          }
+        })
+        .catch(function (error) {
+          console.error("Error:", error);
+          if (error.response) {
+            alert("Login gagal: " + error.response.data.message);
+          } else {
+            alert("Tidak bisa terhubung ke server!");
+          }
+        });
+    }
+    window.collectPageValues = collectPageValues;
+    window.ip = ipLocal;
+    window.pt = pt;
+    window.essay = essay;
+    window.dl = dl;
+    window.casePoints = casePoints;
+    window.login = login;
+    window.signup = signup;
+    window.totalPoint = totalPoints;
+  });
+</script>
+<!DOCTYPE html>
+<html lang="en">
+<!--GENERATED BY:  Lectora Inspire v.18.2.3(11897) (http://www.trivantis.com) -->
+<!--TITLE: C:\Users\Nuzul Izzati\OneDrive\Documents\My Titles -->
+
+
+<head>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta charset="utf-8" />
+<meta name="viewport" content=" minimum-scale = 1.0 , initial-scale= 1" />
+<meta http-equiv="Page-Enter" content="revealTrans(Transition=34,Duration=4.0)">
+<title>Investigate_1_2</title>
+
+<link rel="stylesheet" href="trivantis.css" type="text/css" />
+<style type="text/css">
+</style>
+
+<!--[if lt IE 7]>
+<style type="text/css">
+    #image134413 img { filter:progid:DXImageTransform.Microsoft.Alpha(opacity=0); }
+    #image134413 { filter:progid:DXImageTransform.Microsoft.AlphaImageLoader(src='images/invstgt_1.2.png',sizingMethod='scale'); }
+</style>
+<![endif]-->
+
+<!--[if lte IE 9]>
+<script>
+document.namespaces.add('v', 'urn:schemas-microsoft-com:vml', "#default#VML")
+</script>
+<![endif]-->
+
+<script src="trivantis.js"></script>
+<script src="trivantis-timedate.js"></script>
+<script src="es6-promise-2.0.0.min.js"></script>
+<script src="jquery-3.4.1.min.js"></script>
+<script src="trivantis-cookie.js"></script>
+<script src="trivantis-button.js"></script>
+<script src="trivantis-image.js"></script>
+<script src="trivantis-inline.js"></script>
+<script src="trivantis-text.js"></script>
+<script src="trivantis-trans.js"></script>
+<script src="trivantis-pagetracking.js"></script>
+<script src="device_desktop/kasus_1_investigate_1_2.js"></script>
+<script src="device_tablet/kasus_1_investigate_1_2.js"></script>
+<script src="device_phone/kasus_1_investigate_1_2.js"></script>
+<script src="trivantis-strings.js"></script>
+<script src="hammer.js"></script>
+<script>
+
+<!-- 
+
+var hmr = null;
+function initGEV(){
+   hmr = new Hammer(getDisplayDocument().getElementById(GetCurrentPageID()));
+}
+
+var trivPageScope = {};
+var pgID = 'page34026';
+trivWeb20Popups = true;
+var trivPlayer = null;
+var bPageLoaded = false;
+var pageScale = 1;
+var bDisableBrowserResize = false;
+var bScaleToWindow = false;
+var bFitToWidth = false;
+var bFitToMobile = false;
+var pageHeight = 2256;
+var bLoadedVariables = false;
+
+var arObjs = [];
+
+if(bDisableBrowserResize && !is.isMobile.any()){
+	var bTrivResponsive = false;
+	saveResponsiveData("Desktop",eval("DesktopResponsive"));
+}
+else{
+	var bTrivResponsive = true;
+	saveResponsiveData("Desktop",eval("DesktopResponsive"));
+	saveResponsiveData("Tablet",eval("TabletResponsive"));
+	saveResponsiveData("Phone",eval("PhoneResponsive"));
+}
+	var viewOverrideMap = {};
+	viewOverrideMap["PhoneLandscape"] = "TabletLandscape";
+ 	viewOverrideMap["TabletPortrait"] = "Desktop";
+ 	viewOverrideMap["TabletLandscape"] = "Desktop";
+ if( !is.min )
+  document.write( 'Your browser does not support dynamic html. Please download a current version of either <a href="http://www.microsoft.com/ie/">Microsoft Internet Explorer</a> or <a href="http://www.mozilla.com/en-US/firefox/">Mozilla Firefox </a> and try visiting our site again.  Thank You.<br /><br />' )
+
+var pageLayer = null
+var winW = getDisplayWindow().screen.width
+var winH = getDisplayWindow().screen.height
+var transformScale = 1
+
+function findWH(){	//echo LD-769
+	if (is.ie9) {
+	var vScrollAdj =  (is.ns ? 16 : 20);
+	winW = (is.ns) ? window.innerWidth - vScrollAdj : document.body.offsetWidth;
+	winH = (is.ns) ? window.innerHeight : document.body.offsetHeight;
+	}
+	else if (is.ie) {
+   winW = Math.max(Math.max(getDisplayDocument().body.scrollWidth, getDisplayDocument().documentElement.scrollWidth)-16,
+					  Math.max(getDisplayDocument().body.offsetWidth, getDisplayDocument().documentElement.offsetWidth)-16,
+					  Math.max(getDisplayDocument().body.clientWidth, getDisplayDocument().documentElement.clientWidth)-16 );
+   winH = Math.max(Math.max(getDisplayDocument().body.scrollHeight, getDisplayDocument().documentElement.scrollHeight)-16,
+					  Math.max(getDisplayDocument().body.offsetHeight, getDisplayDocument().documentElement.offsetHeight)-16,
+					  Math.max(getDisplayDocument().body.clientHeight, getDisplayDocument().documentElement.clientHeight)-16 );
+	}
+	else
+	{
+   winW =  getDisplayDocument().documentElement.clientWidth ? getDisplayDocument().documentElement.clientWidth : getDisplayDocument().body.clientWidth;
+   if(is.iOS && (navigator.userAgent.indexOf('CellCast-iPad') != -1 || navigator.userAgent.indexOf('CellCast-iPhone') != -1) )
+		 winW =  getScreenWidth();
+   winH =  getDisplayDocument().documentElement.clientHeight ? getDisplayDocument().documentElement.clientHeight : getDisplayDocument().body.clientHeight;
+	}
+}
+
+trivSetupPage();
+
+ if( isSppCapable() && window.trivPlayer === null ) setTimeout( function() { var objScrollTo =  trivGetScrollObj(window.location.href); window.location.replace("index.html?jmptopg=kasus_1_investigate_1_2.html#" + objScrollTo);}, 100)
+ function ReFlow() {
+  findWH()
+  var pageEleWidth = pageLayer.ele.clientWidth;
+  if (  (is.ieAny || is.edge )  && pageLayer.ele.clientWidth == 0 && isSinglePagePlayerAvail()) pageEleWidth = parseFloat(GetPageWidth()) ;
+  if (pageLayer)
+  {
+     if(bTrivResponsive){
+    var left = (winW > pageEleWidth) ? (winW-pageEleWidth)/2 : 0
+    bReviewLink = window.myTop.document.getElementById('vBodyFrame');
+    transformScale = (winW > pageEleWidth) ? 1 : (winW/pageEleWidth) 
+    if(is.isMobile.any() || bReviewLink && typeof(getDisplayWindow().myTop)!='undefined' && getDisplayWindow().myTop._respView != 'Desktop')
+			left = 0
+    if(is.iOS && isInIframe( getDisplayWindow() , 0))
+			transformScale = (getScreenWidth() > pageEleWidth) ? 1 : (getScreenWidth()/pageEleWidth) 
+    var transSty = calculateScale();
+    pageLayer.moveTo( left, 0 );
+    pageLayer.hasMoved = true;
+    pageLayer.newX = left;
+    pageLayer.newY = 0;
+    if(CanScale()){
+       pageLayer.styObj.transform =  transSty;
+       pageLayer.styObj.webkitTransform =  transSty;
+    }else
+       transformScale = 1;
+    pageLayer.styObj.transformOrigin =  '0 0';
+     }
+    if(bDisableBrowserResize && !is.isMobile.any()){
+       var left = (winW > pageEleWidth) ? (winW-pageEleWidth)/2 : 0
+       bReviewLink = window.myTop.document.getElementById('vBodyFrame');
+       if(is.isMobile.any() || bReviewLink && typeof(getDisplayWindow().myTop)!='undefined' && getDisplayWindow().myTop._respView != 'Desktop')
+			left = 0
+       pageLayer.moveTo( left, 0 );
+       pageLayer.hasMoved = true;
+       pageLayer.newX = left;
+       pageLayer.newY = 0;
+    }
+    fillBrowser();
+    adjustAllObjectsForFixedPosition();
+    setfixed();
+  }
+  Offset_qu34040()
+  Offset_qu34213()
+  Offset_qu34304()
+}
+
+var arVariables = [];
+
+VarTrivSelCap = new Variable( 'VarTrivSelCap', 'none', 0, 0, null, null, 'lkpd_gamifikasi', true )
+Varusername_1 = new Variable( 'Varusername_1', '', 0, 0, null, null, 'lkpd_gamifikasi', false )
+Varpassword_1 = new Variable( 'Varpassword_1', '', 0, 0, null, null, 'lkpd_gamifikasi', false )
+VarToken = new Variable( 'VarToken', '', 0, 0, null, null, 'lkpd_gamifikasi', false )
+Varip = new Variable( 'Varip', 'api.epistura.web.id', 0, 0, null, null, 'lkpd_gamifikasi', false )
+Var1_13_q = new Variable( 'Var1_13_q', '', 0, 0, null, 365, 'lkpd_gamifikasi', false )
+Var1_14_q = new Variable( 'Var1_14_q', '', 0, 0, null, 365, 'lkpd_gamifikasi', false )
+Var1_15_e = new Variable( 'Var1_15_e', '', 0, 0, null, null, 'lkpd_gamifikasi', false )
+Var1_17_e = new Variable( 'Var1_17_e', '', 0, 0, null, null, 'lkpd_gamifikasi', false )
+Var1_16_q = new Variable( 'Var1_16_q', '', 0, 0, null, 365, 'lkpd_gamifikasi', false )
+Varpoints = new Variable( 'Varpoints', '{}', 0, 0, null, null, 'lkpd_gamifikasi', false )
+VarFinalPoint = new Variable( 'VarFinalPoint', '0', 0, 0, null, null, 'lkpd_gamifikasi', false )
+VarTotalPoint = new Variable( 'VarTotalPoint', '0', 0, 0, null, null, 'lkpd_gamifikasi', false )
+Varstage = new Variable( 'Varstage', '0', 0, 0, null, 365, 'lkpd_gamifikasi', false )
+
+onload = responsiveInit
+detect();
+if( is.webkit && !is.iOSSafari )
+  onbeforeunload = finish
+else
+  onunload = finish
+
+function responsiveInit() {
+  pageLayer = new ObjLayer(GetCurrentPageID());
+  SaveStyles();
+  init();
+  adjustResponsivePage();
+  ReFlow();
+}
+
+function init() {
+  init11();
+}
+
+function init11() {
+  findWH()
+  if( is.min ){
+    trivPageTracking.InitPageTracking();
+    PreloadResources(new Array(text78435,button34399,button34648,entry34265,entry34265,entry34265,entry34265,entry34287,entry34287,entry34287,entry34287,text34214,text34215,radio34216,radio34216,radio34216,text34217,radio34218,radio34218,radio34218,text34305,text34306,radio34307,radio34307,radio34307,text34308,radio34309,radio34309,radio34309,image134413,qu34040,qu34040,text34042,text34043,check34044,check34044,check34044,text34045,check34046,check34046,check34046,text34047,check34048,check34048,check34048,text34049,check34050,check34050,check34050,qu34213,qu34213,qu34304,qu34304))
+    pageLayer.transData = {tOut:0,tNum:34,dur:4,fn:null,ol:0,ot:0,fl:0,ft:0,fr:0,fb:0,il:-1,eff:0, tb:0};
+    if(!isSinglePagePlayerAvail()){
+    if( !is.ie||is.v>8 ) setTimeout( 'pageLayer.doTrans( 0, 34, 4, null, 0, 0, 0, 0, 0, 0, -1, 0, 0 )' , 100 );
+    else pageLayer.show(true);
+    }
+    text78435.init()
+    button34399.init()
+    button34648.init()
+    entry34265.init()
+    entry34265.init()
+    entry34265.init()
+    entry34265.init()
+    entry34287.init()
+    entry34287.init()
+    entry34287.init()
+    entry34287.init()
+    text34214.init()
+    text34215.init()
+    radio34216.init()
+    radio34216.init()
+    radio34216.init()
+    text34217.init()
+    radio34218.init()
+    radio34218.init()
+    radio34218.init()
+    text34305.init()
+    text34306.init()
+    radio34307.init()
+    radio34307.init()
+    radio34307.init()
+    text34308.init()
+    radio34309.init()
+    radio34309.init()
+    radio34309.init()
+    image134413.init()
+    qu34040.init()
+    qu34040.init()
+    text34042.init()
+    text34043.init()
+    check34044.init()
+    check34044.init()
+    check34044.init()
+    text34045.init()
+    check34046.init()
+    check34046.init()
+    check34046.init()
+    text34047.init()
+    check34048.init()
+    check34048.init()
+    check34048.init()
+    text34049.init()
+    check34050.init()
+    check34050.init()
+    check34050.init()
+    qu34213.init()
+    qu34213.init()
+    qu34304.init()
+    qu34304.init()
+    text78435.activate()
+    button34399.activate()
+    button34648.activate()
+    entry34265.activate()
+    entry34265.activate()
+    entry34265.activate()
+    entry34265.activate()
+    entry34287.activate()
+    entry34287.activate()
+    entry34287.activate()
+    entry34287.activate()
+    text34214.activate()
+    text34215.activate()
+    radio34216.activate()
+    radio34216.activate()
+    radio34216.activate()
+    text34217.activate()
+    radio34218.activate()
+    radio34218.activate()
+    radio34218.activate()
+    text34305.activate()
+    text34306.activate()
+    radio34307.activate()
+    radio34307.activate()
+    radio34307.activate()
+    text34308.activate()
+    radio34309.activate()
+    radio34309.activate()
+    radio34309.activate()
+    image134413.activate()
+    qu34040.activate()
+    qu34040.activate()
+    text34042.activate()
+    text34043.activate()
+    check34044.activate()
+    check34044.activate()
+    check34044.activate()
+    text34045.activate()
+    check34046.activate()
+    check34046.activate()
+    check34046.activate()
+    text34047.activate()
+    check34048.activate()
+    check34048.activate()
+    check34048.activate()
+    text34049.activate()
+    check34050.activate()
+    check34050.activate()
+    check34050.activate()
+    qu34213.activate()
+    qu34213.activate()
+    qu34304.activate()
+    qu34304.activate()
+     var objToScroll = trivGetScrollObj(window.location.href) ;
+     trivScrollTo(window, objToScroll);
+    var titleManagerIndexWindow = (window && window.parent && window.parent.bIsTitleManagerIndexFile) ? window.parent : null;
+    if(titleManagerIndexWindow)  trivScrollTo(titleManagerIndexWindow, objToScroll);
+    if(!isSinglePagePlayerAvail()) postPageShowAction();
+    if( location.hash )
+    {
+      var newHash
+      if( location.hash.charAt(0) == '#' )
+        newHash = location.hash.slice( 1 )
+      else
+        newHash = location.hash
+      location.hash = newHash
+      if((typeof(bTrivRunView) != 'undefined'  && bTrivRunView) || (typeof(bTrivOffline) != 'undefined' && bTrivOffline)) window.scrollTo(0 , getTopofObj(document.getElementById(newHash)));
+    }
+    setTimeout( 'trivUpdateTOC( 1 )', 100 )
+    bPageLoaded = true;
+    ReFlow();
+    if(!isSinglePagePlayerAvail())
+       loadActions();
+  }
+  try {initGEV();} catch(e){}
+}
+  window.bLoadedVariables = true;
+function loadActions(){
+    if((window.bPageLoaded && window.bLoadedVariables && getDisplayWindow().pagePlayer &&
+	getDisplayWindow().pagePlayer.arLoadedPages && getDisplayWindow().pagePlayer.arLoadedPages.length == 1) || (window.bPageLoaded && window.bLoadedVariables && !isSinglePagePlayerAvail() )){
+      var valVar1_15_e = Var1_15_e.getValue()
+      if(valVar1_15_e!='~~~null~~~')entry34265.objLyr.doc.forms["entry34265form"]["Isian4_1"].value=valVar1_15_e
+      var valVar1_17_e = Var1_17_e.getValue()
+      if(valVar1_17_e!='~~~null~~~')entry34287.objLyr.doc.forms["entry34287form"]["Isian5_1"].value=valVar1_17_e
+      Update_qu34040( 0 )
+      Update_qu34213()
+      Update_qu34304()
+
+       if(typeof(updateFLVPlayer) !== 'undefined') updateFLVPlayer();
+       postPageShowAction();
+    }
+    else
+      setTimeout(loadActions, 100);
+}
+function postPageShowAction(){
+  if ( trivPageTracking.GetRangeStatus(34026) == 'notstarted' ) trivPageTracking.SetRangeStatus(34026,2);
+}  
+
+var trivGoToPage = null
+var trivCompleteCnt = 1;
+var hasProcessedExitActions = false;
+var trivActFBCnt = 0;
+var currFeedbackIdx = 0;
+var trivPageExited = false;
+var trivInTest = false;
+
+function finish() {
+}
+
+function trivOnFocus() {
+    if( trivPageExited ) return
+}
+
+function checkLeavePage() {
+    if( trivPageExited ) return
+    if( trivActFBCnt == 0 )
+    {
+        currFeedbackIdx++;
+        if( currFeedbackIdx > 2)
+        {
+            trivLeavePage();
+          return;
+        }
+        else if( !checkQuestions( true ))
+          return;
+    }
+    setTimeout( 'checkLeavePage()', 100)
+}
+
+function trivExitPage( newPage, bFeedback ) {
+    if( newPage.indexOf( "ObjLayerAction" ) >= 0 || newPage.indexOf( "javascript:app." ) >= 0 || newPage.indexOf( ".action" ) >= 0 || newPage.indexOf( "history.back()" ) >= 0) trivGoToPage = newPage
+    else trivGoToPage = 'ObjLayerActionGoTo("' + newPage + '")'
+    if( !hasProcessedExitActions ) {
+        findWH()
+        if( !checkQuestions( bFeedback ))
+          return
+        hasProcessedExitActions = true
+        setTimeout( 'checkLeavePage()', 100)
+    }
+}
+
+function trivLeavePage() {
+    trivCompleteCnt--
+    if( trivCompleteCnt <= 0 ) {
+        hasProcessedExitActions = false
+        if( trivGoToPage != null )
+        {
+			eval( trivGoToPage )
+			trivGoToPage = null;
+			if( window.closed ) trivPageExited = true;
+        }
+    }
+}
+
+function trivPrevPage() {
+    trivExitPage( 'kasus_1_investigate_1.html', true )
+}
+
+function trivNextPage() {
+    trivExitPage( 'kasus_1_irctc_1.html', true )
+}
+
+function trivUpdateTOC( bRecurse ) {
+    var i
+}
+
+function trivUpdateEntry() {
+  entry34265.objLyr.doc.forms["entry34265form"]["Isian4_1"].blur();
+  entry34287.objLyr.doc.forms["entry34287form"]["Isian5_1"].blur();
+}
+
+function trivResetEntry(entFld) {
+  if ( entFld == null || entFld == entry34265 ) entry34265.objLyr.doc.forms["entry34265form"]["Isian4_1"].value='';
+  if ( entFld == null || entFld == entry34287 ) entry34287.objLyr.doc.forms["entry34287form"]["Isian5_1"].value='';
+}
+
+function checkQuestions( bFeedback, bForce, bNotLeavingPage ) {
+  var onAfterFBAction = ( bNotLeavingPage ? (function(){trivActFBCnt--;}) : (function(){trivActFBCnt--;window.checkLeavePage();}) );
+  if( !bFeedback ) currFeedbackIdx = 3;
+
+  return 1
+}
+
+function doImmFeedback( objId ) {
+  var onAfterFBAction = function(){trivActFBCnt--;};
+
+  if(objId=='qu34040') {
+  var ans_Var1_13_q = Var1_13_q.getValue()
+    var qu34040Cked = 0
+    if (check34044.objLyr.doc.getElementById("check34044id").checked) qu34040Cked++
+    if (check34046.objLyr.doc.getElementById("check34046id").checked) qu34040Cked++
+    if (check34048.objLyr.doc.getElementById("check34048id").checked) qu34040Cked++
+    if (check34050.objLyr.doc.getElementById("check34050id").checked) qu34040Cked++
+    if(!qu34040.hasBeenProcessed && qu34040Cked >= 2) {
+    if( ans_Var1_13_q == '\u0042\u0075\u006B\u0074\u0069\u0020\u0031\u002C\u0042\u0075\u006B\u0074\u0069\u0020\u0032' ) 
+    { //1 
+        trivActFBCnt++; action34040_17(onAfterFBAction);  return 0;
+  } //1
+
+    else if( ans_Var1_13_q != '\u0042\u0075\u006B\u0074\u0069\u0020\u0031\u002C\u0042\u0075\u006B\u0074\u0069\u0020\u0032' && ans_Var1_13_q != '~~~null~~~' ) 
+    { //2 
+trivActFBCnt++; action34040_18(onAfterFBAction);return 0;  } //2 
+
+    }
+  }
+  if(objId=='qu34213') {
+  var ans_Var1_14_q = Var1_14_q.getValue()
+  if(!qu34213.hasBeenProcessed) {
+    if( ans_Var1_14_q != '\u0042\u0075\u006B\u0074\u0069\u0020\u0033' && ans_Var1_14_q != '~~~null~~~' ) 
+    { //2 
+trivActFBCnt++; action34213_17(onAfterFBAction);return 0;  } //2 
+
+    else if( ans_Var1_14_q == '\u0042\u0075\u006B\u0074\u0069\u0020\u0033' ) 
+    { //1 
+        trivActFBCnt++; action34213_18(onAfterFBAction);  return 0;
+  } //1
+
+    }
+  }
+  if(objId=='qu34304') {
+  var ans_Var1_16_q = Var1_16_q.getValue()
+  if(!qu34304.hasBeenProcessed) {
+    if( ans_Var1_16_q != '\u004B\u0075\u006E\u0069\u006E\u0067' && ans_Var1_16_q != '~~~null~~~' ) 
+    { //2 
+trivActFBCnt++; action34304_17(onAfterFBAction);return 0;  } //2 
+
+    else if( ans_Var1_16_q == '\u004B\u0075\u006E\u0069\u006E\u0067' ) 
+    { //1 
+        trivActFBCnt++; action34304_18(onAfterFBAction);  return 0;
+  } //1
+
+    }
+  }
+  return 1
+}
+
+function OnDeviceRotate() {
+
+}
+
+function action34400else(fn){
+    
+    if(fn && typeof(fn) == 'string' ) eval(fn);
+    else if(fn && typeof(fn) == 'function' ) fn();
+}
+
+function action34400(fn){
+    if(!Var1_13_q.equals('~~~null~~~')&&!Var1_14_q.equals('~~~null~~~')&&!Var1_16_q.equals('~~~null~~~')&&!Var1_15_e.equals('~~~null~~~')&&!Var1_17_e.equals('~~~null~~~'))
+    {trivExitPage('kasus_1_irctc_1.html',true); 
+    }else{ action34400else();}
+    if(fn && typeof(fn) == 'string' ) eval(fn);
+    else if(fn && typeof(fn) == 'function' ) fn();
+}
+
+function button34399onUp() {
+  action34400();
+}
+
+function action34649(fn){
+    trivExitPage('kasus_1_investigate_1.html',true); 
+    if(fn && typeof(fn) == 'string' ) eval(fn);
+    else if(fn && typeof(fn) == 'function' ) fn();
+}
+
+function button34648onUp() {
+  action34649();
+}
+
+function action51322(fn){
+    try{
+     essay([
+  ["banding", "perbandingan", "rasio", "proporsi", "takaran", "resep"],
+  ["perbedaan", "sama", "sebanding", "setara", "mirip", "seimbang", "persis"],
+  ["beda", "berbeda", "tidak sama", "lain", "lainnya", "selisih"],
+  ["kaleng", "cat", "cat kaleng", "kaleng cat"],
+  ["jumlah", "banyak", "banyaknya", "kuantitas", "angka", "total", "nilai", "lebih banyak", "lebih sedikit", "dibandingkan"],
+  ["merah", "cat merah"],
+  ["kuning", "cat kuning"],
+  ["warna", "warnanya", "oranye", "hasil", "hasilnya", "campuran", "lebih kuning", "lebih muda", "kurang merah", "lebih merah", "lebih banyak", "lebih sedikit"]
+], Var1_15_e.getValue(), 1, 15, 25); 
+     } catch (e) {
+     alert('[OnSelectChangeRunJS] ' + e);
+     }
+    if(fn && typeof(fn) == 'string' ) eval(fn);
+    else if(fn && typeof(fn) == 'function' ) fn();
+}
+
+function entry34265onSelChg() {
+  action51322();
+}
+
+function action51328(fn){
+    try{
+     essay([
+  ["perbandingan", "rasio", "proporsi", "takaran", "resep"],
+  ["sama", "sebanding", "setara", "mirip", "seimbang", "persis", "dibandingkan", "dari"],
+  ["beda", "berbeda", "tidak sama", "lain", "lainnya", "selisih"],
+  ["kaleng cat", "cat", "cat kaleng", "kaleng"],
+  ["kelipatan", "dikali", "dua kali", "2 kali", "2x", "lipatnya"],
+  ["jumlah", "banyak", "banyaknya", "kuantitas", "angka", "total", "nilai", "lebih banyak", "lebih sedikit"],
+  ["merah", "cat merah", ["merah 2"]],
+  ["kuning", "cat kuning", ["kuning 1"]],
+  ["warna", "warnanya", "oranye", "hasil", "hasilnya", "campuran", "lebih kuning", "lebih muda", "kurang merah", "lebih merah"]
+], Var1_17_e.getValue(), 1, 17, 25); 
+     } catch (e) {
+     alert('[OnSelectChangeRunJS] ' + e);
+     }
+    if(fn && typeof(fn) == 'string' ) eval(fn);
+    else if(fn && typeof(fn) == 'function' ) fn();
+}
+
+function entry34287onSelChg() {
+  action51328();
+}
+
+function Offset_qu34040(bDevRotate) {
+}
+
+function Update_qu34040( upd ) {
+  var val = ','
+  if( upd ) {
+    if (check34044.objLyr.doc.getElementById("check34044id").checked) val += 'Bukti 1,'
+    if (check34046.objLyr.doc.getElementById("check34046id").checked) val += 'Bukti 2,'
+    if (check34048.objLyr.doc.getElementById("check34048id").checked) val += 'Bukti 3,'
+    if (check34050.objLyr.doc.getElementById("check34050id").checked) val += 'Bukti 4,'
+  }
+  else val += Var1_13_q.getValue() + ','
+  check34044.objLyr.doc.getElementById("check34044id").checked=(val.indexOf(',Bukti 1,')>=0)
+  check34046.objLyr.doc.getElementById("check34046id").checked=(val.indexOf(',Bukti 2,')>=0)
+  check34048.objLyr.doc.getElementById("check34048id").checked=(val.indexOf(',Bukti 3,')>=0)
+  check34050.objLyr.doc.getElementById("check34050id").checked=(val.indexOf(',Bukti 4,')>=0)
+  if( val.length > 1 )
+    val = val.substring(1,val.length-1)
+  else
+    val = ''
+  if( upd ) Var1_13_q.set( val )
+    qu34040Object.hasBeenProcessed=false;
+}
+
+function action34040_17(fn){
+    try{
+     pt(1,1,13,50); 
+     } catch (e) {
+     alert('[] ' + e);
+     }
+    if(fn && typeof(fn) == 'string' ) eval(fn);
+    else if(fn && typeof(fn) == 'function' ) fn();
+}
+
+function action34040_18(fn){
+    try{
+     pt(0,1,13,50); 
+     } catch (e) {
+     alert('[] ' + e);
+     }
+    if(fn && typeof(fn) == 'string' ) eval(fn);
+    else if(fn && typeof(fn) == 'function' ) fn();
+}
+
+function Offset_qu34213(bDevRotate) {
+}
+
+function Update_qu34213(value) {
+ if(typeof(value) !== "undefined")  Var1_14_q.set(value)
+  var val = Var1_14_q.getValue()
+  radio34216.objLyr.doc.getElementById("radio34216id").checked=(val=='Bukti 1')
+  radio34218.objLyr.doc.getElementById("radio34218id").checked=(val=='Bukti 3')
+   qu34213Object.hasBeenProcessed=false;
+}
+
+function action34213_17(fn){
+    try{
+     pt(0,1,14,50); 
+     } catch (e) {
+     alert('[] ' + e);
+     }
+    if(fn && typeof(fn) == 'string' ) eval(fn);
+    else if(fn && typeof(fn) == 'function' ) fn();
+}
+
+function action34213_18(fn){
+    try{
+     pt(1,1,14,50); 
+     } catch (e) {
+     alert('[] ' + e);
+     }
+    if(fn && typeof(fn) == 'string' ) eval(fn);
+    else if(fn && typeof(fn) == 'function' ) fn();
+}
+
+function Offset_qu34304(bDevRotate) {
+}
+
+function Update_qu34304(value) {
+ if(typeof(value) !== "undefined")  Var1_16_q.set(value)
+  var val = Var1_16_q.getValue()
+  radio34307.objLyr.doc.getElementById("radio34307id").checked=(val=='Merah')
+  radio34309.objLyr.doc.getElementById("radio34309id").checked=(val=='Kuning')
+   qu34304Object.hasBeenProcessed=false;
+}
+
+function action34304_17(fn){
+    try{
+     pt(0,1,16,50); 
+     } catch (e) {
+     alert('[] ' + e);
+     }
+    if(fn && typeof(fn) == 'string' ) eval(fn);
+    else if(fn && typeof(fn) == 'function' ) fn();
+}
+
+function action34304_18(fn){
+    try{
+     pt(1,1,16,50); 
+     } catch (e) {
+     alert('[] ' + e);
+     }
+    if(fn && typeof(fn) == 'string' ) eval(fn);
+    else if(fn && typeof(fn) == 'function' ) fn();
+}
+
+if( is.min ){
+text78435 = new ObjText('text78435',null,357,2208,402,23,1,40,null,'div',null,0 )
+text78435.initSLine(0)
+text78435.initHasBullet(0)
+text78435.initRotateAngle(0,0,0)
+text78435.initHasOuterShadow(0)
+text78435.initHasTextShadow(0)
+text78435.initHasBorder(0)
+text78435.initHasOutline(0)
+text78435.initHasMargin(0)
+text78435.addIe8Attr(357, 2208, 402, 23, 0, 0)
+text78435.addHeading(0)
+text78435.addOpacity(100)
+text78435.arrCSSStyles = new Array();
+text78435.arrCSSStyles.push('span.text78435Font1 { font-size:13px; font-family:"Montserrat"; color:#ffffff; font-style:italic;}');
+text78435.addInnerText('<div id=\"text78435\" aria-hidden=\"true\" ><a id=\"text78435anc\" style=\"display:block;height:0px;width:0px;\"></a>\n<p  style=\"margin-left:0px;text-indent:0px;margin-top:0px;margin-bottom:0px;text-align:right;\" >\n<span class=\"text78435Font1\"  >Generated by dreamina.capcut.com\n</span ></p >\n</div>\n');
+text78435.build()
+
+button34399 = new ObjButton('button34399', 'Button_Lanjut12',490,2044,217.000000,69.000000,1,41,'div','',1,0)
+button34399.setFillStyle(2)
+button34399.setUniqueFillID('kasus_1_investigate_1_2_button34399')
+button34399.initRotateAngle(0,0,0,-0.000000,-0.000000,216,68)
+button34399.initHasShadow(0)
+button34399.initHasReflection(0)
+button34399.setImages('images/transbtn.gif', '', '','');
+button34399.setStateOpacity( 0.000000, 0.000000, 0.000000, 0.000000 );
+button34399.addIe8Attr(490.000000, 2044.000000, 217.000000, 69.000000, 0, 0)
+button34399.addOpacity(0)
+button34399.initImageMap('34,0,182,0,189,1,195,3,201,6,206,10,210,15,213,21,215,27,216,34,216,34,215,41,213,47,210,53,206,58,201,62,195,65,189,67,182,68,34,68,27,67,21,65,15,62,10,58,6,53,3,47,1,41,0,34,0,34,1,27,3,21,6,15,10,10,15,6,21,3,27,1,34,0','M 34.000000 0.000000 L 182.000000 0.000000 L 188.875000 0.687500 L 195.250000 2.687500 L 201.000000 5.812500 L 206.062500 10.000000 L 210.187500 15.000000 L 213.312500 20.750000 L 215.312500 27.125000 L 216.000000 34.000000 L 216.000000 34.000000 L 215.312500 40.875000 L 213.312500 47.250000 L 210.187500 53.000000 L 206.062500 58.062500 L 201.000000 62.187500 L 195.250000 65.312500 L 188.875000 67.312500 L 182.000000 68.000000 L 34.000000 68.000000 L 27.375000 67.375000 L 21.000000 65.437500 L 15.187500 62.312500 L 10.000000 58.062500 L 5.750000 52.875000 L 2.625000 47.062500 L 0.687500 40.687500 L 0.000000 34.000000 L 0.000000 34.000000 L 0.687500 27.125000 L 2.687500 20.750000 L 5.812500 15.000000 L 10.000000 10.000000 L 15.000000 5.812500 L 20.750000 2.687500 L 27.125000 0.687500 L 34.000000 0.000000 z')
+button34399.setFills('                <pattern id="Picture_kasus_1_investigate_1_2_button34399" x="0" y="0" width="217.000000" height="69.000000" patternUnits="userSpaceOnUse">                <image xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAANkAAABFCAYAAADHGkNOAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAABRSURBVHhe7cExAQAAAMKg9U9tCy+gAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAE4G6jkAAQdYx/4AAAAASUVORK5CYII=" x="0" y="0" width="217.000000" height="69.000000"  preserveAspectRatio="none"/>           </pattern>       ','                <pattern id="Picture_kasus_1_investigate_1_2_button34399_over" x="0" y="0" width="217.000000" height="69.000000" patternUnits="userSpaceOnUse">                <image xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAANkAAABFCAYAAADHGkNOAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAABRSURBVHhe7cExAQAAAMKg9U9tCy+gAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAE4G6jkAAQdYx/4AAAAASUVORK5CYII=" x="0" y="0" width="217.000000" height="69.000000"  preserveAspectRatio="none"/>           </pattern>       ','                <pattern id="Picture_kasus_1_investigate_1_2_button34399_down" x="0" y="0" width="219.000000" height="71.000000" patternUnits="userSpaceOnUse">                <image xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAANsAAABHCAYAAACOJzJ4AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAABTSURBVHhe7cExAQAAAMKg9U9tCj+gAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAOBnzOwAB9VfxwgAAAABJRU5ErkJggg==" x="0" y="0" width="219.000000" height="71.000000"  preserveAspectRatio="none"/>           </pattern>       ','                <pattern id="Picture_kasus_1_investigate_1_2_button34399_disabled" x="0" y="0" width="217.000000" height="69.000000" patternUnits="userSpaceOnUse">                <image xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAANkAAABFCAYAAADHGkNOAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAABRSURBVHhe7cExAQAAAMKg9U9tCy+gAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAE4G6jkAAQdYx/4AAAAASUVORK5CYII=" x="0" y="0" width="217.000000" height="69.000000"  preserveAspectRatio="none"/>           </pattern>       ','fill:url(#Picture_kasus_1_investigate_1_2_button34399);"','fill:url(#Picture_kasus_1_investigate_1_2_button34399_over);"','stroke:#0963B1; stroke-width:2; stroke-linejoin:round;stroke-dasharray: none; fill:url(#Picture_kasus_1_investigate_1_2_button34399_down);"','fill:url(#Picture_kasus_1_investigate_1_2_button34399_disabled);"')
+button34399.setTextVal('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAANkAAABFCAYAAADHGkNOAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAABRSURBVHhe7cExAQAAAMKg9U9tCy+gAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAE4G6jkAAQdYx/4AAAAASUVORK5CYII=' , 'fill:url(#Text_kasus_1_investigate_1_2_button34399)', 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAANkAAABFCAYAAADHGkNOAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAABRSURBVHhe7cExAQAAAMKg9U9tCy+gAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAE4G6jkAAQdYx/4AAAAASUVORK5CYII=', 'fill:url(#Text_kasus_1_investigate_1_2_button34399_over)', 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAANsAAABHCAYAAACOJzJ4AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAABTSURBVHhe7cExAQAAAMKg9U9tCj+gAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAOBnzOwAB9VfxwgAAAABJRU5ErkJggg==', 'fill:url(#Text_kasus_1_investigate_1_2_button34399_down)', 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAANkAAABFCAYAAADHGkNOAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAABRSURBVHhe7cExAQAAAMKg9U9tCy+gAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAE4G6jkAAQdYx/4AAAAASUVORK5CYII=', 'fill:url(#Text_kasus_1_investigate_1_2_button34399_disabled)')
+button34399.setBase64Images( 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAANkAAABFCAYAAADHGkNOAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAABRSURBVHhe7cExAQAAAMKg9U9tCy+gAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAE4G6jkAAQdYx/4AAAAASUVORK5CYII=' , 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAANkAAABFCAYAAADHGkNOAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAABRSURBVHhe7cExAQAAAMKg9U9tCy+gAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAE4G6jkAAQdYx/4AAAAASUVORK5CYII=' , 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAANsAAABHCAYAAACOJzJ4AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAABTSURBVHhe7cExAQAAAMKg9U9tCj+gAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAOBnzOwAB9VfxwgAAAABJRU5ErkJggg==' , 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAANkAAABFCAYAAADHGkNOAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAABRSURBVHhe7cExAQAAAMKg9U9tCy+gAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAE4G6jkAAQdYx/4AAAAASUVORK5CYII=' )
+button34399.setImgFillVal('fill:url(#Picture_kasus_1_investigate_1_2_button34399)','data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAANkAAABFCAYAAADHGkNOAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAABRSURBVHhe7cExAQAAAMKg9U9tCy+gAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAE4G6jkAAQdYx/4AAAAASUVORK5CYII=','fill:url(#Picture_kasus_1_investigate_1_2_button34399_over)','data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAANkAAABFCAYAAADHGkNOAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAABRSURBVHhe7cExAQAAAMKg9U9tCy+gAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAE4G6jkAAQdYx/4AAAAASUVORK5CYII=','fill:url(#Picture_kasus_1_investigate_1_2_button34399_down)','data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAANsAAABHCAYAAACOJzJ4AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAABTSURBVHhe7cExAQAAAMKg9U9tCj+gAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAOBnzOwAB9VfxwgAAAABJRU5ErkJggg==','fill:url(#Picture_kasus_1_investigate_1_2_button34399_disabled)','data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAANkAAABFCAYAAADHGkNOAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAABRSURBVHhe7cExAQAAAMKg9U9tCy+gAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAE4G6jkAAQdYx/4AAAAASUVORK5CYII=' )
+button34399.initLineWeight('0')
+button34399.onUp = button34399onUp
+button34399.hasOnUp = true
+button34399.capture=4
+button34399.build()
+
+button34648 = new ObjButton('button34648', 'Button_Kembali12',81,2044,217.000000,69.000000,1,42,'div','',1,0)
+button34648.setFillStyle(2)
+button34648.setUniqueFillID('kasus_1_investigate_1_2_button34648')
+button34648.initRotateAngle(0,0,0,-0.000000,-0.000000,216,68)
+button34648.initHasShadow(0)
+button34648.initHasReflection(0)
+button34648.setImages('images/transbtn.gif', '', '','');
+button34648.setStateOpacity( 0.000000, 0.000000, 0.000000, 0.000000 );
+button34648.addIe8Attr(81.000000, 2044.000000, 217.000000, 69.000000, 0, 0)
+button34648.addOpacity(0)
+button34648.initImageMap('34,0,182,0,189,1,195,3,201,6,206,10,210,15,213,21,215,27,216,34,216,34,215,41,213,47,210,53,206,58,201,62,195,65,189,67,182,68,34,68,27,67,21,65,15,62,10,58,6,53,3,47,1,41,0,34,0,34,1,27,3,21,6,15,10,10,15,6,21,3,27,1,34,0','M 34.000000 0.000000 L 182.000000 0.000000 L 188.875000 0.687500 L 195.250000 2.687500 L 201.000000 5.812500 L 206.062500 10.000000 L 210.187500 15.000000 L 213.312500 20.750000 L 215.312500 27.125000 L 216.000000 34.000000 L 216.000000 34.000000 L 215.312500 40.875000 L 213.312500 47.250000 L 210.187500 53.000000 L 206.062500 58.062500 L 201.000000 62.187500 L 195.250000 65.312500 L 188.875000 67.312500 L 182.000000 68.000000 L 34.000000 68.000000 L 27.375000 67.375000 L 21.000000 65.437500 L 15.187500 62.312500 L 10.000000 58.062500 L 5.750000 52.875000 L 2.625000 47.062500 L 0.687500 40.687500 L 0.000000 34.000000 L 0.000000 34.000000 L 0.687500 27.125000 L 2.687500 20.750000 L 5.812500 15.000000 L 10.000000 10.000000 L 15.000000 5.812500 L 20.750000 2.687500 L 27.125000 0.687500 L 34.000000 0.000000 z')
+button34648.setFills('                <pattern id="Picture_kasus_1_investigate_1_2_button34648" x="0" y="0" width="217.000000" height="69.000000" patternUnits="userSpaceOnUse">                <image xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAANkAAABFCAYAAADHGkNOAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAABRSURBVHhe7cExAQAAAMKg9U9tCy+gAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAE4G6jkAAQdYx/4AAAAASUVORK5CYII=" x="0" y="0" width="217.000000" height="69.000000"  preserveAspectRatio="none"/>           </pattern>       ','                <pattern id="Picture_kasus_1_investigate_1_2_button34648_over" x="0" y="0" width="217.000000" height="69.000000" patternUnits="userSpaceOnUse">                <image xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAANkAAABFCAYAAADHGkNOAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAABRSURBVHhe7cExAQAAAMKg9U9tCy+gAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAE4G6jkAAQdYx/4AAAAASUVORK5CYII=" x="0" y="0" width="217.000000" height="69.000000"  preserveAspectRatio="none"/>           </pattern>       ','                <pattern id="Picture_kasus_1_investigate_1_2_button34648_down" x="0" y="0" width="219.000000" height="71.000000" patternUnits="userSpaceOnUse">                <image xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAANsAAABHCAYAAACOJzJ4AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAABTSURBVHhe7cExAQAAAMKg9U9tCj+gAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAOBnzOwAB9VfxwgAAAABJRU5ErkJggg==" x="0" y="0" width="219.000000" height="71.000000"  preserveAspectRatio="none"/>           </pattern>       ','                <pattern id="Picture_kasus_1_investigate_1_2_button34648_disabled" x="0" y="0" width="217.000000" height="69.000000" patternUnits="userSpaceOnUse">                <image xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAANkAAABFCAYAAADHGkNOAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAABRSURBVHhe7cExAQAAAMKg9U9tCy+gAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAE4G6jkAAQdYx/4AAAAASUVORK5CYII=" x="0" y="0" width="217.000000" height="69.000000"  preserveAspectRatio="none"/>           </pattern>       ','fill:url(#Picture_kasus_1_investigate_1_2_button34648);"','fill:url(#Picture_kasus_1_investigate_1_2_button34648_over);"','stroke:#0963B1; stroke-width:2; stroke-linejoin:round;stroke-dasharray: none; fill:url(#Picture_kasus_1_investigate_1_2_button34648_down);"','fill:url(#Picture_kasus_1_investigate_1_2_button34648_disabled);"')
+button34648.setTextVal('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAANkAAABFCAYAAADHGkNOAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAABRSURBVHhe7cExAQAAAMKg9U9tCy+gAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAE4G6jkAAQdYx/4AAAAASUVORK5CYII=' , 'fill:url(#Text_kasus_1_investigate_1_2_button34648)', 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAANkAAABFCAYAAADHGkNOAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAABRSURBVHhe7cExAQAAAMKg9U9tCy+gAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAE4G6jkAAQdYx/4AAAAASUVORK5CYII=', 'fill:url(#Text_kasus_1_investigate_1_2_button34648_over)', 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAANsAAABHCAYAAACOJzJ4AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAABTSURBVHhe7cExAQAAAMKg9U9tCj+gAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAOBnzOwAB9VfxwgAAAABJRU5ErkJggg==', 'fill:url(#Text_kasus_1_investigate_1_2_button34648_down)', 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAANkAAABFCAYAAADHGkNOAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAABRSURBVHhe7cExAQAAAMKg9U9tCy+gAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAE4G6jkAAQdYx/4AAAAASUVORK5CYII=', 'fill:url(#Text_kasus_1_investigate_1_2_button34648_disabled)')
+button34648.setBase64Images( 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAANkAAABFCAYAAADHGkNOAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAABRSURBVHhe7cExAQAAAMKg9U9tCy+gAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAE4G6jkAAQdYx/4AAAAASUVORK5CYII=' , 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAANkAAABFCAYAAADHGkNOAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAABRSURBVHhe7cExAQAAAMKg9U9tCy+gAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAE4G6jkAAQdYx/4AAAAASUVORK5CYII=' , 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAANsAAABHCAYAAACOJzJ4AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAABTSURBVHhe7cExAQAAAMKg9U9tCj+gAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAOBnzOwAB9VfxwgAAAABJRU5ErkJggg==' , 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAANkAAABFCAYAAADHGkNOAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAABRSURBVHhe7cExAQAAAMKg9U9tCy+gAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAE4G6jkAAQdYx/4AAAAASUVORK5CYII=' )
+button34648.setImgFillVal('fill:url(#Picture_kasus_1_investigate_1_2_button34648)','data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAANkAAABFCAYAAADHGkNOAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAABRSURBVHhe7cExAQAAAMKg9U9tCy+gAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAE4G6jkAAQdYx/4AAAAASUVORK5CYII=','fill:url(#Picture_kasus_1_investigate_1_2_button34648_over)','data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAANkAAABFCAYAAADHGkNOAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAABRSURBVHhe7cExAQAAAMKg9U9tCy+gAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAE4G6jkAAQdYx/4AAAAASUVORK5CYII=','fill:url(#Picture_kasus_1_investigate_1_2_button34648_down)','data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAANsAAABHCAYAAACOJzJ4AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAABTSURBVHhe7cExAQAAAMKg9U9tCj+gAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAOBnzOwAB9VfxwgAAAABJRU5ErkJggg==','fill:url(#Picture_kasus_1_investigate_1_2_button34648_disabled)','data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAANkAAABFCAYAAADHGkNOAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAABRSURBVHhe7cExAQAAAMKg9U9tCy+gAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAE4G6jkAAQdYx/4AAAAASUVORK5CYII=' )
+button34648.initLineWeight('0')
+button34648.onUp = button34648onUp
+button34648.hasOnUp = true
+button34648.capture=4
+button34648.build()
+
+entry34265 = new ObjInline('entry34265',null,(is.ie?88:88),(is.ie?1353:1352),null,null,1,43, 0, null, null, 0)
+entry34265.onSelChg = entry34265onSelChg
+entry34265.arrCSSStyles = new Array();
+entry34265.arrCSSStyles.push('input.entry34265 { font-size:16px; font-family:"Arial", sans-serif; color:#000000; width:608px; height:118px; -webkit-appearance:none; background-color:#ffffff; }');
+entry34265.build()
+
+entry34287 = new ObjInline('entry34287',null,(is.ie?88:88),(is.ie?1777:1776),null,null,1,44, 0, null, null, 0)
+entry34287.onSelChg = entry34287onSelChg
+entry34287.arrCSSStyles = new Array();
+entry34287.arrCSSStyles.push('input.entry34287 { font-size:16px; font-family:"Arial", sans-serif; color:#000000; width:608px; height:118px; -webkit-appearance:none; background-color:#ffffff; }');
+entry34287.build()
+
+text34214 = new ObjText('text34214',null,80,1148,629,70,1,45,null,'div',null,0 )
+text34214.initSLine(1)
+text34214.initHasBullet(0)
+text34214.initRotateAngle(0,0,0)
+text34214.initHasOuterShadow(0)
+text34214.initHasTextShadow(0)
+text34214.initHasBorder(0)
+text34214.initHasOutline(0)
+text34214.initHasMargin(0)
+text34214.addIe8Attr(80, 1148, 629, 70, 0, 0)
+text34214.addHeading(0)
+text34214.addOpacity(100)
+text34214.arrCSSStyles = new Array();
+text34214.arrCSSStyles.push('span.text34214Font1 { font-size:16px; font-family:"Arial", sans-serif; color:#010101;}');
+text34214.addInnerText('<legend><div id=\"text34214\" aria-hidden=\"true\" ><a id=\"text34214anc\" style=\"display:block;height:0px;width:0px;\"></a>\n<p  style=\"margin-left:0px;text-indent:0px;margin-top:0px;margin-bottom:0px;text-align:left;\" >\n<span class=\"text34214Font1\" style=\"background-color:transparent\" >\n&nbsp;</span ></p >\n</div>\n</legend>\n');
+text34214.build()
+
+text34215 = new ObjText('text34215',null,107,1232,158,46,1,46,null,'div',null,0 )
+text34215.initSLine(1)
+text34215.initHasBullet(0)
+text34215.initRotateAngle(0,0,0)
+text34215.initHasOuterShadow(0)
+text34215.initHasTextShadow(0)
+text34215.initHasBorder(0)
+text34215.initHasOutline(0)
+text34215.initHasMargin(0)
+text34215.addIe8Attr(107, 1232, 158, 46, 0, 0)
+text34215.addHeading(0)
+text34215.addOpacity(100)
+text34215.arrCSSStyles = new Array();
+text34215.arrCSSStyles.push('span.text34215Font1 { font-size:13px; font-family:"Montserrat"; color:#000000;}');
+text34215.arrCSSStyles.push('span.text34215Font2 { font-size:13px; font-family:"Arial", sans-serif; color:#000000;}');
+text34215.addInnerText('<div id=\"text34215\" aria-hidden=\"true\" ><a id=\"text34215anc\" style=\"display:block;height:0px;width:0px;\"></a>\n<label id=\"label34216id\" for=\"radio34216id\" ><p  style=\"margin-left:0px;text-indent:0px;margin-top:0px;margin-bottom:0px;text-align:left;\" >\n<span class=\"text34215Font1\"  >Bukti 1</span ><span class=\"text34215Font2\" style=\"background-color:transparent\" >\n</span ></p >\n</label></div>\n');
+text34215.build()
+
+radio34216 = new ObjInline('radio34216',null,(is.ie?81:80),(is.ie?1235:1234),null,null,1,47, 0, null, null, 0)
+radio34216.arrCSSStyles = new Array();
+radio34216.arrCSSStyles.push('');
+radio34216.build()
+
+text34217 = new ObjText('text34217',null,107,1277,157,51,1,48,null,'div',null,0 )
+text34217.initSLine(1)
+text34217.initHasBullet(0)
+text34217.initRotateAngle(0,0,0)
+text34217.initHasOuterShadow(0)
+text34217.initHasTextShadow(0)
+text34217.initHasBorder(0)
+text34217.initHasOutline(0)
+text34217.initHasMargin(0)
+text34217.addIe8Attr(107, 1277, 157, 51, 0, 0)
+text34217.addHeading(0)
+text34217.addOpacity(100)
+text34217.arrCSSStyles = new Array();
+text34217.arrCSSStyles.push('span.text34217Font1 { font-size:13px; font-family:"Montserrat"; color:#000000;}');
+text34217.arrCSSStyles.push('span.text34217Font2 { font-size:13px; font-family:"Arial", sans-serif; color:#000000;}');
+text34217.addInnerText('<div id=\"text34217\" aria-hidden=\"true\" ><a id=\"text34217anc\" style=\"display:block;height:0px;width:0px;\"></a>\n<label id=\"label34218id\" for=\"radio34218id\" ><p  style=\"margin-left:0px;text-indent:0px;margin-top:0px;margin-bottom:0px;text-align:left;\" >\n<span class=\"text34217Font1\"  >Bukti 3</span ><span class=\"text34217Font2\" style=\"background-color:transparent\" >\n</span ></p >\n</label></div>\n');
+text34217.build()
+
+radio34218 = new ObjInline('radio34218',null,(is.ie?81:80),(is.ie?1281:1280),null,null,1,49, 0, null, null, 0)
+radio34218.arrCSSStyles = new Array();
+radio34218.arrCSSStyles.push('');
+radio34218.build()
+
+text34305 = new ObjText('text34305',null,80,1491,629,70,1,50,null,'div',null,0 )
+text34305.initSLine(1)
+text34305.initHasBullet(0)
+text34305.initRotateAngle(0,0,0)
+text34305.initHasOuterShadow(0)
+text34305.initHasTextShadow(0)
+text34305.initHasBorder(0)
+text34305.initHasOutline(0)
+text34305.initHasMargin(0)
+text34305.addIe8Attr(80, 1491, 629, 70, 0, 0)
+text34305.addHeading(0)
+text34305.addOpacity(100)
+text34305.arrCSSStyles = new Array();
+text34305.arrCSSStyles.push('span.text34305Font1 { font-size:21px; font-family:"Montserrat"; color:#000000;}');
+text34305.addInnerText('<legend><div id=\"text34305\" aria-hidden=\"true\" ><a id=\"text34305anc\" style=\"display:block;height:0px;width:0px;\"></a>\n<p  style=\"margin-left:0px;text-indent:0px;margin-top:0px;margin-bottom:0px;text-align:left;\" >\n<span class=\"text34305Font1\"  >&nbsp;\n</span ></p >\n</div>\n</legend>\n');
+text34305.build()
+
+text34306 = new ObjText('text34306',null,107,1575,158,46,1,51,null,'div',null,0 )
+text34306.initSLine(1)
+text34306.initHasBullet(0)
+text34306.initRotateAngle(0,0,0)
+text34306.initHasOuterShadow(0)
+text34306.initHasTextShadow(0)
+text34306.initHasBorder(0)
+text34306.initHasOutline(0)
+text34306.initHasMargin(0)
+text34306.addIe8Attr(107, 1575, 158, 46, 0, 0)
+text34306.addHeading(0)
+text34306.addOpacity(100)
+text34306.arrCSSStyles = new Array();
+text34306.arrCSSStyles.push('span.text34306Font1 { font-size:13px; font-family:"Montserrat"; color:#000000;}');
+text34306.addInnerText('<div id=\"text34306\" aria-hidden=\"true\" ><a id=\"text34306anc\" style=\"display:block;height:0px;width:0px;\"></a>\n<label id=\"label34307id\" for=\"radio34307id\" ><p  style=\"margin-left:0px;text-indent:0px;margin-top:0px;margin-bottom:0px;text-align:left;\" >\n<span class=\"text34306Font1\"  >Merah\n</span ></p >\n</label></div>\n');
+text34306.build()
+
+radio34307 = new ObjInline('radio34307',null,(is.ie?81:80),(is.ie?1578:1577),null,null,1,52, 0, null, null, 0)
+radio34307.arrCSSStyles = new Array();
+radio34307.arrCSSStyles.push('');
+radio34307.build()
+
+text34308 = new ObjText('text34308',null,107,1620,157,51,1,53,null,'div',null,0 )
+text34308.initSLine(1)
+text34308.initHasBullet(0)
+text34308.initRotateAngle(0,0,0)
+text34308.initHasOuterShadow(0)
+text34308.initHasTextShadow(0)
+text34308.initHasBorder(0)
+text34308.initHasOutline(0)
+text34308.initHasMargin(0)
+text34308.addIe8Attr(107, 1620, 157, 51, 0, 0)
+text34308.addHeading(0)
+text34308.addOpacity(100)
+text34308.arrCSSStyles = new Array();
+text34308.arrCSSStyles.push('span.text34308Font1 { font-size:13px; font-family:"Montserrat"; color:#000000;}');
+text34308.addInnerText('<div id=\"text34308\" aria-hidden=\"true\" ><a id=\"text34308anc\" style=\"display:block;height:0px;width:0px;\"></a>\n<label id=\"label34309id\" for=\"radio34309id\" ><p  style=\"margin-left:0px;text-indent:0px;margin-top:0px;margin-bottom:0px;text-align:left;\" >\n<span class=\"text34308Font1\"  >Kuning\n</span ></p >\n</label></div>\n');
+text34308.build()
+
+radio34309 = new ObjInline('radio34309',null,(is.ie?81:80),(is.ie?1624:1623),null,null,1,54, 0, null, null, 0)
+radio34309.arrCSSStyles = new Array();
+radio34309.arrCSSStyles.push('');
+radio34309.build()
+
+image134413 = new ObjImage('image134413','images/invstgt_1.2.png','invstgt_1.2',21,54,720,1679,1,17,'div',null, 0 )
+image134413.initRotateAngle(0,0,0,0,0,0,0)
+image134413.initHasShadow(0)
+image134413.initHasReflection(0)
+image134413.addIe8Attr(21, 54, 720, 1679, 0, 0)
+image134413.initImageMap(1,'0,0,720,0,720,1679,0,1679,0,0','M 0 0 L 720 0 L 720 1679 L 0 1679 L 0 0 z')
+image134413.addBorder(0)
+image134413.addOpacity(100)
+image134413.build()
+
+qu34040 = new ObjInline('qu34040',null,40,492,433,89,1,0)
+qu34040.isGrp = true
+qu34040.addChild('text34042')
+qu34040.addChild('text34043')
+qu34040.addChild('check34044')
+qu34040.addChild('text34045')
+qu34040.addChild('check34046')
+qu34040.addChild('text34047')
+qu34040.addChild('check34048')
+qu34040.addChild('text34049')
+qu34040.addChild('check34050')
+qu34040.ansVar=Var1_13_q;
+qu34040.build()
+
+text34042 = new ObjText('text34042',null,80,988,632,70,1,18,null,'div',null,0 )
+text34042.initSLine(1)
+text34042.initHasBullet(0)
+text34042.initRotateAngle(0,0,0)
+text34042.initHasOuterShadow(0)
+text34042.initHasTextShadow(0)
+text34042.initHasBorder(0)
+text34042.initHasOutline(0)
+text34042.initHasMargin(0)
+text34042.addIe8Attr(80, 988, 632, 70, 0, 0)
+text34042.addHeading(0)
+text34042.addOpacity(100)
+text34042.arrCSSStyles = new Array();
+text34042.arrCSSStyles.push('span.text34042Font1 { font-size:21px; font-family:"Montserrat"; color:#000000;}');
+text34042.addInnerText('<legend><div id=\"text34042\" aria-hidden=\"true\" ><a id=\"text34042anc\" style=\"display:block;height:0px;width:0px;\"></a>\n<p  style=\"margin-left:0px;text-indent:0px;margin-top:0px;margin-bottom:0px;text-align:left;\" >\n<span class=\"text34042Font1\"  >&nbsp;\n</span ></p >\n</div>\n</legend>\n');
+text34042.build()
+
+text34043 = new ObjText('text34043',null,107,1067,140,37,1,19,null,'div',null,0 )
+text34043.initSLine(1)
+text34043.initHasBullet(0)
+text34043.initRotateAngle(0,0,0)
+text34043.initHasOuterShadow(0)
+text34043.initHasTextShadow(0)
+text34043.initHasBorder(0)
+text34043.initHasOutline(0)
+text34043.initHasMargin(0)
+text34043.addIe8Attr(107, 1067, 140, 37, 0, 0)
+text34043.addHeading(0)
+text34043.addOpacity(100)
+text34043.arrCSSStyles = new Array();
+text34043.arrCSSStyles.push('span.text34043Font1 { font-size:13px; font-family:"Montserrat"; color:#000000;}');
+text34043.addInnerText('<div id=\"text34043\" aria-hidden=\"true\" ><a id=\"text34043anc\" style=\"display:block;height:0px;width:0px;\"></a>\n<label id=\"label34044id\" for=\"check34044id\" ><p  style=\"margin-left:0px;text-indent:0px;margin-top:0px;margin-bottom:0px;text-align:left;\" >\n<span class=\"text34043Font1\"  >Bukti 1\n</span ></p >\n</label></div>\n');
+text34043.build()
+
+check34044 = new ObjInline('check34044',null,(is.ie?81:80),(is.ie?1069:1068),null,null,1,20, 0, null, null, 0)
+check34044.arrCSSStyles = new Array();
+check34044.arrCSSStyles.push('');
+check34044.build()
+
+text34045 = new ObjText('text34045',null,107,1112,138,37,1,21,null,'div',null,0 )
+text34045.initSLine(1)
+text34045.initHasBullet(0)
+text34045.initRotateAngle(0,0,0)
+text34045.initHasOuterShadow(0)
+text34045.initHasTextShadow(0)
+text34045.initHasBorder(0)
+text34045.initHasOutline(0)
+text34045.initHasMargin(0)
+text34045.addIe8Attr(107, 1112, 138, 37, 0, 0)
+text34045.addHeading(0)
+text34045.addOpacity(100)
+text34045.arrCSSStyles = new Array();
+text34045.arrCSSStyles.push('span.text34045Font1 { font-size:13px; font-family:"Montserrat"; color:#000000;}');
+text34045.addInnerText('<div id=\"text34045\" aria-hidden=\"true\" ><a id=\"text34045anc\" style=\"display:block;height:0px;width:0px;\"></a>\n<label id=\"label34046id\" for=\"check34046id\" ><p  style=\"margin-left:0px;text-indent:0px;margin-top:0px;margin-bottom:0px;text-align:left;\" >\n<span class=\"text34045Font1\"  >Bukti 2\n</span ></p >\n</label></div>\n');
+text34045.build()
+
+check34046 = new ObjInline('check34046',null,(is.ie?81:80),(is.ie?1114:1113),null,null,1,22, 0, null, null, 0)
+check34046.arrCSSStyles = new Array();
+check34046.arrCSSStyles.push('');
+check34046.build()
+
+text34047 = new ObjText('text34047',null,352,1067,165,37,1,23,null,'div',null,0 )
+text34047.initSLine(1)
+text34047.initHasBullet(0)
+text34047.initRotateAngle(0,0,0)
+text34047.initHasOuterShadow(0)
+text34047.initHasTextShadow(0)
+text34047.initHasBorder(0)
+text34047.initHasOutline(0)
+text34047.initHasMargin(0)
+text34047.addIe8Attr(352, 1067, 165, 37, 0, 0)
+text34047.addHeading(0)
+text34047.addOpacity(100)
+text34047.arrCSSStyles = new Array();
+text34047.arrCSSStyles.push('span.text34047Font1 { font-size:13px; font-family:"Montserrat"; color:#000000;}');
+text34047.addInnerText('<div id=\"text34047\" aria-hidden=\"true\" ><a id=\"text34047anc\" style=\"display:block;height:0px;width:0px;\"></a>\n<label id=\"label34048id\" for=\"check34048id\" ><p  style=\"margin-left:0px;text-indent:0px;margin-top:0px;margin-bottom:0px;text-align:left;\" >\n<span class=\"text34047Font1\"  >Bukti 3\n</span ></p >\n</label></div>\n');
+text34047.build()
+
+check34048 = new ObjInline('check34048',null,(is.ie?326:325),(is.ie?1069:1068),null,null,1,24, 0, null, null, 0)
+check34048.arrCSSStyles = new Array();
+check34048.arrCSSStyles.push('');
+check34048.build()
+
+text34049 = new ObjText('text34049',null,352,1112,130,37,1,25,null,'div',null,0 )
+text34049.initSLine(1)
+text34049.initHasBullet(0)
+text34049.initRotateAngle(0,0,0)
+text34049.initHasOuterShadow(0)
+text34049.initHasTextShadow(0)
+text34049.initHasBorder(0)
+text34049.initHasOutline(0)
+text34049.initHasMargin(0)
+text34049.addIe8Attr(352, 1112, 130, 37, 0, 0)
+text34049.addHeading(0)
+text34049.addOpacity(100)
+text34049.arrCSSStyles = new Array();
+text34049.arrCSSStyles.push('span.text34049Font1 { font-size:13px; font-family:"Montserrat"; color:#000000;}');
+text34049.addInnerText('<div id=\"text34049\" aria-hidden=\"true\" ><a id=\"text34049anc\" style=\"display:block;height:0px;width:0px;\"></a>\n<label id=\"label34050id\" for=\"check34050id\" ><p  style=\"margin-left:0px;text-indent:0px;margin-top:0px;margin-bottom:0px;text-align:left;\" >\n<span class=\"text34049Font1\"  >Bukti 4\n</span ></p >\n</label></div>\n');
+text34049.build()
+
+check34050 = new ObjInline('check34050',null,(is.ie?326:325),(is.ie?1114:1113),null,null,1,26, 0, null, null, 0)
+check34050.arrCSSStyles = new Array();
+check34050.arrCSSStyles.push('');
+check34050.build()
+
+qu34213 = new ObjInline('qu34213',null,40,573,424,71,1,0)
+qu34213.isGrp = true
+qu34213.addChild('text34214')
+qu34213.addChild('text34215')
+qu34213.addChild('radio34216')
+qu34213.addChild('text34217')
+qu34213.addChild('radio34218')
+qu34213.ansVar=Var1_14_q;
+qu34213.build()
+
+qu34304 = new ObjInline('qu34304',null,40,743,432,91,1,0)
+qu34304.isGrp = true
+qu34304.addChild('text34305')
+qu34304.addChild('text34306')
+qu34304.addChild('radio34307')
+qu34304.addChild('text34308')
+qu34304.addChild('radio34309')
+qu34304.ansVar=Var1_16_q;
+qu34304.build()
+
+var trivQuestionArray=[qu34040,qu34213,qu34304];
+arObjs.push(text78435);
+arObjs.push(button34399);
+arObjs.push(button34648);
+arObjs.push(entry34265);
+arObjs.push(entry34265);
+arObjs.push(entry34265);
+arObjs.push(entry34265);
+arObjs.push(entry34287);
+arObjs.push(entry34287);
+arObjs.push(entry34287);
+arObjs.push(entry34287);
+arObjs.push(text34214);
+arObjs.push(text34215);
+arObjs.push(radio34216);
+arObjs.push(radio34216);
+arObjs.push(radio34216);
+arObjs.push(text34217);
+arObjs.push(radio34218);
+arObjs.push(radio34218);
+arObjs.push(radio34218);
+arObjs.push(text34305);
+arObjs.push(text34306);
+arObjs.push(radio34307);
+arObjs.push(radio34307);
+arObjs.push(radio34307);
+arObjs.push(text34308);
+arObjs.push(radio34309);
+arObjs.push(radio34309);
+arObjs.push(radio34309);
+arObjs.push(image134413);
+arObjs.push(qu34040);
+arObjs.push(qu34040);
+arObjs.push(text34042);
+arObjs.push(text34043);
+arObjs.push(check34044);
+arObjs.push(check34044);
+arObjs.push(check34044);
+arObjs.push(text34045);
+arObjs.push(check34046);
+arObjs.push(check34046);
+arObjs.push(check34046);
+arObjs.push(text34047);
+arObjs.push(check34048);
+arObjs.push(check34048);
+arObjs.push(check34048);
+arObjs.push(text34049);
+arObjs.push(check34050);
+arObjs.push(check34050);
+arObjs.push(check34050);
+arObjs.push(qu34213);
+arObjs.push(qu34213);
+arObjs.push(qu34304);
+arObjs.push(qu34304);
+
+
+writeStyleSheets(arObjs);}
+// -->
+
+</script>
+</head>
+
+<body onfocus="trivOnFocus()" onResize="ReFlow()">
+
+    <DIV style="visibility:hidden;" id="pageDIV" class="pageDIV">
+   </DIV>
+<script>
+if( is.min ){
+    findWH()
+    var left = (winW > 786) ? (winW-786)/2 : 0
+    document.write('<style type="text/css">.pageDIV { position: absolute; top:0px; left: ' + left + 'px; width:786px; height:2256px; clip:rect(0px 786px 2256px 0px); overflow:hidden;' )
+    if(is.iOS)
+		document.write('-webkit-text-size-adjust:100%;')
+    document.write('} </style>')
+}
+</script>
+
+<script>
+if( is.min ){
+    appendElement(text78435, null, null);
+    appendElement(button34399, null, null);
+    appendElement(button34648, null, null);
+    appendElement(null, null, '<div id="entry34265"><a id="entry34265anc"></a></div>');
+    appendElement(null, '<div id="entry34265"><a id="entry34265anc"></a></div>', '<form id="entry34265form"  name="entry34265form" onSubmit="return false;"></form>');
+    appendElement(null, '<form id="entry34265form"  name="entry34265form" onSubmit="return false;"></form>', '<input class="entry34265" type="text" name="Isian4_1" title="Isian4_1" id="entry34265id" size="47" maxlength="500" onPropertyChange="if( !Var1_15_e.equals(this.value) ) { Var1_15_e.set(this.value);entry34265Object.onSelChg(); }" onChange="if( !Var1_15_e.equals(this.value) ) { Var1_15_e.set(this.value);entry34265Object.onSelChg(); }" onKeyUp="Var1_15_e.set(this.value);entry34265Object.onSelChg();;" onBlur="" >');
+    appendElement(null, null, '<div id="entry34287"><a id="entry34287anc"></a></div>');
+    appendElement(null, '<div id="entry34287"><a id="entry34287anc"></a></div>', '<form id="entry34287form"  name="entry34287form" onSubmit="return false;"></form>');
+    appendElement(null, '<form id="entry34287form"  name="entry34287form" onSubmit="return false;"></form>', '<input class="entry34287" type="text" name="Isian5_1" title="Isian5_1" id="entry34287id" size="47" maxlength="500" onPropertyChange="if( !Var1_17_e.equals(this.value) ) { Var1_17_e.set(this.value);entry34287Object.onSelChg(); }" onChange="if( !Var1_17_e.equals(this.value) ) { Var1_17_e.set(this.value);entry34287Object.onSelChg(); }" onKeyUp="Var1_17_e.set(this.value);entry34287Object.onSelChg();;" onBlur="" >');
+    appendElement(text34214, '<fieldset id="qu34213_fieldset" style="border:0;"></fieldset>', null);
+    appendElement(text34215, '<fieldset id="qu34213_fieldset" style="border:0;"></fieldset>', null);
+    appendElement(null, '<fieldset id="qu34213_fieldset" style="border:0;"></fieldset>', '<div id="radio34216"><a id="radio34216anc"></a></div>');
+    appendElement(null, radio34216.div, '<input type="radio" name="qu34213" id="radio34216id" value="Bukti 1" onClick="Update_qu34213(this.value);doImmFeedback(\'qu34213\');" >');
+    appendElement(text34217, '<fieldset id="qu34213_fieldset" style="border:0;"></fieldset>', null);
+    appendElement(null, '<fieldset id="qu34213_fieldset" style="border:0;"></fieldset>', '<div id="radio34218"><a id="radio34218anc"></a></div>');
+    appendElement(null, radio34218.div, '<input type="radio" name="qu34213" id="radio34218id" value="Bukti 3" onClick="Update_qu34213(this.value);doImmFeedback(\'qu34213\');" >');
+    appendElement(text34305, '<fieldset id="qu34304_fieldset" style="border:0;"></fieldset>', null);
+    appendElement(text34306, '<fieldset id="qu34304_fieldset" style="border:0;"></fieldset>', null);
+    appendElement(null, '<fieldset id="qu34304_fieldset" style="border:0;"></fieldset>', '<div id="radio34307"><a id="radio34307anc"></a></div>');
+    appendElement(null, radio34307.div, '<input type="radio" name="qu34304" id="radio34307id" value="Merah" onClick="Update_qu34304(this.value);doImmFeedback(\'qu34304\');" >');
+    appendElement(text34308, '<fieldset id="qu34304_fieldset" style="border:0;"></fieldset>', null);
+    appendElement(null, '<fieldset id="qu34304_fieldset" style="border:0;"></fieldset>', '<div id="radio34309"><a id="radio34309anc"></a></div>');
+    appendElement(null, radio34309.div, '<input type="radio" name="qu34304" id="radio34309id" value="Kuning" onClick="Update_qu34304(this.value);doImmFeedback(\'qu34304\');" >');
+    appendElement(image134413, null, null);
+    appendElement( qu34040, '<fieldset id="qu34040_fieldset" style="border:0;"></fieldset>', '<div id="qu34040"><a id="qu34040anc"></a></div>');
+    appendElement(text34042, '<fieldset id="qu34040_fieldset" style="border:0;"></fieldset>', null);
+    appendElement(text34043, '<fieldset id="qu34040_fieldset" style="border:0;"></fieldset>', null);
+    appendElement(null, '<fieldset id="qu34040_fieldset" style="border:0;"></fieldset>', '<div id="check34044"><a id="check34044anc"></a></div>');
+    appendElement(null, check34044.div, '<input type="checkbox" name="qu34040" id="check34044id" value="Bukti 1" onClick=";Update_qu34040( 1 );doImmFeedback(\'qu34040\');">');
+    appendElement(text34045, '<fieldset id="qu34040_fieldset" style="border:0;"></fieldset>', null);
+    appendElement(null, '<fieldset id="qu34040_fieldset" style="border:0;"></fieldset>', '<div id="check34046"><a id="check34046anc"></a></div>');
+    appendElement(null, check34046.div, '<input type="checkbox" name="qu34040" id="check34046id" value="Bukti 2" onClick=";Update_qu34040( 1 );doImmFeedback(\'qu34040\');">');
+    appendElement(text34047, '<fieldset id="qu34040_fieldset" style="border:0;"></fieldset>', null);
+    appendElement(null, '<fieldset id="qu34040_fieldset" style="border:0;"></fieldset>', '<div id="check34048"><a id="check34048anc"></a></div>');
+    appendElement(null, check34048.div, '<input type="checkbox" name="qu34040" id="check34048id" value="Bukti 3" onClick=";Update_qu34040( 1 );doImmFeedback(\'qu34040\');">');
+    appendElement(text34049, '<fieldset id="qu34040_fieldset" style="border:0;"></fieldset>', null);
+    appendElement(null, '<fieldset id="qu34040_fieldset" style="border:0;"></fieldset>', '<div id="check34050"><a id="check34050anc"></a></div>');
+    appendElement(null, check34050.div, '<input type="checkbox" name="qu34040" id="check34050id" value="Bukti 4" onClick=";Update_qu34040( 1 );doImmFeedback(\'qu34040\');">');
+    appendElement( qu34213, '<fieldset id="qu34213_fieldset" style="border:0;"></fieldset>', '<div id="qu34213"><a id="qu34213anc"></a></div>');
+    appendElement( qu34304, '<fieldset id="qu34304_fieldset" style="border:0;"></fieldset>', '<div id="qu34304"><a id="qu34304anc"></a></div>');
+}
+</script>
+
+</body>
+</html>
