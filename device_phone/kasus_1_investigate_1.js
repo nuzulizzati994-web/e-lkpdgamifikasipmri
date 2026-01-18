@@ -31,6 +31,8 @@ PhoneResponsive={"785":{
 ,
 "colormix2":{"x":576,"y":899,"w":100,"h":100,"bOffBottom":0}
 ,
+"colormix1":{"x":576,"y":685,"w":100,"h":100,"bOffBottom":0}
+,
 "text23966":{"x":80,"y":1518,"w":620,"h":37,"txtscale":100,"bOffBottom":0}
 ,
 "text23967":{"x":107,"y":1563,"w":117,"h":35,"txtscale":100,"bOffBottom":0}
@@ -81,6 +83,8 @@ PhoneResponsive={"785":{
 ,
 "entry26527":{"x":88,"y":2551,"w":612,"h":121,"fsize":16,"bOffBottom":0}
 ,
+"colormix":{"x":567,"y":340,"w":121,"h":121,"bOffBottom":0}
+,
 "":{"x":122,"y":71,"w":300,"h":200,"bOffBottom":0}
 ,
 "image132024":{"x":24,"y":-917,"w":719,"h":2343,"bOffBottom":0,"i":"images/invstgt_1.png"}
@@ -88,10 +92,6 @@ PhoneResponsive={"785":{
 "":{"x":235,"y":256,"w":300,"h":200,"bOffBottom":0}
 ,
 "entry25661":{"x":569,"y":795,"w":115,"h":35,"fsize":16,"bOffBottom":0}
-,
-"colormix1":{"x":576,"y":685,"w":100,"h":100,"bOffBottom":0}
-,
-"colormix":{"x":567,"y":340,"w":121,"h":121,"bOffBottom":0}
 ,
 "RCDResetQuestion":function(){
 try{if(window.dragMgr)window.dragMgr.clearDropZones();}catch(e){if(e&&e.message)console.log(e.message);}
@@ -132,6 +132,8 @@ try{if(window.dragMgr)window.dragMgr.clearDropZones();}catch(e){if(e&&e.message)
 "entry26405":{"x":341,"y":498,"w":84,"h":26,"fsize":16,"bOffBottom":0}
 ,
 "colormix2":{"x":353,"y":432,"w":61,"h":61,"bOffBottom":0}
+,
+"colormix1":{"x":353,"y":321,"w":60,"h":60,"bOffBottom":0}
 ,
 "text23966":{"x":40,"y":760,"w":309,"h":18,"txtscale":100,"bOffBottom":0}
 ,
@@ -183,6 +185,8 @@ try{if(window.dragMgr)window.dragMgr.clearDropZones();}catch(e){if(e&&e.message)
 ,
 "entry26527":{"x":46,"y":1205,"w":380,"h":58,"fsize":16,"bOffBottom":0}
 ,
+"colormix":{"x":356,"y":160,"w":74,"h":74,"bOffBottom":0}
+,
 "":{"x":75,"y":71,"w":183,"h":122,"bOffBottom":0}
 ,
 "image132024":{"x":0,"y":0,"w":480,"h":1564,"bOffBottom":0,"i":"images/invstgt_1.png"}
@@ -190,10 +194,6 @@ try{if(window.dragMgr)window.dragMgr.clearDropZones();}catch(e){if(e&&e.message)
 "":{"x":144,"y":256,"w":183,"h":122,"bOffBottom":0}
 ,
 "entry25661":{"x":341,"y":388,"w":84,"h":26,"fsize":16,"bOffBottom":0}
-,
-"colormix1":{"x":353,"y":321,"w":60,"h":60,"bOffBottom":0}
-,
-"colormix":{"x":356,"y":160,"w":74,"h":74,"bOffBottom":0}
 ,
 "RCDResetQuestion":function(){
 try{if(window.dragMgr)window.dragMgr.clearDropZones();}catch(e){if(e&&e.message)console.log(e.message);}

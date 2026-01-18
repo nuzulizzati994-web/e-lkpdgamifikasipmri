@@ -31,6 +31,8 @@ TabletResponsive={"1009":{
 ,
 "colormix2":{"x":577,"y":900,"w":100,"h":100,"bOffBottom":0}
 ,
+"colormix1":{"x":577,"y":686,"w":100,"h":100,"bOffBottom":0}
+,
 "text23966":{"x":80,"y":1520,"w":621,"h":37,"txtscale":100,"bOffBottom":0}
 ,
 "text23967":{"x":107,"y":1565,"w":117,"h":35,"txtscale":100,"bOffBottom":0}
@@ -81,6 +83,8 @@ TabletResponsive={"1009":{
 ,
 "entry26527":{"x":88,"y":2554,"w":612,"h":121,"fsize":16,"bOffBottom":0}
 ,
+"colormix":{"x":568,"y":340,"w":121,"h":121,"bOffBottom":0}
+,
 "":{"x":122,"y":71,"w":300,"h":200,"bOffBottom":0}
 ,
 "image132024":{"x":24,"y":-918,"w":720,"h":2346,"bOffBottom":0,"i":"images/invstgt_1.png"}
@@ -88,10 +92,6 @@ TabletResponsive={"1009":{
 "":{"x":235,"y":256,"w":300,"h":200,"bOffBottom":0}
 ,
 "entry25661":{"x":570,"y":796,"w":115,"h":35,"fsize":16,"bOffBottom":0}
-,
-"colormix1":{"x":577,"y":686,"w":100,"h":100,"bOffBottom":0}
-,
-"colormix":{"x":568,"y":340,"w":121,"h":121,"bOffBottom":0}
 ,
 "RCDResetQuestion":function(){
 try{if(window.dragMgr)window.dragMgr.clearDropZones();}catch(e){if(e&&e.message)console.log(e.message);}
@@ -132,6 +132,8 @@ try{if(window.dragMgr)window.dragMgr.clearDropZones();}catch(e){if(e&&e.message)
 "entry26405":{"x":569,"y":1010,"w":115,"h":35,"fsize":16,"bOffBottom":0}
 ,
 "colormix2":{"x":576,"y":900,"w":100,"h":100,"bOffBottom":0}
+,
+"colormix1":{"x":576,"y":686,"w":100,"h":100,"bOffBottom":0}
 ,
 "text23966":{"x":80,"y":1520,"w":620,"h":37,"txtscale":100,"bOffBottom":0}
 ,
@@ -183,6 +185,8 @@ try{if(window.dragMgr)window.dragMgr.clearDropZones();}catch(e){if(e&&e.message)
 ,
 "entry26527":{"x":88,"y":2554,"w":612,"h":121,"fsize":16,"bOffBottom":0}
 ,
+"colormix":{"x":567,"y":340,"w":121,"h":121,"bOffBottom":0}
+,
 "":{"x":122,"y":71,"w":300,"h":200,"bOffBottom":0}
 ,
 "image132024":{"x":24,"y":-918,"w":719,"h":2343,"bOffBottom":0,"i":"images/invstgt_1.png"}
@@ -190,10 +194,6 @@ try{if(window.dragMgr)window.dragMgr.clearDropZones();}catch(e){if(e&&e.message)
 "":{"x":235,"y":256,"w":300,"h":200,"bOffBottom":0}
 ,
 "entry25661":{"x":569,"y":796,"w":115,"h":35,"fsize":16,"bOffBottom":0}
-,
-"colormix1":{"x":576,"y":686,"w":100,"h":100,"bOffBottom":0}
-,
-"colormix":{"x":567,"y":340,"w":121,"h":121,"bOffBottom":0}
 ,
 "RCDResetQuestion":function(){
 try{if(window.dragMgr)window.dragMgr.clearDropZones();}catch(e){if(e&&e.message)console.log(e.message);}

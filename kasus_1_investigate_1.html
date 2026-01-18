@@ -513,7 +513,7 @@ function init11() {
   findWH()
   if( is.min ){
     trivPageTracking.InitPageTracking();
-    PreloadResources(new Array(text78402,text30476,text30666,button28883,button29620,text30750,button29833,button29757,entry26471,entry26471,entry26471,entry26471,entry26437,entry26437,entry26437,entry26437,colormix4,entry26427,entry26427,entry26427,entry26427,colormix3,entry26405,entry26405,entry26405,entry26405,colormix2,text23966,text23967,radio23968,radio23968,radio23968,text23969,radio23970,radio23970,radio23970,text24248,text24249,radio24250,radio24250,radio24250,text24251,radio24252,radio24252,radio24252,text24316,text24317,radio24318,radio24318,radio24318,text24319,radio24320,radio24320,radio24320,text24371,text24372,radio24373,radio24373,radio24373,text24374,radio24375,radio24375,radio24375,button23644,combo24154,combo24154,combo24154,combo24154,combo24154,combo24154,combo24154,combo24154,combo24154,combo24154,combo24154,combo24154,combo24154,combo24188,combo24188,combo24188,combo24188,combo24188,combo24188,combo24188,combo24188,combo24188,combo24188,combo24188,combo24188,combo24188,entry26507,entry26507,entry26507,entry26507,entry26527,entry26527,entry26527,entry26527,image132024,entry25661,entry25661,entry25661,entry25661,colormix1,qu23964,qu23964,qu24247,qu24247,qu24315,qu24315,qu24370,qu24370,colormix))
+    PreloadResources(new Array(text78402,text30476,text30666,button28883,button29620,text30750,button29833,button29757,entry26471,entry26471,entry26471,entry26471,entry26437,entry26437,entry26437,entry26437,colormix4,entry26427,entry26427,entry26427,entry26427,colormix3,entry26405,entry26405,entry26405,entry26405,colormix2,colormix1,text23966,text23967,radio23968,radio23968,radio23968,text23969,radio23970,radio23970,radio23970,text24248,text24249,radio24250,radio24250,radio24250,text24251,radio24252,radio24252,radio24252,text24316,text24317,radio24318,radio24318,radio24318,text24319,radio24320,radio24320,radio24320,text24371,text24372,radio24373,radio24373,radio24373,text24374,radio24375,radio24375,radio24375,button23644,combo24154,combo24154,combo24154,combo24154,combo24154,combo24154,combo24154,combo24154,combo24154,combo24154,combo24154,combo24154,combo24154,combo24188,combo24188,combo24188,combo24188,combo24188,combo24188,combo24188,combo24188,combo24188,combo24188,combo24188,combo24188,combo24188,entry26507,entry26507,entry26507,entry26507,entry26527,entry26527,entry26527,entry26527,colormix,image132024,entry25661,entry25661,entry25661,entry25661,qu23964,qu23964,qu24247,qu24247,qu24315,qu24315,qu24370,qu24370))
     pageLayer.transData = {tOut:0,tNum:34,dur:4,fn:null,ol:0,ot:0,fl:0,ft:0,fr:0,fb:0,il:-1,eff:0, tb:0};
     if(!isSinglePagePlayerAvail()){
     if( !is.ie||is.v>8 ) setTimeout( 'pageLayer.doTrans( 0, 34, 4, null, 0, 0, 0, 0, 0, 0, -1, 0, 0 )' , 100 );
@@ -546,6 +546,7 @@ function init11() {
     entry26405.init()
     entry26405.init()
     colormix2.init()
+    colormix1.init()
     text23966.init()
     text23967.init()
     radio23968.init()
@@ -617,12 +618,12 @@ function init11() {
     entry26527.init()
     entry26527.init()
     entry26527.init()
+    colormix.init()
     image132024.init()
     entry25661.init()
     entry25661.init()
     entry25661.init()
     entry25661.init()
-    colormix1.init()
     qu23964.init()
     qu23964.init()
     qu24247.init()
@@ -631,7 +632,6 @@ function init11() {
     qu24315.init()
     qu24370.init()
     qu24370.init()
-    colormix.init()
     text78402.activate()
     text30476.activate()
     text30666.activate()
@@ -659,6 +659,7 @@ function init11() {
     entry26405.activate()
     entry26405.activate()
     colormix2.activate()
+    colormix1.activate()
     text23966.activate()
     text23967.activate()
     radio23968.activate()
@@ -730,12 +731,12 @@ function init11() {
     entry26527.activate()
     entry26527.activate()
     entry26527.activate()
+    colormix.activate()
     image132024.activate()
     entry25661.activate()
     entry25661.activate()
     entry25661.activate()
     entry25661.activate()
-    colormix1.activate()
     qu23964.activate()
     qu23964.activate()
     qu24247.activate()
@@ -744,7 +745,6 @@ function init11() {
     qu24315.activate()
     qu24370.activate()
     qu24370.activate()
-    colormix.activate()
      var objToScroll = trivGetScrollObj(window.location.href) ;
      trivScrollTo(window, objToScroll);
     var titleManagerIndexWindow = (window && window.parent && window.parent.bIsTitleManagerIndexFile) ? window.parent : null;
@@ -906,12 +906,12 @@ function doImmFeedback( objId ) {
   if(!qu23964.hasBeenProcessed) {
     if( ans_Var1_5_q == '\u0059\u0061\u002C\u0020\u0073\u0061\u006D\u0061' ) 
     { //1 
-        trivActFBCnt++; action23964_35(onAfterFBAction);  return 0;
+        trivActFBCnt++; action23964_37(onAfterFBAction);  return 0;
   } //1
 
     else if( ans_Var1_5_q != '\u0059\u0061\u002C\u0020\u0073\u0061\u006D\u0061' && ans_Var1_5_q != '~~~null~~~' ) 
     { //2 
-trivActFBCnt++; action23964_36(onAfterFBAction);return 0;  } //2 
+trivActFBCnt++; action23964_38(onAfterFBAction);return 0;  } //2 
 
     }
   }
@@ -920,11 +920,11 @@ trivActFBCnt++; action23964_36(onAfterFBAction);return 0;  } //2
   if(!qu24247.hasBeenProcessed) {
     if( ans_Var1_7_q != '\u0054\u0069\u0064\u0061\u006B\u0020\u0073\u0061\u006D\u0061' && ans_Var1_7_q != '~~~null~~~' ) 
     { //2 
-trivActFBCnt++; action24247_35(onAfterFBAction);return 0;  } //2 
+trivActFBCnt++; action24247_37(onAfterFBAction);return 0;  } //2 
 
     else if( ans_Var1_7_q == '\u0054\u0069\u0064\u0061\u006B\u0020\u0073\u0061\u006D\u0061' ) 
     { //1 
-        trivActFBCnt++; action24247_36(onAfterFBAction);  return 0;
+        trivActFBCnt++; action24247_38(onAfterFBAction);  return 0;
   } //1
 
     }
@@ -934,12 +934,12 @@ trivActFBCnt++; action24247_35(onAfterFBAction);return 0;  } //2
   if(!qu24315.hasBeenProcessed) {
     if( ans_Var1_8_q == '\u004C\u0065\u0062\u0069\u0068\u0020\u0074\u0065\u0072\u0061\u006E\u0067' ) 
     { //1 
-        trivActFBCnt++; action24315_35(onAfterFBAction);  return 0;
+        trivActFBCnt++; action24315_37(onAfterFBAction);  return 0;
   } //1
 
     else if( ans_Var1_8_q != '\u004C\u0065\u0062\u0069\u0068\u0020\u0074\u0065\u0072\u0061\u006E\u0067' && ans_Var1_8_q != '~~~null~~~' ) 
     { //2 
-trivActFBCnt++; action24315_36(onAfterFBAction);return 0;  } //2 
+trivActFBCnt++; action24315_38(onAfterFBAction);return 0;  } //2 
 
     }
   }
@@ -948,11 +948,11 @@ trivActFBCnt++; action24315_36(onAfterFBAction);return 0;  } //2
   if(!qu24370.hasBeenProcessed) {
     if( ans_Var1_10_q != '\u0054\u0069\u0064\u0061\u006B\u0020\u0073\u0061\u006D\u0061' && ans_Var1_10_q != '~~~null~~~' ) 
     { //2 
-trivActFBCnt++; action24370_35(onAfterFBAction);return 0;  } //2 
+trivActFBCnt++; action24370_37(onAfterFBAction);return 0;  } //2 
 
     else if( ans_Var1_10_q == '\u0054\u0069\u0064\u0061\u006B\u0020\u0073\u0061\u006D\u0061' ) 
     { //1 
-        trivActFBCnt++; action24370_36(onAfterFBAction);  return 0;
+        trivActFBCnt++; action24370_38(onAfterFBAction);  return 0;
   } //1
 
     }
@@ -1327,7 +1327,7 @@ function Update_qu23964(value) {
    qu23964Object.hasBeenProcessed=false;
 }
 
-function action23964_35(fn){
+function action23964_37(fn){
     try{
      pt(1,1,5,50); 
      } catch (e) {
@@ -1337,7 +1337,7 @@ function action23964_35(fn){
     else if(fn && typeof(fn) == 'function' ) fn();
 }
 
-function action23964_36(fn){
+function action23964_38(fn){
     try{
      pt(0, 1, 5, 50); 
      } catch (e) {
@@ -1358,7 +1358,7 @@ function Update_qu24247(value) {
    qu24247Object.hasBeenProcessed=false;
 }
 
-function action24247_35(fn){
+function action24247_37(fn){
     try{
      pt(0, 1, 7, 50); 
      } catch (e) {
@@ -1368,7 +1368,7 @@ function action24247_35(fn){
     else if(fn && typeof(fn) == 'function' ) fn();
 }
 
-function action24247_36(fn){
+function action24247_38(fn){
     try{
      pt(1,1,7,50); 
      } catch (e) {
@@ -1389,7 +1389,7 @@ function Update_qu24315(value) {
    qu24315Object.hasBeenProcessed=false;
 }
 
-function action24315_35(fn){
+function action24315_37(fn){
     try{
      pt(1,1,8,50); 
      } catch (e) {
@@ -1399,7 +1399,7 @@ function action24315_35(fn){
     else if(fn && typeof(fn) == 'function' ) fn();
 }
 
-function action24315_36(fn){
+function action24315_38(fn){
     try{
      pt(0,1,8,50); 
      } catch (e) {
@@ -1420,7 +1420,7 @@ function Update_qu24370(value) {
    qu24370Object.hasBeenProcessed=false;
 }
 
-function action24370_35(fn){
+function action24370_37(fn){
     try{
      pt(0,1,10,50); 
      } catch (e) {
@@ -1430,7 +1430,7 @@ function action24370_35(fn){
     else if(fn && typeof(fn) == 'function' ) fn();
 }
 
-function action24370_36(fn){
+function action24370_38(fn){
     try{
      pt(1,1,10,50); 
      } catch (e) {
@@ -1631,7 +1631,10 @@ entry26405.build()
 colormix2 = new ObjInline('colormix2',null,577,900,100,100,1,75,-2,'div',null,0,'circle-paint',1)
 colormix2.build()
 
-text23966 = new ObjText('text23966',null,80,1520,621,37,1,76,null,'div',null,0 )
+colormix1 = new ObjInline('colormix1',null,577,686,100,100,1,76,-2,'div',null,0,'circle-paint',1)
+colormix1.build()
+
+text23966 = new ObjText('text23966',null,80,1520,621,37,1,77,null,'div',null,0 )
 text23966.initSLine(1)
 text23966.initHasBullet(0)
 text23966.initRotateAngle(0,0,0)
@@ -1648,7 +1651,7 @@ text23966.arrCSSStyles.push('span.text23966Font1 { font-size:16px; font-family:"
 text23966.addInnerText('<legend><div id=\"text23966\" aria-hidden=\"true\" ><a id=\"text23966anc\" style=\"display:block;height:0px;width:0px;\"></a>\n<p  style=\"margin-left:0px;text-indent:0px;margin-top:0px;margin-bottom:0px;text-align:left;\" >\n<span class=\"text23966Font1\"  >&nbsp;\n</span ></p >\n</div>\n</legend>\n');
 text23966.build()
 
-text23967 = new ObjText('text23967',null,107,1565,117,35,1,77,null,'div',null,0 )
+text23967 = new ObjText('text23967',null,107,1565,117,35,1,78,null,'div',null,0 )
 text23967.initSLine(1)
 text23967.initHasBullet(0)
 text23967.initRotateAngle(0,0,0)
@@ -1666,12 +1669,12 @@ text23967.arrCSSStyles.push('span.text23967Font2 { font-size:13px; font-family:"
 text23967.addInnerText('<div id=\"text23967\" aria-hidden=\"true\" ><a id=\"text23967anc\" style=\"display:block;height:0px;width:0px;\"></a>\n<label id=\"label23968id\" for=\"radio23968id\" ><p  style=\"margin-left:0px;text-indent:0px;margin-top:0px;margin-bottom:0px;text-align:left;\" >\n<span class=\"text23967Font1\"  >Ya</span ><span class=\"text23967Font2\"  >, sama</span ><span class=\"text23967Font1\" style=\"background-color:transparent\" >\n</span ></p >\n</label></div>\n');
 text23967.build()
 
-radio23968 = new ObjInline('radio23968',null,(is.ie?81:80),(is.ie?1568:1567),null,null,1,78, 0, null, null, 0)
+radio23968 = new ObjInline('radio23968',null,(is.ie?81:80),(is.ie?1568:1567),null,null,1,79, 0, null, null, 0)
 radio23968.arrCSSStyles = new Array();
 radio23968.arrCSSStyles.push('');
 radio23968.build()
 
-text23969 = new ObjText('text23969',null,107,1610,157,37,1,79,null,'div',null,0 )
+text23969 = new ObjText('text23969',null,107,1610,157,37,1,80,null,'div',null,0 )
 text23969.initSLine(1)
 text23969.initHasBullet(0)
 text23969.initRotateAngle(0,0,0)
@@ -1689,12 +1692,12 @@ text23969.arrCSSStyles.push('span.text23969Font2 { font-size:13px; font-family:"
 text23969.addInnerText('<div id=\"text23969\" aria-hidden=\"true\" ><a id=\"text23969anc\" style=\"display:block;height:0px;width:0px;\"></a>\n<label id=\"label23970id\" for=\"radio23970id\" ><p  style=\"margin-left:0px;text-indent:0px;margin-top:0px;margin-bottom:0px;text-align:left;\" >\n<span class=\"text23969Font1\"  >Tidak</span ><span class=\"text23969Font2\"  > sama</span ><span class=\"text23969Font1\" style=\"background-color:transparent\" >\n</span ></p >\n</label></div>\n');
 text23969.build()
 
-radio23970 = new ObjInline('radio23970',null,(is.ie?81:80),(is.ie?1614:1613),null,null,1,80, 0, null, null, 0)
+radio23970 = new ObjInline('radio23970',null,(is.ie?81:80),(is.ie?1614:1613),null,null,1,81, 0, null, null, 0)
 radio23970.arrCSSStyles = new Array();
 radio23970.arrCSSStyles.push('');
 radio23970.build()
 
-text24248 = new ObjText('text24248',null,80,1823,629,70,1,81,null,'div',null,0 )
+text24248 = new ObjText('text24248',null,80,1823,629,70,1,82,null,'div',null,0 )
 text24248.initSLine(1)
 text24248.initHasBullet(0)
 text24248.initRotateAngle(0,0,0)
@@ -1711,7 +1714,7 @@ text24248.arrCSSStyles.push('span.text24248Font1 { font-size:16px; font-family:"
 text24248.addInnerText('<legend><div id=\"text24248\" aria-hidden=\"true\" ><a id=\"text24248anc\" style=\"display:block;height:0px;width:0px;\"></a>\n<p  style=\"margin-left:0px;text-indent:0px;margin-top:0px;margin-bottom:0px;text-align:left;\" >\n<span class=\"text24248Font1\"  >&nbsp;\n</span ></p >\n</div>\n</legend>\n');
 text24248.build()
 
-text24249 = new ObjText('text24249',null,107,1907,107,29,1,82,null,'div',null,0 )
+text24249 = new ObjText('text24249',null,107,1907,107,29,1,83,null,'div',null,0 )
 text24249.initSLine(1)
 text24249.initHasBullet(0)
 text24249.initRotateAngle(0,0,0)
@@ -1729,12 +1732,12 @@ text24249.arrCSSStyles.push('span.text24249Font2 { font-size:13px; font-family:"
 text24249.addInnerText('<div id=\"text24249\" aria-hidden=\"true\" ><a id=\"text24249anc\" style=\"display:block;height:0px;width:0px;\"></a>\n<label id=\"label24250id\" for=\"radio24250id\" ><p  style=\"margin-left:0px;text-indent:0px;margin-top:0px;margin-bottom:0px;text-align:left;\" >\n<span class=\"text24249Font1\"  >Ya</span ><span class=\"text24249Font2\"  >, sama</span ><span class=\"text24249Font1\" style=\"background-color:transparent\" >\n</span ></p >\n</label></div>\n');
 text24249.build()
 
-radio24250 = new ObjInline('radio24250',null,(is.ie?81:80),(is.ie?1910:1909),null,null,1,83, 0, null, null, 0)
+radio24250 = new ObjInline('radio24250',null,(is.ie?81:80),(is.ie?1910:1909),null,null,1,84, 0, null, null, 0)
 radio24250.arrCSSStyles = new Array();
 radio24250.arrCSSStyles.push('');
 radio24250.build()
 
-text24251 = new ObjText('text24251',null,107,1952,157,37,1,84,null,'div',null,0 )
+text24251 = new ObjText('text24251',null,107,1952,157,37,1,85,null,'div',null,0 )
 text24251.initSLine(1)
 text24251.initHasBullet(0)
 text24251.initRotateAngle(0,0,0)
@@ -1752,12 +1755,12 @@ text24251.arrCSSStyles.push('span.text24251Font2 { font-size:13px; font-family:"
 text24251.addInnerText('<div id=\"text24251\" aria-hidden=\"true\" ><a id=\"text24251anc\" style=\"display:block;height:0px;width:0px;\"></a>\n<label id=\"label24252id\" for=\"radio24252id\" ><p  style=\"margin-left:0px;text-indent:0px;margin-top:0px;margin-bottom:0px;text-align:left;\" >\n<span class=\"text24251Font1\"  >Tidak</span ><span class=\"text24251Font2\"  > sama</span ><span class=\"text24251Font1\" style=\"background-color:transparent\" >\n</span ></p >\n</label></div>\n');
 text24251.build()
 
-radio24252 = new ObjInline('radio24252',null,(is.ie?81:80),(is.ie?1956:1955),null,null,1,85, 0, null, null, 0)
+radio24252 = new ObjInline('radio24252',null,(is.ie?81:80),(is.ie?1956:1955),null,null,1,86, 0, null, null, 0)
 radio24252.arrCSSStyles = new Array();
 radio24252.arrCSSStyles.push('');
 radio24252.build()
 
-text24316 = new ObjText('text24316',null,80,1996,629,70,1,86,null,'div',null,0 )
+text24316 = new ObjText('text24316',null,80,1996,629,70,1,87,null,'div',null,0 )
 text24316.initSLine(0)
 text24316.initHasBullet(0)
 text24316.initRotateAngle(0,0,0)
@@ -1774,7 +1777,7 @@ text24316.arrCSSStyles.push('span.text24316Font1 { font-size:16px; font-family:"
 text24316.addInnerText('<legend><div id=\"text24316\" aria-hidden=\"true\" ><a id=\"text24316anc\" style=\"display:block;height:0px;width:0px;\"></a>\n<p  style=\"margin-left:0px;text-indent:0px;margin-top:0px;margin-bottom:0px;text-align:left;\" >\n<span class=\"text24316Font1\"  >&nbsp;\n</span ></p >\n</div>\n</legend>\n');
 text24316.build()
 
-text24317 = new ObjText('text24317',null,107,2080,159,38,1,87,null,'div',null,0 )
+text24317 = new ObjText('text24317',null,107,2080,159,38,1,88,null,'div',null,0 )
 text24317.initSLine(1)
 text24317.initHasBullet(0)
 text24317.initRotateAngle(0,0,0)
@@ -1791,12 +1794,12 @@ text24317.arrCSSStyles.push('span.text24317Font1 { font-size:13px; font-family:"
 text24317.addInnerText('<div id=\"text24317\" aria-hidden=\"true\" ><a id=\"text24317anc\" style=\"display:block;height:0px;width:0px;\"></a>\n<label id=\"label24318id\" for=\"radio24318id\" ><p  style=\"margin-left:0px;text-indent:0px;margin-top:0px;margin-bottom:0px;text-align:left;\" >\n<span class=\"text24317Font1\"  >Lebih terang\n</span ></p >\n</label></div>\n');
 text24317.build()
 
-radio24318 = new ObjInline('radio24318',null,(is.ie?81:80),(is.ie?2083:2082),null,null,1,88, 0, null, null, 0)
+radio24318 = new ObjInline('radio24318',null,(is.ie?81:80),(is.ie?2083:2082),null,null,1,89, 0, null, null, 0)
 radio24318.arrCSSStyles = new Array();
 radio24318.arrCSSStyles.push('');
 radio24318.build()
 
-text24319 = new ObjText('text24319',null,107,2125,157,37,1,89,null,'div',null,0 )
+text24319 = new ObjText('text24319',null,107,2125,157,37,1,90,null,'div',null,0 )
 text24319.initSLine(1)
 text24319.initHasBullet(0)
 text24319.initRotateAngle(0,0,0)
@@ -1813,12 +1816,12 @@ text24319.arrCSSStyles.push('span.text24319Font1 { font-size:13px; font-family:"
 text24319.addInnerText('<div id=\"text24319\" aria-hidden=\"true\" ><a id=\"text24319anc\" style=\"display:block;height:0px;width:0px;\"></a>\n<label id=\"label24320id\" for=\"radio24320id\" ><p  style=\"margin-left:0px;text-indent:0px;margin-top:0px;margin-bottom:0px;text-align:left;\" >\n<span class=\"text24319Font1\"  >Lebih gelap\n</span ></p >\n</label></div>\n');
 text24319.build()
 
-radio24320 = new ObjInline('radio24320',null,(is.ie?81:80),(is.ie?2129:2128),null,null,1,90, 0, null, null, 0)
+radio24320 = new ObjInline('radio24320',null,(is.ie?81:80),(is.ie?2129:2128),null,null,1,91, 0, null, null, 0)
 radio24320.arrCSSStyles = new Array();
 radio24320.arrCSSStyles.push('');
 radio24320.build()
 
-text24371 = new ObjText('text24371',null,80,2338,629,70,1,91,null,'div',null,0 )
+text24371 = new ObjText('text24371',null,80,2338,629,70,1,92,null,'div',null,0 )
 text24371.initSLine(1)
 text24371.initHasBullet(0)
 text24371.initRotateAngle(0,0,0)
@@ -1835,7 +1838,7 @@ text24371.arrCSSStyles.push('span.text24371Font1 { font-size:16px; font-family:"
 text24371.addInnerText('<legend><div id=\"text24371\" aria-hidden=\"true\" ><a id=\"text24371anc\" style=\"display:block;height:0px;width:0px;\"></a>\n<p  style=\"margin-left:0px;text-indent:0px;margin-top:0px;margin-bottom:0px;text-align:left;\" >\n<span class=\"text24371Font1\"  >&nbsp;\n</span ></p >\n</div>\n</legend>\n');
 text24371.build()
 
-text24372 = new ObjText('text24372',null,107,2422,159,38,1,92,null,'div',null,0 )
+text24372 = new ObjText('text24372',null,107,2422,159,38,1,93,null,'div',null,0 )
 text24372.initSLine(1)
 text24372.initHasBullet(0)
 text24372.initRotateAngle(0,0,0)
@@ -1852,12 +1855,12 @@ text24372.arrCSSStyles.push('span.text24372Font1 { font-size:13px; font-family:"
 text24372.addInnerText('<div id=\"text24372\" aria-hidden=\"true\" ><a id=\"text24372anc\" style=\"display:block;height:0px;width:0px;\"></a>\n<label id=\"label24373id\" for=\"radio24373id\" ><p  style=\"margin-left:0px;text-indent:0px;margin-top:0px;margin-bottom:0px;text-align:left;\" >\n<span class=\"text24372Font1\"  >Ya, sama\n</span ></p >\n</label></div>\n');
 text24372.build()
 
-radio24373 = new ObjInline('radio24373',null,(is.ie?81:80),(is.ie?2425:2424),null,null,1,93, 0, null, null, 0)
+radio24373 = new ObjInline('radio24373',null,(is.ie?81:80),(is.ie?2425:2424),null,null,1,94, 0, null, null, 0)
 radio24373.arrCSSStyles = new Array();
 radio24373.arrCSSStyles.push('');
 radio24373.build()
 
-text24374 = new ObjText('text24374',null,107,2467,157,51,1,94,null,'div',null,0 )
+text24374 = new ObjText('text24374',null,107,2467,157,51,1,95,null,'div',null,0 )
 text24374.initSLine(1)
 text24374.initHasBullet(0)
 text24374.initRotateAngle(0,0,0)
@@ -1874,12 +1877,12 @@ text24374.arrCSSStyles.push('span.text24374Font1 { font-size:13px; font-family:"
 text24374.addInnerText('<div id=\"text24374\" aria-hidden=\"true\" ><a id=\"text24374anc\" style=\"display:block;height:0px;width:0px;\"></a>\n<label id=\"label24375id\" for=\"radio24375id\" ><p  style=\"margin-left:0px;text-indent:0px;margin-top:0px;margin-bottom:0px;text-align:left;\" >\n<span class=\"text24374Font1\"  >Tidak sama\n</span ></p >\n</label></div>\n');
 text24374.build()
 
-radio24375 = new ObjInline('radio24375',null,(is.ie?81:80),(is.ie?2471:2470),null,null,1,95, 0, null, null, 0)
+radio24375 = new ObjInline('radio24375',null,(is.ie?81:80),(is.ie?2471:2470),null,null,1,96, 0, null, null, 0)
 radio24375.arrCSSStyles = new Array();
 radio24375.arrCSSStyles.push('');
 radio24375.build()
 
-button23644 = new ObjButton('button23644', 'Button_Lanjut11',489,3039,217.000000,66.000000,1,96,'div','',1,0)
+button23644 = new ObjButton('button23644', 'Button_Lanjut11',489,3039,217.000000,66.000000,1,97,'div','',1,0)
 button23644.setFillStyle(2)
 button23644.setUniqueFillID('kasus_1_investigate_1_button23644')
 button23644.initRotateAngle(0,0,0,-0.000000,-0.000000,216,65)
@@ -1900,31 +1903,34 @@ button23644.hasOnUp = true
 button23644.capture=4
 button23644.build()
 
-combo24154 = new ObjInline('combo24154',null,(is.ie?548:547),(is.ie?2860:2859),null,null,1,97, 0, null, null, 0)
+combo24154 = new ObjInline('combo24154',null,(is.ie?548:547),(is.ie?2860:2859),null,null,1,98, 0, null, null, 0)
 combo24154.onSelChg = combo24154onSelChg
 combo24154.arrCSSStyles = new Array();
 combo24154.arrCSSStyles.push('select.combo24154 { font-size:16px; font-family:"Arial", sans-serif; color:#000000; width:38px; height:20px; background-color:#ffffff; }');
 combo24154.build()
 
-combo24188 = new ObjInline('combo24188',null,(is.ie?606:605),(is.ie?2860:2859),null,null,1,98, 0, null, null, 0)
+combo24188 = new ObjInline('combo24188',null,(is.ie?606:605),(is.ie?2860:2859),null,null,1,99, 0, null, null, 0)
 combo24188.onSelChg = combo24188onSelChg
 combo24188.arrCSSStyles = new Array();
 combo24188.arrCSSStyles.push('select.combo24188 { font-size:16px; font-family:"Arial", sans-serif; color:#000000; width:38px; height:20px; background-color:#ffffff; }');
 combo24188.build()
 
-entry26507 = new ObjInline('entry26507',null,(is.ie?87:87),(is.ie?2252:2251),null,null,1,99, 0, null, null, 0)
+entry26507 = new ObjInline('entry26507',null,(is.ie?87:87),(is.ie?2252:2251),null,null,1,100, 0, null, null, 0)
 entry26507.onSelChg = entry26507onSelChg
 entry26507.arrCSSStyles = new Array();
 entry26507.arrCSSStyles.push('input.entry26507 { font-size:16px; font-family:"Arial", sans-serif; color:#000000; width:608px; height:70px; -webkit-appearance:none; background-color:#ffffff; }');
 entry26507.build()
 
-entry26527 = new ObjInline('entry26527',null,(is.ie?88:88),(is.ie?2555:2554),null,null,1,100, 0, null, null, 0)
+entry26527 = new ObjInline('entry26527',null,(is.ie?88:88),(is.ie?2555:2554),null,null,1,101, 0, null, null, 0)
 entry26527.onSelChg = entry26527onSelChg
 entry26527.arrCSSStyles = new Array();
 entry26527.arrCSSStyles.push('input.entry26527 { font-size:16px; font-family:"Arial", sans-serif; color:#000000; width:608px; height:118px; -webkit-appearance:none; background-color:#ffffff; }');
 entry26527.build()
 
-image132024 = new ObjImage('image132024','images/invstgt_1.png','invstgt_1',24,-919,720,2346,1,42,'div',null, 0 )
+colormix = new ObjInline('colormix',null,568,340,121,121,1,102,-2,'div',null,0,'circle-paint',1)
+colormix.build()
+
+image132024 = new ObjImage('image132024','images/invstgt_1.png','invstgt_1',24,-919,720,2346,1,44,'div',null, 0 )
 image132024.initRotateAngle(0,0,0,0,0,0,0)
 image132024.initHasShadow(0)
 image132024.initHasReflection(0)
@@ -1934,14 +1940,11 @@ image132024.addBorder(0)
 image132024.addOpacity(100)
 image132024.build()
 
-entry25661 = new ObjInline('entry25661',null,(is.ie?570:570),(is.ie?797:796),null,null,1,44, 0, null, null, 0)
+entry25661 = new ObjInline('entry25661',null,(is.ie?570:570),(is.ie?797:796),null,null,1,46, 0, null, null, 0)
 entry25661.onSelChg = entry25661onSelChg
 entry25661.arrCSSStyles = new Array();
 entry25661.arrCSSStyles.push('input.entry25661 { font-size:16px; font-family:"Arial", sans-serif; color:#000000; width:111px; height:32px; -webkit-appearance:none; background-color:#ffffff; }');
 entry25661.build()
-
-colormix1 = new ObjInline('colormix1',null,577,686,100,100,1,45,-2,'div',null,0,'circle-paint',1)
-colormix1.build()
 
 qu23964 = new ObjInline('qu23964',null,40,760,339,67,1,0)
 qu23964.isGrp = true
@@ -1983,9 +1986,6 @@ qu24370.addChild('radio24375')
 qu24370.ansVar=Var1_10_q;
 qu24370.build()
 
-colormix = new ObjInline('colormix',null,568,340,121,121,1,46,-2,'div',null,0,'circle-paint',1)
-colormix.build()
-
 var trivQuestionArray=[qu23964,qu24247,qu24315,qu24370];
 arObjs.push(text78402);
 arObjs.push(text30476);
@@ -2014,6 +2014,7 @@ arObjs.push(entry26405);
 arObjs.push(entry26405);
 arObjs.push(entry26405);
 arObjs.push(colormix2);
+arObjs.push(colormix1);
 arObjs.push(text23966);
 arObjs.push(text23967);
 arObjs.push(radio23968);
@@ -2085,12 +2086,12 @@ arObjs.push(entry26527);
 arObjs.push(entry26527);
 arObjs.push(entry26527);
 arObjs.push(entry26527);
+arObjs.push(colormix);
 arObjs.push(image132024);
 arObjs.push(entry25661);
 arObjs.push(entry25661);
 arObjs.push(entry25661);
 arObjs.push(entry25661);
-arObjs.push(colormix1);
 arObjs.push(qu23964);
 arObjs.push(qu23964);
 arObjs.push(qu24247);
@@ -2099,7 +2100,6 @@ arObjs.push(qu24315);
 arObjs.push(qu24315);
 arObjs.push(qu24370);
 arObjs.push(qu24370);
-arObjs.push(colormix);
 
 
 writeStyleSheets(arObjs);}
