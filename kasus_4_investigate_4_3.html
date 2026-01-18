@@ -1,0 +1,2249 @@
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link
+  href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300..700&display=swap"
+  rel="stylesheet"
+/>
+<style>
+  .no-border input {
+    font-family: "Fredoka" !important;
+    border: none;
+    outline: none;
+  }
+  .circle-paint {
+    height: 100px;
+    width: 100px;
+    border-radius: 1000px;
+    background: #000000;
+    transition: all 0.3s ease;
+  }
+</style>
+<script>
+  function safeParseMaybeString(v) {
+    if (typeof v === "string") {
+      try {
+        return JSON.parse(v);
+      } catch {
+        return v;
+      }
+    }
+    return v;
+  }
+  window.ip = function () {
+    if (typeof Varip === "undefined") return null;
+    return Varip.getValue();
+  };
+  document.addEventListener("DOMContentLoaded", async () => {
+    const api = axios.create({
+      baseURL: `https://${ip()}/api`,
+      timeout: 10000,
+    });
+    api.interceptors.request.use(
+      (config) => {
+        try {
+          if (window.VarToken?.getValue) {
+            const token = VarToken.getValue();
+            if (token) {
+              config.headers.Authorization = `Bearer ${token}`;
+            }
+          }
+        } catch (e) {
+          console.warn("Token belum siap");
+        }
+        return config;
+      },
+      (error) => Promise.reject(error)
+    );
+    window.api = api;
+    async function check() {
+      try {
+        const token = VarToken.getValue();
+        const request = await api.post("/auth/check", {
+          token,
+        });
+        if (
+          request.data.status == "failed" &&
+          !window.location.href.includes("login")
+        ) {
+          trivExitPage("splash_screen_login_page_login.html", true);
+        }
+        if (request.data.status == "success") {
+          if (window.location.href.includes("login") && !window.location.href.includes("page_splash")) {
+            trivExitPage("homepage_homepage.html", true);
+          }
+          Varpoints.set(JSON.stringify(request.data.progress.points));
+          Varstage.set(request.data.progress.stage);
+          totalPoints(request.data.progress.points);
+        }
+      } catch (error) {
+        console.error("Error:", error);
+      }
+    }
+    await check();
+    let pointsRaw =
+      typeof Varpoints !== "undefined" ? Varpoints.getValue() : "{}";
+    let points = safeParseMaybeString(pointsRaw);
+    if (!points || typeof points !== "object") points = {};
+    console.log("initial points:", points);
+    function ipLocal() {
+      return typeof Varip !== "undefined" ? Varip.getValue() : null;
+    }
+    function essay(array, answer, kasus, quest, point) {
+      let acc = 0;
+      const lowerAns = (answer || "").toLowerCase();
+      array.forEach((item) => {
+        const check = item.some((key) => {
+          if (typeof key === "object") {
+            let checker = false;
+            key.forEach((value) => {
+              if (lowerAns.includes(value)) checker = true;
+              else {
+                checker = false;
+                return;
+              }
+            });
+            return checker;
+          } else {
+            return lowerAns.includes(key);
+          }
+        });
+        if (check) acc += point;
+      });
+      setPoint(kasus, quest, acc);
+    }
+    async function setPoint(kasus, quest, pointValue) {
+      try {
+        const temp = points["case" + kasus] || {};
+        temp[quest] = pointValue;
+        points["case" + kasus] = temp;
+        if (typeof Varpoints !== "undefined") {
+          Varpoints.set(JSON.stringify(points));
+        }
+        console.log("points updated:", points);
+        const data = collectPageValues();
+        const stage = parseInt(Varstage.getValue());
+        const request = await api.post(
+          "https://" + ip() + "/api/progress/save",
+          {
+            caseId: kasus,
+            data,
+            point: points,
+            stage,
+          }
+        );
+        if (request.status == 200) {
+          console.log("Success");
+        }
+      } catch (error) {
+        console.error("Error:", error);
+      }
+    }
+    async function casePoints(kasus, minPoint) {
+      try {
+        const target = points["case" + kasus] || {};
+        const point =
+          Object.keys(target).length > 0
+            ? Object.values(target).reduce((a, b) => a + b, 0)
+            : 0;
+            let totalPoint = 0;
+        Object.values(points).forEach((point) => {
+          totalPoint += Object.values(point).reduce((a, b) => a + b, 0);
+        });
+        if (typeof VarTotalPoint !== "undefined") VarTotalPoint.set(totalPoint);
+        if (typeof VarFinalPoint !== "undefined") VarFinalPoint.set(point);
+        console.log(point, minPoint);
+        const status = point >= minPoint;
+        if (status) Varstage.set(kasus);
+        const data = collectPageValues();
+        const stage = Varstage. getValue()
+        const request = await api.post(
+          "https://" + ip() + "/api/progress/save",
+          {
+            caseId: kasus,
+            data,
+            point: points,
+            stage: stage && kasus,
+          }
+        );
+        if (request.status == 200) {
+          console.log("Success");
+        }
+        trivExitPage(
+          `kasus_${kasus}_result_${kasus}${status ? "" : "x"}.html`,
+          true
+        );
+      } catch (error) {
+        console.error("Error:", error);
+      }
+    }
+    function totalPoints(data) {
+     
+      let total = 0;
+      Object.values(data || points).forEach((k) => {
+        total += Object.values(k).reduce((a, b) => a + b, 0);
+      });
+      console.log(data)
+      console.log(total)
+      VarTotalPoint.set(total);
+    }
+    function pt(status, kasus, quest, point) {
+      const newPoint = status && point ? point : 0;
+      setPoint(kasus, quest, newPoint);
+    }
+    function dl(ratio, kasus, quest, point, ...value) {
+      const dec = ratio.reduce((a, b) => a / b);
+      const valueRatio = value.reduce((a, b) => a / b);
+      const newPoint = dec === valueRatio ? point : 0;
+      setPoint(kasus, quest, newPoint);
+    }
+    function collectPageValues() {
+      let data = {};
+      let droplist = [];
+      for (let key in window) {
+        if (key.startsWith("Var")) {
+          try {
+            let varObj = window[key];
+            if (varObj && typeof varObj.getValue === "function") {
+              let cleanName = key.replace("Var", "");
+              let arrayName = cleanName.split("_");
+              console.log(cleanName);
+              console.log("a");
+              const allow = ["q", "droplist", "e", "i", "c", "k", "f"];
+              const filter = allow.filter((v) => arrayName[2] == v);
+              if (filter.length !== 0 && arrayName.length >= 3) {
+                console.log(arrayName);
+                if (arrayName[2] == "droplist") {
+                  const refKey =
+                    "Var" + cleanName.split("_").slice(0, -1).join("_");
+                  if (!droplist.includes(refKey)) {
+                    droplist.push(refKey);
+                    const droplistValue = Object.keys(window)
+                      .filter((k) => k.startsWith(refKey))
+                      .map((k) => window[k].getValue())
+                      .join(";");
+                    data[arrayName[1]] = droplistValue;
+                  }
+                } else {
+                  data[arrayName[1]] = varObj.getValue();
+                }
+              }
+            }
+          } catch (e) {
+            console.log("skip:", key);
+          }
+        }
+      }
+      console.log("All page values:", data);
+      return data;
+    }
+    async function login() {
+      const url = "https://" + ip() + "/api/auth/login";
+      const username =  Varusername_1.getValue();
+      const password =  Varpassword_1.getValue();
+      await axios
+        .post(url, { username, password })
+        .then(async function (response) {
+          console.log("Login sukses:", response.data);
+          if (response.data && response.data.token) {
+            VarToken.set(response.data.token);
+            await check()
+            trivExitPage("homepage_homepage.html", true);
+          } else {
+            alert("Login gagal: token tidak ditemukan.");
+          }
+        })
+        .catch(function (error) {
+          console.error("Error:", error);
+          if (error.response) {
+            alert("Login gagal: " + error.response.data.message);
+          } else {
+            alert("Tidak bisa terhubung ke server!");
+          }
+        });
+    }
+    async function signup() {
+      const url = "https://" + ip() + "/api/auth/signup";
+      const username = Varusername_1.getValue();
+      const password = Varpassword_1.getValue();
+      axios
+        .post(url, { username, password })
+        .then(function (response) {
+          console.log("Login sukses:", response.data);
+          if (response.data && response.data.token) {
+            VarToken.set(response.data.token);
+            trivExitPage("homepage_homepage.html", true);
+          } else {
+            alert("Login gagal: token tidak ditemukan.");
+          }
+        })
+        .catch(function (error) {
+          console.error("Error:", error);
+          if (error.response) {
+            alert("Login gagal: " + error.response.data.message);
+          } else {
+            alert("Tidak bisa terhubung ke server!");
+          }
+        });
+    }
+    window.collectPageValues = collectPageValues;
+    window.ip = ipLocal;
+    window.pt = pt;
+    window.essay = essay;
+    window.dl = dl;
+    window.casePoints = casePoints;
+    window.login = login;
+    window.signup = signup;
+    window.totalPoint = totalPoints;
+  });
+</script>
+<!DOCTYPE html>
+<html lang="en">
+<!--GENERATED BY:  Lectora Inspire v.18.2.3(11897) (http://www.trivantis.com) -->
+<!--TITLE: C:\Users\Nuzul Izzati\OneDrive\Documents\My Titles -->
+
+
+<head>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta charset="utf-8" />
+<meta name="viewport" content=" minimum-scale = 1.0 , initial-scale= 1" />
+<meta http-equiv="Page-Enter" content="revealTrans(Transition=34,Duration=4.0)">
+<title>Investigate_4_3</title>
+
+<link rel="stylesheet" href="trivantis.css" type="text/css" />
+<style type="text/css">
+</style>
+
+<!--[if lt IE 7]>
+<style type="text/css">
+    #image144768 img { filter:progid:DXImageTransform.Microsoft.Alpha(opacity=0); }
+    #image144768 { filter:progid:DXImageTransform.Microsoft.AlphaImageLoader(src='images/invstgt_4.3.png',sizingMethod='scale'); }
+</style>
+<![endif]-->
+
+<!--[if lte IE 9]>
+<script>
+document.namespaces.add('v', 'urn:schemas-microsoft-com:vml', "#default#VML")
+</script>
+<![endif]-->
+
+<script src="trivantis.js"></script>
+<script src="trivantis-timedate.js"></script>
+<script src="es6-promise-2.0.0.min.js"></script>
+<script src="jquery-3.4.1.min.js"></script>
+<script src="trivantis-cookie.js"></script>
+<script src="trivantis-button.js"></script>
+<script src="trivantis-image.js"></script>
+<script src="trivantis-inline.js"></script>
+<script src="trivantis-text.js"></script>
+<script src="trivantis-trans.js"></script>
+<script src="trivantis-pagetracking.js"></script>
+<script src="device_desktop/kasus_4_investigate_4_3.js"></script>
+<script src="device_tablet/kasus_4_investigate_4_3.js"></script>
+<script src="device_phone/kasus_4_investigate_4_3.js"></script>
+<script src="trivantis-strings.js"></script>
+<script src="hammer.js"></script>
+<script>
+
+<!-- 
+
+var hmr = null;
+function initGEV(){
+   hmr = new Hammer(getDisplayDocument().getElementById(GetCurrentPageID()));
+}
+
+var trivPageScope = {};
+var pgID = 'page35732';
+trivWeb20Popups = true;
+var trivPlayer = null;
+var bPageLoaded = false;
+var pageScale = 1;
+var bDisableBrowserResize = false;
+var bScaleToWindow = false;
+var bFitToWidth = false;
+var bFitToMobile = false;
+var pageHeight = 3066;
+var bLoadedVariables = false;
+
+var arObjs = [];
+
+if(bDisableBrowserResize && !is.isMobile.any()){
+	var bTrivResponsive = false;
+	saveResponsiveData("Desktop",eval("DesktopResponsive"));
+}
+else{
+	var bTrivResponsive = true;
+	saveResponsiveData("Desktop",eval("DesktopResponsive"));
+	saveResponsiveData("Tablet",eval("TabletResponsive"));
+	saveResponsiveData("Phone",eval("PhoneResponsive"));
+}
+	var viewOverrideMap = {};
+	viewOverrideMap["PhoneLandscape"] = "TabletLandscape";
+ 	viewOverrideMap["TabletPortrait"] = "Desktop";
+ 	viewOverrideMap["TabletLandscape"] = "Desktop";
+ if( !is.min )
+  document.write( 'Your browser does not support dynamic html. Please download a current version of either <a href="http://www.microsoft.com/ie/">Microsoft Internet Explorer</a> or <a href="http://www.mozilla.com/en-US/firefox/">Mozilla Firefox </a> and try visiting our site again.  Thank You.<br /><br />' )
+
+var pageLayer = null
+var winW = getDisplayWindow().screen.width
+var winH = getDisplayWindow().screen.height
+var transformScale = 1
+
+function findWH(){	//echo LD-769
+	if (is.ie9) {
+	var vScrollAdj =  (is.ns ? 16 : 20);
+	winW = (is.ns) ? window.innerWidth - vScrollAdj : document.body.offsetWidth;
+	winH = (is.ns) ? window.innerHeight : document.body.offsetHeight;
+	}
+	else if (is.ie) {
+   winW = Math.max(Math.max(getDisplayDocument().body.scrollWidth, getDisplayDocument().documentElement.scrollWidth)-16,
+					  Math.max(getDisplayDocument().body.offsetWidth, getDisplayDocument().documentElement.offsetWidth)-16,
+					  Math.max(getDisplayDocument().body.clientWidth, getDisplayDocument().documentElement.clientWidth)-16 );
+   winH = Math.max(Math.max(getDisplayDocument().body.scrollHeight, getDisplayDocument().documentElement.scrollHeight)-16,
+					  Math.max(getDisplayDocument().body.offsetHeight, getDisplayDocument().documentElement.offsetHeight)-16,
+					  Math.max(getDisplayDocument().body.clientHeight, getDisplayDocument().documentElement.clientHeight)-16 );
+	}
+	else
+	{
+   winW =  getDisplayDocument().documentElement.clientWidth ? getDisplayDocument().documentElement.clientWidth : getDisplayDocument().body.clientWidth;
+   if(is.iOS && (navigator.userAgent.indexOf('CellCast-iPad') != -1 || navigator.userAgent.indexOf('CellCast-iPhone') != -1) )
+		 winW =  getScreenWidth();
+   winH =  getDisplayDocument().documentElement.clientHeight ? getDisplayDocument().documentElement.clientHeight : getDisplayDocument().body.clientHeight;
+	}
+}
+
+trivSetupPage();
+
+ if( isSppCapable() && window.trivPlayer === null ) setTimeout( function() { var objScrollTo =  trivGetScrollObj(window.location.href); window.location.replace("index.html?jmptopg=kasus_4_investigate_4_3.html#" + objScrollTo);}, 100)
+ function ReFlow() {
+  findWH()
+  var pageEleWidth = pageLayer.ele.clientWidth;
+  if (  (is.ieAny || is.edge )  && pageLayer.ele.clientWidth == 0 && isSinglePagePlayerAvail()) pageEleWidth = parseFloat(GetPageWidth()) ;
+  if (pageLayer)
+  {
+     if(bTrivResponsive){
+    var left = (winW > pageEleWidth) ? (winW-pageEleWidth)/2 : 0
+    bReviewLink = window.myTop.document.getElementById('vBodyFrame');
+    transformScale = (winW > pageEleWidth) ? 1 : (winW/pageEleWidth) 
+    if(is.isMobile.any() || bReviewLink && typeof(getDisplayWindow().myTop)!='undefined' && getDisplayWindow().myTop._respView != 'Desktop')
+			left = 0
+    if(is.iOS && isInIframe( getDisplayWindow() , 0))
+			transformScale = (getScreenWidth() > pageEleWidth) ? 1 : (getScreenWidth()/pageEleWidth) 
+    var transSty = calculateScale();
+    pageLayer.moveTo( left, 0 );
+    pageLayer.hasMoved = true;
+    pageLayer.newX = left;
+    pageLayer.newY = 0;
+    if(CanScale()){
+       pageLayer.styObj.transform =  transSty;
+       pageLayer.styObj.webkitTransform =  transSty;
+    }else
+       transformScale = 1;
+    pageLayer.styObj.transformOrigin =  '0 0';
+     }
+    if(bDisableBrowserResize && !is.isMobile.any()){
+       var left = (winW > pageEleWidth) ? (winW-pageEleWidth)/2 : 0
+       bReviewLink = window.myTop.document.getElementById('vBodyFrame');
+       if(is.isMobile.any() || bReviewLink && typeof(getDisplayWindow().myTop)!='undefined' && getDisplayWindow().myTop._respView != 'Desktop')
+			left = 0
+       pageLayer.moveTo( left, 0 );
+       pageLayer.hasMoved = true;
+       pageLayer.newX = left;
+       pageLayer.newY = 0;
+    }
+    fillBrowser();
+    adjustAllObjectsForFixedPosition();
+    setfixed();
+  }
+  Offset_qu35754()
+  Offset_qu35812()
+  Offset_qu35886()
+  Offset_qu35933()
+  Offset_qu35967()
+  Offset_qu36068()
+  Offset_qu36122()
+}
+
+var arVariables = [];
+
+VarTrivSelCap = new Variable( 'VarTrivSelCap', 'none', 0, 0, null, null, 'lkpd_gamifikasi', true )
+Varusername_1 = new Variable( 'Varusername_1', '', 0, 0, null, null, 'lkpd_gamifikasi', false )
+Varpassword_1 = new Variable( 'Varpassword_1', '', 0, 0, null, null, 'lkpd_gamifikasi', false )
+VarToken = new Variable( 'VarToken', '', 0, 0, null, null, 'lkpd_gamifikasi', false )
+Varip = new Variable( 'Varip', 'api.epistura.web.id', 0, 0, null, null, 'lkpd_gamifikasi', false )
+Var4_16_q = new Variable( 'Var4_16_q', '', 0, 0, null, 365, 'lkpd_gamifikasi', false )
+Var4_17_q = new Variable( 'Var4_17_q', '', 0, 0, null, 365, 'lkpd_gamifikasi', false )
+Var4_18_i = new Variable( 'Var4_18_i', '', 0, 0, null, 365, 'lkpd_gamifikasi', false )
+Var4_19_q = new Variable( 'Var4_19_q', '', 0, 0, null, 365, 'lkpd_gamifikasi', false )
+Var4_20_q = new Variable( 'Var4_20_q', '', 0, 0, null, 365, 'lkpd_gamifikasi', false )
+Var4_21_q = new Variable( 'Var4_21_q', '', 0, 0, null, 365, 'lkpd_gamifikasi', false )
+Var4_22_q = new Variable( 'Var4_22_q', '', 0, 0, null, 365, 'lkpd_gamifikasi', false )
+Var2_14_e = new Variable( 'Var2_14_e', '', 0, 0, null, 365, 'lkpd_gamifikasi', false )
+Varpoints = new Variable( 'Varpoints', '{}', 0, 0, null, null, 'lkpd_gamifikasi', false )
+VarFinalPoint = new Variable( 'VarFinalPoint', '0', 0, 0, null, null, 'lkpd_gamifikasi', false )
+VarTotalPoint = new Variable( 'VarTotalPoint', '0', 0, 0, null, null, 'lkpd_gamifikasi', false )
+Varstage = new Variable( 'Varstage', '0', 0, 0, null, 365, 'lkpd_gamifikasi', false )
+Var4_23_e = new Variable( 'Var4_23_e', '', 0, 0, null, 365, 'lkpd_gamifikasi', false )
+
+onload = responsiveInit
+detect();
+if( is.webkit && !is.iOSSafari )
+  onbeforeunload = finish
+else
+  onunload = finish
+
+function responsiveInit() {
+  pageLayer = new ObjLayer(GetCurrentPageID());
+  SaveStyles();
+  init();
+  adjustResponsivePage();
+  ReFlow();
+}
+
+function init() {
+  init11();
+}
+
+function init11() {
+  findWH()
+  if( is.min ){
+    trivPageTracking.InitPageTracking();
+    PreloadResources(new Array(text80120,text68974,text35755,text35756,radio35757,radio35757,radio35757,text35758,radio35759,radio35759,radio35759,text35776,radio35777,radio35777,radio35777,text35813,text35814,radio35815,radio35815,radio35815,text35816,radio35817,radio35817,radio35817,text35818,radio35819,radio35819,radio35819,text35934,text35935,radio35936,radio35936,radio35936,text35937,radio35938,radio35938,radio35938,text35968,text35969,radio35970,radio35970,radio35970,text35971,radio35972,radio35972,radio35972,text35973,radio35974,radio35974,radio35974,text35975,radio35976,radio35976,radio35976,text36069,text36070,radio36071,radio36071,radio36071,text36072,radio36073,radio36073,radio36073,text36074,radio36075,radio36075,radio36075,text36076,radio36077,radio36077,radio36077,text36123,text36124,radio36125,radio36125,radio36125,text36126,radio36127,radio36127,radio36127,entry84000,entry84000,entry84000,entry84000,button37925,button38133,image144768,qu35754,qu35754,qu35812,qu35812,qu35886,qu35886,text35888,entry35889,entry35889,entry35889,entry35889,qu35933,qu35933,qu35967,qu35967,qu36068,qu36068,qu36122,qu36122))
+    pageLayer.transData = {tOut:0,tNum:34,dur:4,fn:null,ol:0,ot:0,fl:0,ft:0,fr:0,fb:0,il:-1,eff:0, tb:0};
+    if(!isSinglePagePlayerAvail()){
+    if( !is.ie||is.v>8 ) setTimeout( 'pageLayer.doTrans( 0, 34, 4, null, 0, 0, 0, 0, 0, 0, -1, 0, 0 )' , 100 );
+    else pageLayer.show(true);
+    }
+    text80120.init()
+    text68974.init()
+    text35755.init()
+    text35756.init()
+    radio35757.init()
+    radio35757.init()
+    radio35757.init()
+    text35758.init()
+    radio35759.init()
+    radio35759.init()
+    radio35759.init()
+    text35776.init()
+    radio35777.init()
+    radio35777.init()
+    radio35777.init()
+    text35813.init()
+    text35814.init()
+    radio35815.init()
+    radio35815.init()
+    radio35815.init()
+    text35816.init()
+    radio35817.init()
+    radio35817.init()
+    radio35817.init()
+    text35818.init()
+    radio35819.init()
+    radio35819.init()
+    radio35819.init()
+    text35934.init()
+    text35935.init()
+    radio35936.init()
+    radio35936.init()
+    radio35936.init()
+    text35937.init()
+    radio35938.init()
+    radio35938.init()
+    radio35938.init()
+    text35968.init()
+    text35969.init()
+    radio35970.init()
+    radio35970.init()
+    radio35970.init()
+    text35971.init()
+    radio35972.init()
+    radio35972.init()
+    radio35972.init()
+    text35973.init()
+    radio35974.init()
+    radio35974.init()
+    radio35974.init()
+    text35975.init()
+    radio35976.init()
+    radio35976.init()
+    radio35976.init()
+    text36069.init()
+    text36070.init()
+    radio36071.init()
+    radio36071.init()
+    radio36071.init()
+    text36072.init()
+    radio36073.init()
+    radio36073.init()
+    radio36073.init()
+    text36074.init()
+    radio36075.init()
+    radio36075.init()
+    radio36075.init()
+    text36076.init()
+    radio36077.init()
+    radio36077.init()
+    radio36077.init()
+    text36123.init()
+    text36124.init()
+    radio36125.init()
+    radio36125.init()
+    radio36125.init()
+    text36126.init()
+    radio36127.init()
+    radio36127.init()
+    radio36127.init()
+    entry84000.init()
+    entry84000.init()
+    entry84000.init()
+    entry84000.init()
+    button37925.init()
+    button38133.init()
+    image144768.init()
+    qu35754.init()
+    qu35754.init()
+    qu35812.init()
+    qu35812.init()
+    qu35886.init()
+    qu35886.init()
+    text35888.init()
+    entry35889.init()
+    entry35889.init()
+    entry35889.init()
+    entry35889.init()
+    qu35933.init()
+    qu35933.init()
+    qu35967.init()
+    qu35967.init()
+    qu36068.init()
+    qu36068.init()
+    qu36122.init()
+    qu36122.init()
+    text80120.activate()
+    text68974.activate()
+    text35755.activate()
+    text35756.activate()
+    radio35757.activate()
+    radio35757.activate()
+    radio35757.activate()
+    text35758.activate()
+    radio35759.activate()
+    radio35759.activate()
+    radio35759.activate()
+    text35776.activate()
+    radio35777.activate()
+    radio35777.activate()
+    radio35777.activate()
+    text35813.activate()
+    text35814.activate()
+    radio35815.activate()
+    radio35815.activate()
+    radio35815.activate()
+    text35816.activate()
+    radio35817.activate()
+    radio35817.activate()
+    radio35817.activate()
+    text35818.activate()
+    radio35819.activate()
+    radio35819.activate()
+    radio35819.activate()
+    text35934.activate()
+    text35935.activate()
+    radio35936.activate()
+    radio35936.activate()
+    radio35936.activate()
+    text35937.activate()
+    radio35938.activate()
+    radio35938.activate()
+    radio35938.activate()
+    text35968.activate()
+    text35969.activate()
+    radio35970.activate()
+    radio35970.activate()
+    radio35970.activate()
+    text35971.activate()
+    radio35972.activate()
+    radio35972.activate()
+    radio35972.activate()
+    text35973.activate()
+    radio35974.activate()
+    radio35974.activate()
+    radio35974.activate()
+    text35975.activate()
+    radio35976.activate()
+    radio35976.activate()
+    radio35976.activate()
+    text36069.activate()
+    text36070.activate()
+    radio36071.activate()
+    radio36071.activate()
+    radio36071.activate()
+    text36072.activate()
+    radio36073.activate()
+    radio36073.activate()
+    radio36073.activate()
+    text36074.activate()
+    radio36075.activate()
+    radio36075.activate()
+    radio36075.activate()
+    text36076.activate()
+    radio36077.activate()
+    radio36077.activate()
+    radio36077.activate()
+    text36123.activate()
+    text36124.activate()
+    radio36125.activate()
+    radio36125.activate()
+    radio36125.activate()
+    text36126.activate()
+    radio36127.activate()
+    radio36127.activate()
+    radio36127.activate()
+    entry84000.activate()
+    entry84000.activate()
+    entry84000.activate()
+    entry84000.activate()
+    button37925.activate()
+    button38133.activate()
+    image144768.activate()
+    qu35754.activate()
+    qu35754.activate()
+    qu35812.activate()
+    qu35812.activate()
+    qu35886.activate()
+    qu35886.activate()
+    text35888.activate()
+    entry35889.activate()
+    entry35889.activate()
+    entry35889.activate()
+    entry35889.activate()
+    qu35933.activate()
+    qu35933.activate()
+    qu35967.activate()
+    qu35967.activate()
+    qu36068.activate()
+    qu36068.activate()
+    qu36122.activate()
+    qu36122.activate()
+     var objToScroll = trivGetScrollObj(window.location.href) ;
+     trivScrollTo(window, objToScroll);
+    var titleManagerIndexWindow = (window && window.parent && window.parent.bIsTitleManagerIndexFile) ? window.parent : null;
+    if(titleManagerIndexWindow)  trivScrollTo(titleManagerIndexWindow, objToScroll);
+    if(!isSinglePagePlayerAvail()) postPageShowAction();
+    if( location.hash )
+    {
+      var newHash
+      if( location.hash.charAt(0) == '#' )
+        newHash = location.hash.slice( 1 )
+      else
+        newHash = location.hash
+      location.hash = newHash
+      if((typeof(bTrivRunView) != 'undefined'  && bTrivRunView) || (typeof(bTrivOffline) != 'undefined' && bTrivOffline)) window.scrollTo(0 , getTopofObj(document.getElementById(newHash)));
+    }
+    setTimeout( 'trivUpdateTOC( 1 )', 100 )
+    bPageLoaded = true;
+    ReFlow();
+    if(!isSinglePagePlayerAvail())
+       loadActions();
+  }
+  try {initGEV();} catch(e){}
+}
+  window.bLoadedVariables = true;
+function loadActions(){
+    if((window.bPageLoaded && window.bLoadedVariables && getDisplayWindow().pagePlayer &&
+	getDisplayWindow().pagePlayer.arLoadedPages && getDisplayWindow().pagePlayer.arLoadedPages.length == 1) || (window.bPageLoaded && window.bLoadedVariables && !isSinglePagePlayerAvail() )){
+      var valVar4_23_e = Var4_23_e.getValue()
+      if(valVar4_23_e!='~~~null~~~')entry84000.objLyr.doc.forms["entry84000form"]["Isian4_4"].value=valVar4_23_e
+      Update_qu35754()
+      Update_qu35812()
+      var valVar4_18_i = Var4_18_i.getValue()
+      if(valVar4_18_i!='~~~null~~~')entry35889.objLyr.doc.forms["entry35889form"]["Question14_4"].value=valVar4_18_i
+      Update_qu35933()
+      Update_qu35967()
+      Update_qu36068()
+      Update_qu36122()
+
+       if(typeof(updateFLVPlayer) !== 'undefined') updateFLVPlayer();
+       postPageShowAction();
+    }
+    else
+      setTimeout(loadActions, 100);
+}
+function postPageShowAction(){
+  if ( trivPageTracking.GetRangeStatus(35732) == 'notstarted' ) trivPageTracking.SetRangeStatus(35732,2);
+}  
+
+var trivGoToPage = null
+var trivCompleteCnt = 1;
+var hasProcessedExitActions = false;
+var trivActFBCnt = 0;
+var currFeedbackIdx = 0;
+var trivPageExited = false;
+var trivInTest = false;
+
+function finish() {
+}
+
+function trivOnFocus() {
+    if( trivPageExited ) return
+}
+
+function checkLeavePage() {
+    if( trivPageExited ) return
+    if( trivActFBCnt == 0 )
+    {
+        currFeedbackIdx++;
+        if( currFeedbackIdx > 6)
+        {
+            trivLeavePage();
+          return;
+        }
+        else if( !checkQuestions( true ))
+          return;
+    }
+    setTimeout( 'checkLeavePage()', 100)
+}
+
+function trivExitPage( newPage, bFeedback ) {
+    if( newPage.indexOf( "ObjLayerAction" ) >= 0 || newPage.indexOf( "javascript:app." ) >= 0 || newPage.indexOf( ".action" ) >= 0 || newPage.indexOf( "history.back()" ) >= 0) trivGoToPage = newPage
+    else trivGoToPage = 'ObjLayerActionGoTo("' + newPage + '")'
+    if( !hasProcessedExitActions ) {
+        findWH()
+        if( !checkQuestions( bFeedback ))
+          return
+        hasProcessedExitActions = true
+        setTimeout( 'checkLeavePage()', 100)
+    }
+}
+
+function trivLeavePage() {
+    trivCompleteCnt--
+    if( trivCompleteCnt <= 0 ) {
+        hasProcessedExitActions = false
+        if( trivGoToPage != null )
+        {
+			eval( trivGoToPage )
+			trivGoToPage = null;
+			if( window.closed ) trivPageExited = true;
+        }
+    }
+}
+
+function trivPrevPage() {
+    trivExitPage( 'kasus_4_investigate_4_2.html', true )
+}
+
+function trivNextPage() {
+    trivExitPage( 'kasus_4_irctc_4.html', true )
+}
+
+function trivUpdateTOC( bRecurse ) {
+    var i
+}
+
+function trivUpdateEntry() {
+  entry84000.objLyr.doc.forms["entry84000form"]["Isian4_4"].blur();
+  entry35889.objLyr.doc.forms["entry35889form"]["Question14_4"].blur();
+}
+
+function trivResetEntry(entFld) {
+  if ( entFld == null || entFld == entry84000 ) entry84000.objLyr.doc.forms["entry84000form"]["Isian4_4"].value='';
+  if ( entFld == null || entFld == entry35889 ) entry35889.objLyr.doc.forms["entry35889form"]["Question14_4"].value='';
+}
+
+function checkQuestions( bFeedback, bForce, bNotLeavingPage ) {
+  var onAfterFBAction = ( bNotLeavingPage ? (function(){trivActFBCnt--;}) : (function(){trivActFBCnt--;window.checkLeavePage();}) );
+  entry35889.objLyr.doc.forms["entry35889form"]["Question14_4"].blur()
+  if( !bFeedback ) currFeedbackIdx = 7;
+
+  return 1
+}
+
+var qu35886PrevAns = Var4_18_i.getValue();
+function doImmFeedback( objId ) {
+  var onAfterFBAction = function(){trivActFBCnt--;};
+
+  if(objId=='qu35754') {
+  var ans_Var4_16_q = Var4_16_q.getValue()
+  if(!qu35754.hasBeenProcessed) {
+    if( ans_Var4_16_q != '\u004C\u0065\u0062\u0069\u0068\u0020\u006C\u0061\u006D\u0061' && ans_Var4_16_q != '~~~null~~~' ) 
+    { //2 
+trivActFBCnt++; action35754_10(onAfterFBAction);return 0;  } //2 
+
+    else if( ans_Var4_16_q != '\u004C\u0065\u0062\u0069\u0068\u0020\u006C\u0061\u006D\u0061' && ans_Var4_16_q != '~~~null~~~' ) 
+    { //2 
+trivActFBCnt++; action35754_11(onAfterFBAction);return 0;  } //2 
+
+    else if( ans_Var4_16_q == '\u004C\u0065\u0062\u0069\u0068\u0020\u006C\u0061\u006D\u0061' ) 
+    { //1 
+        trivActFBCnt++; action35754_12(onAfterFBAction);  return 0;
+  } //1
+
+    }
+  }
+  if(objId=='qu35812') {
+  var ans_Var4_17_q = Var4_17_q.getValue()
+  if(!qu35812.hasBeenProcessed) {
+    if( ans_Var4_17_q == '\u004C\u0065\u0062\u0069\u0068\u0020\u0063\u0065\u0070\u0061\u0074' ) 
+    { //1 
+        trivActFBCnt++; action35812_10(onAfterFBAction);  return 0;
+  } //1
+
+    else if( ans_Var4_17_q != '\u004C\u0065\u0062\u0069\u0068\u0020\u0063\u0065\u0070\u0061\u0074' && ans_Var4_17_q != '~~~null~~~' ) 
+    { //2 
+trivActFBCnt++; action35812_11(onAfterFBAction);return 0;  } //2 
+
+    else if( ans_Var4_17_q != '\u004C\u0065\u0062\u0069\u0068\u0020\u0063\u0065\u0070\u0061\u0074' && ans_Var4_17_q != '~~~null~~~' ) 
+    { //2 
+trivActFBCnt++; action35812_12(onAfterFBAction);return 0;  } //2 
+
+    }
+  }
+  if(objId=='qu35886') {
+    var ans_Var4_18_i = Var4_18_i.getValue().trim()
+    if(!qu35886.hasBeenProcessed && ans_Var4_18_i != qu35886PrevAns) {
+      qu35886PrevAns = ans_Var4_18_i;
+      var val = ans_Var4_18_i.toString().toLowerCase()
+      if( val == '\u0034\u0038' ||
+          val == '\u0034\u0038\u0020\u006D\u0065\u006E\u0069\u0074' ||
+          val == '\u0034\u0038\u0020\u006D\u0065\u006E\u0069\u0074' ) {
+    { //1 
+        trivActFBCnt++; action35886_7(onAfterFBAction);  return 0;
+  } //1
+
+    }
+      else  if( val != '~~~null~~~' ) { 
+    { //2 
+trivActFBCnt++; action35886_8(onAfterFBAction);return 0;  } //2 
+
+      }
+    }
+  }
+  if(objId=='qu35933') {
+  var ans_Var4_19_q = Var4_19_q.getValue()
+  if(!qu35933.hasBeenProcessed) {
+    if( ans_Var4_19_q != '\u0054\u0069\u0064\u0061\u006B\u0020\u0062\u0065\u0072\u0075\u0062\u0061\u0068' && ans_Var4_19_q != '~~~null~~~' ) 
+    { //2 
+trivActFBCnt++; action35933_7(onAfterFBAction);return 0;  } //2 
+
+    else if( ans_Var4_19_q == '\u0054\u0069\u0064\u0061\u006B\u0020\u0062\u0065\u0072\u0075\u0062\u0061\u0068' ) 
+    { //1 
+        trivActFBCnt++; action35933_8(onAfterFBAction);  return 0;
+  } //1
+
+    }
+  }
+  if(objId=='qu35967') {
+  var ans_Var4_20_q = Var4_20_q.getValue()
+  if(!qu35967.hasBeenProcessed) {
+    if( ans_Var4_20_q == '\u0038\u0020\u006D\u0065\u006E\u0069\u0074' ) 
+    { //1 
+        trivActFBCnt++; action35967_13(onAfterFBAction);  return 0;
+  } //1
+
+    else if( ans_Var4_20_q != '\u0038\u0020\u006D\u0065\u006E\u0069\u0074' && ans_Var4_20_q != '~~~null~~~' ) 
+    { //2 
+trivActFBCnt++; action35967_14(onAfterFBAction);return 0;  } //2 
+
+    else if( ans_Var4_20_q != '\u0038\u0020\u006D\u0065\u006E\u0069\u0074' && ans_Var4_20_q != '~~~null~~~' ) 
+    { //2 
+trivActFBCnt++; action35967_15(onAfterFBAction);return 0;  } //2 
+
+    else if( ans_Var4_20_q != '\u0038\u0020\u006D\u0065\u006E\u0069\u0074' && ans_Var4_20_q != '~~~null~~~' ) 
+    { //2 
+trivActFBCnt++; action35967_16(onAfterFBAction);return 0;  } //2 
+
+    }
+  }
+  if(objId=='qu36068') {
+  var ans_Var4_21_q = Var4_21_q.getValue()
+  if(!qu36068.hasBeenProcessed) {
+    if( ans_Var4_21_q != '\u0032\u0034\u0020\u006D\u0065\u006E\u0069\u0074' && ans_Var4_21_q != '~~~null~~~' ) 
+    { //2 
+trivActFBCnt++; action36068_13(onAfterFBAction);return 0;  } //2 
+
+    else if( ans_Var4_21_q != '\u0032\u0034\u0020\u006D\u0065\u006E\u0069\u0074' && ans_Var4_21_q != '~~~null~~~' ) 
+    { //2 
+trivActFBCnt++; action36068_14(onAfterFBAction);return 0;  } //2 
+
+    else if( ans_Var4_21_q == '\u0032\u0034\u0020\u006D\u0065\u006E\u0069\u0074' ) 
+    { //1 
+        trivActFBCnt++; action36068_15(onAfterFBAction);  return 0;
+  } //1
+
+    else if( ans_Var4_21_q != '\u0032\u0034\u0020\u006D\u0065\u006E\u0069\u0074' && ans_Var4_21_q != '~~~null~~~' ) 
+    { //2 
+trivActFBCnt++; action36068_16(onAfterFBAction);return 0;  } //2 
+
+    }
+  }
+  if(objId=='qu36122') {
+  var ans_Var4_22_q = Var4_22_q.getValue()
+  if(!qu36122.hasBeenProcessed) {
+    if( ans_Var4_22_q != '\u0050\u0065\u0072\u0062\u0061\u006E\u0064\u0069\u006E\u0067\u0061\u006E\u0020\u0062\u0065\u0072\u0062\u0061\u006C\u0069\u006B\u0020\u006E\u0069\u006C\u0061\u0069' && ans_Var4_22_q != '~~~null~~~' ) 
+    { //2 
+trivActFBCnt++; action36122_7(onAfterFBAction);return 0;  } //2 
+
+    else if( ans_Var4_22_q == '\u0050\u0065\u0072\u0062\u0061\u006E\u0064\u0069\u006E\u0067\u0061\u006E\u0020\u0062\u0065\u0072\u0062\u0061\u006C\u0069\u006B\u0020\u006E\u0069\u006C\u0061\u0069' ) 
+    { //1 
+        trivActFBCnt++; action36122_8(onAfterFBAction);  return 0;
+  } //1
+
+    }
+  }
+  return 1
+}
+
+function OnDeviceRotate() {
+
+}
+
+function action84001(fn){
+    try{
+     essay([
+  ["karena", "ketika", "saat"],
+  ["pelayan", "pekerja", "tukang"],
+  ["banyak", "semakin banyak", "lebih banyak", "makin banyak", "bertambah", "semakin bertambah", "makin bertambah"],
+  ["waktu", "durasi", "lama", "waktunya"],
+  ["lebih sedikit", "lebih cepat", "lebih singkat", "semakin sedikit", "semakin cepat", "semakin singkat", "semakin lama", "berkurang", "menurun", "lambat"],
+  ["karena", "sebab", "akibat", "oleh karena itu", "oleh sebab itu"],
+  ["antara", "hubungan", "kaitan"],
+  ["berbalik nilai", "tidak senilai", "berbanding terbalik"]
+], Var4_23_e.getValue(), 4, 23, 25); 
+     } catch (e) {
+     alert('[OnSelectChangeRunJS] ' + e);
+     }
+    if(fn && typeof(fn) == 'string' ) eval(fn);
+    else if(fn && typeof(fn) == 'function' ) fn();
+}
+
+function entry84000onSelChg() {
+  action84001();
+}
+
+function action37926else(fn){
+    
+    if(fn && typeof(fn) == 'string' ) eval(fn);
+    else if(fn && typeof(fn) == 'function' ) fn();
+}
+
+function action37926(fn){
+    if(!Var4_16_q.equals('~~~null~~~')&&!Var4_17_q.equals('~~~null~~~')&&!Var4_18_i.equals('~~~null~~~')&&!Var4_19_q.equals('~~~null~~~')&&!Var4_20_q.equals('~~~null~~~')&&!Var4_21_q.equals('~~~null~~~')&&!Var4_22_q.equals('~~~null~~~')&&!Var2_14_e.equals('~~~null~~~'))
+    {trivExitPage('kasus_4_irctc_4.html',true); 
+    }else{ action37926else();}
+    if(fn && typeof(fn) == 'string' ) eval(fn);
+    else if(fn && typeof(fn) == 'function' ) fn();
+}
+
+function button37925onUp() {
+  action37926();
+}
+
+function action38134(fn){
+    trivExitPage('kasus_4_investigate_4_2.html',true); 
+    if(fn && typeof(fn) == 'string' ) eval(fn);
+    else if(fn && typeof(fn) == 'function' ) fn();
+}
+
+function button38133onUp() {
+  action38134();
+}
+
+function Offset_qu35754(bDevRotate) {
+}
+
+function Update_qu35754(value) {
+ if(typeof(value) !== "undefined")  Var4_16_q.set(value)
+  var val = Var4_16_q.getValue()
+  radio35757.objLyr.doc.getElementById("radio35757id").checked=(val=='Lebih cepat')
+  radio35759.objLyr.doc.getElementById("radio35759id").checked=(val=='Sama')
+  radio35777.objLyr.doc.getElementById("radio35777id").checked=(val=='Lebih lama')
+   qu35754Object.hasBeenProcessed=false;
+}
+
+function action35754_10(fn){
+    try{
+     pt(0,4,16,50); 
+     } catch (e) {
+     alert('[] ' + e);
+     }
+    if(fn && typeof(fn) == 'string' ) eval(fn);
+    else if(fn && typeof(fn) == 'function' ) fn();
+}
+
+function action35754_11(fn){
+    try{
+     pt(0,4,16,50); 
+     } catch (e) {
+     alert('[] ' + e);
+     }
+    if(fn && typeof(fn) == 'string' ) eval(fn);
+    else if(fn && typeof(fn) == 'function' ) fn();
+}
+
+function action35754_12(fn){
+    try{
+     pt(1,4,16,50); 
+     } catch (e) {
+     alert('[] ' + e);
+     }
+    if(fn && typeof(fn) == 'string' ) eval(fn);
+    else if(fn && typeof(fn) == 'function' ) fn();
+}
+
+function Offset_qu35812(bDevRotate) {
+}
+
+function Update_qu35812(value) {
+ if(typeof(value) !== "undefined")  Var4_17_q.set(value)
+  var val = Var4_17_q.getValue()
+  radio35815.objLyr.doc.getElementById("radio35815id").checked=(val=='Lebih cepat')
+  radio35817.objLyr.doc.getElementById("radio35817id").checked=(val=='Sama')
+  radio35819.objLyr.doc.getElementById("radio35819id").checked=(val=='Lebih lama')
+   qu35812Object.hasBeenProcessed=false;
+}
+
+function action35812_10(fn){
+    try{
+     pt(1,4,17,50); 
+     } catch (e) {
+     alert('[] ' + e);
+     }
+    if(fn && typeof(fn) == 'string' ) eval(fn);
+    else if(fn && typeof(fn) == 'function' ) fn();
+}
+
+function action35812_11(fn){
+    try{
+     pt(0,4,17,50); 
+     } catch (e) {
+     alert('[] ' + e);
+     }
+    if(fn && typeof(fn) == 'string' ) eval(fn);
+    else if(fn && typeof(fn) == 'function' ) fn();
+}
+
+function action35812_12(fn){
+    try{
+     pt(0,4,17,50); 
+     } catch (e) {
+     alert('[] ' + e);
+     }
+    if(fn && typeof(fn) == 'string' ) eval(fn);
+    else if(fn && typeof(fn) == 'function' ) fn();
+}
+
+function Offset_qu35886(bDevRotate) {
+}
+
+
+function action35886_7(fn){
+    try{
+     pt(1,4,18,50); 
+     } catch (e) {
+     alert('[] ' + e);
+     }
+    if(fn && typeof(fn) == 'string' ) eval(fn);
+    else if(fn && typeof(fn) == 'function' ) fn();
+}
+
+function action35886_8(fn){
+    try{
+     pt(0,4,18,50); 
+     } catch (e) {
+     alert('[] ' + e);
+     }
+    if(fn && typeof(fn) == 'string' ) eval(fn);
+    else if(fn && typeof(fn) == 'function' ) fn();
+}
+
+function Offset_qu35933(bDevRotate) {
+}
+
+function Update_qu35933(value) {
+ if(typeof(value) !== "undefined")  Var4_19_q.set(value)
+  var val = Var4_19_q.getValue()
+  radio35936.objLyr.doc.getElementById("radio35936id").checked=(val=='Iya, berubah')
+  radio35938.objLyr.doc.getElementById("radio35938id").checked=(val=='Tidak berubah')
+   qu35933Object.hasBeenProcessed=false;
+}
+
+function action35933_7(fn){
+    try{
+     pt(0,4,19,50); 
+     } catch (e) {
+     alert('[] ' + e);
+     }
+    if(fn && typeof(fn) == 'string' ) eval(fn);
+    else if(fn && typeof(fn) == 'function' ) fn();
+}
+
+function action35933_8(fn){
+    try{
+     pt(1,4,19,50); 
+     } catch (e) {
+     alert('[] ' + e);
+     }
+    if(fn && typeof(fn) == 'string' ) eval(fn);
+    else if(fn && typeof(fn) == 'function' ) fn();
+}
+
+function Offset_qu35967(bDevRotate) {
+}
+
+function Update_qu35967(value) {
+ if(typeof(value) !== "undefined")  Var4_20_q.set(value)
+  var val = Var4_20_q.getValue()
+  radio35970.objLyr.doc.getElementById("radio35970id").checked=(val=='8 menit')
+  radio35972.objLyr.doc.getElementById("radio35972id").checked=(val=='10 menit')
+  radio35974.objLyr.doc.getElementById("radio35974id").checked=(val=='12 menit')
+  radio35976.objLyr.doc.getElementById("radio35976id").checked=(val=='16 menit')
+   qu35967Object.hasBeenProcessed=false;
+}
+
+function action35967_13(fn){
+    try{
+     pt(1,4,20,50); 
+     } catch (e) {
+     alert('[] ' + e);
+     }
+    if(fn && typeof(fn) == 'string' ) eval(fn);
+    else if(fn && typeof(fn) == 'function' ) fn();
+}
+
+function action35967_14(fn){
+    try{
+     pt(0,4,20,50); 
+     } catch (e) {
+     alert('[] ' + e);
+     }
+    if(fn && typeof(fn) == 'string' ) eval(fn);
+    else if(fn && typeof(fn) == 'function' ) fn();
+}
+
+function action35967_15(fn){
+    try{
+     pt(0,4,20,50); 
+     } catch (e) {
+     alert('[] ' + e);
+     }
+    if(fn && typeof(fn) == 'string' ) eval(fn);
+    else if(fn && typeof(fn) == 'function' ) fn();
+}
+
+function action35967_16(fn){
+    try{
+     pt(0,4,20,50); 
+     } catch (e) {
+     alert('[] ' + e);
+     }
+    if(fn && typeof(fn) == 'string' ) eval(fn);
+    else if(fn && typeof(fn) == 'function' ) fn();
+}
+
+function Offset_qu36068(bDevRotate) {
+}
+
+function Update_qu36068(value) {
+ if(typeof(value) !== "undefined")  Var4_21_q.set(value)
+  var val = Var4_21_q.getValue()
+  radio36071.objLyr.doc.getElementById("radio36071id").checked=(val=='8 menit')
+  radio36073.objLyr.doc.getElementById("radio36073id").checked=(val=='12 menit')
+  radio36075.objLyr.doc.getElementById("radio36075id").checked=(val=='24 menit')
+  radio36077.objLyr.doc.getElementById("radio36077id").checked=(val=='36 menit')
+   qu36068Object.hasBeenProcessed=false;
+}
+
+function action36068_13(fn){
+    try{
+     pt(0,4,21,50); 
+     } catch (e) {
+     alert('[] ' + e);
+     }
+    if(fn && typeof(fn) == 'string' ) eval(fn);
+    else if(fn && typeof(fn) == 'function' ) fn();
+}
+
+function action36068_14(fn){
+    try{
+     pt(0,4,21,50); 
+     } catch (e) {
+     alert('[] ' + e);
+     }
+    if(fn && typeof(fn) == 'string' ) eval(fn);
+    else if(fn && typeof(fn) == 'function' ) fn();
+}
+
+function action36068_15(fn){
+    try{
+     pt(1,4,21,50); 
+     } catch (e) {
+     alert('[] ' + e);
+     }
+    if(fn && typeof(fn) == 'string' ) eval(fn);
+    else if(fn && typeof(fn) == 'function' ) fn();
+}
+
+function action36068_16(fn){
+    try{
+     pt(0,4,21,50); 
+     } catch (e) {
+     alert('[] ' + e);
+     }
+    if(fn && typeof(fn) == 'string' ) eval(fn);
+    else if(fn && typeof(fn) == 'function' ) fn();
+}
+
+function Offset_qu36122(bDevRotate) {
+}
+
+function Update_qu36122(value) {
+ if(typeof(value) !== "undefined")  Var4_22_q.set(value)
+  var val = Var4_22_q.getValue()
+  radio36125.objLyr.doc.getElementById("radio36125id").checked=(val=='Perbandingan senilai')
+  radio36127.objLyr.doc.getElementById("radio36127id").checked=(val=='Perbandingan berbalik nilai')
+   qu36122Object.hasBeenProcessed=false;
+}
+
+function action36122_7(fn){
+    try{
+     pt(0,4,22,50); 
+     } catch (e) {
+     alert('[] ' + e);
+     }
+    if(fn && typeof(fn) == 'string' ) eval(fn);
+    else if(fn && typeof(fn) == 'function' ) fn();
+}
+
+function action36122_8(fn){
+    try{
+     pt(1,4,22,50); 
+     } catch (e) {
+     alert('[] ' + e);
+     }
+    if(fn && typeof(fn) == 'string' ) eval(fn);
+    else if(fn && typeof(fn) == 'function' ) fn();
+}
+
+if( is.min ){
+text80120 = new ObjText('text80120',null,359,3012,402,23,1,69,null,'div',null,0 )
+text80120.initSLine(0)
+text80120.initHasBullet(0)
+text80120.initRotateAngle(0,0,0)
+text80120.initHasOuterShadow(0)
+text80120.initHasTextShadow(0)
+text80120.initHasBorder(0)
+text80120.initHasOutline(0)
+text80120.initHasMargin(0)
+text80120.addIe8Attr(359, 3012, 402, 23, 0, 0)
+text80120.addHeading(0)
+text80120.addOpacity(100)
+text80120.arrCSSStyles = new Array();
+text80120.arrCSSStyles.push('span.text80120Font1 { font-size:13px; font-family:"Montserrat"; color:#ffffff; font-style:italic;}');
+text80120.addInnerText('<div id=\"text80120\" aria-hidden=\"true\" ><a id=\"text80120anc\" style=\"display:block;height:0px;width:0px;\"></a>\n<p  style=\"margin-left:0px;text-indent:0px;margin-top:0px;margin-bottom:0px;text-align:right;\" >\n<span class=\"text80120Font1\"  >Generated by dreamina.capcut.com\n</span ></p >\n</div>\n');
+text80120.build()
+
+text68974 = new ObjText('text68974',null,509,609,192,22,1,70,null,'div',null,0 )
+text68974.initSLine(1)
+text68974.initHasBullet(0)
+text68974.initRotateAngle(0,0,0)
+text68974.initHasOuterShadow(0)
+text68974.initHasTextShadow(0)
+text68974.initHasBorder(0)
+text68974.initHasOutline(0)
+text68974.initHasMargin(0)
+text68974.addIe8Attr(509, 609, 192, 22, 0, 0)
+text68974.addHeading(0)
+text68974.addOpacity(100)
+text68974.arrCSSStyles = new Array();
+text68974.arrCSSStyles.push('span.text68974Font1 { font-size:12px; font-family:"Montserrat"; color:#ffffff; font-style:italic;}');
+text68974.arrCSSStyles.push('span.text68974Font2 { font-size:12px; font-family:"Arial", sans-serif; color:#ffffff;}');
+text68974.addInnerText('<div id=\"text68974\" aria-hidden=\"true\" ><a id=\"text68974anc\" style=\"display:block;height:0px;width:0px;\"></a>\n<p  style=\"margin-left:0px;text-indent:0px;margin-top:0px;margin-bottom:0px;text-align:left;\" >\n<span class=\"text68974Font1\"  >Generated by Canva AI</span ><span class=\"text68974Font2\" style=\"background-color:transparent\" >\n</span ></p >\n</div>\n');
+text68974.build()
+
+text35755 = new ObjText('text35755',null,80,989,629,113,1,71,null,'div',null,0 )
+text35755.initSLine(0)
+text35755.initHasBullet(0)
+text35755.initRotateAngle(0,0,0)
+text35755.initHasOuterShadow(0)
+text35755.initHasTextShadow(0)
+text35755.initHasBorder(0)
+text35755.initHasOutline(0)
+text35755.initHasMargin(0)
+text35755.addIe8Attr(80, 989, 629, 113, 0, 0)
+text35755.addHeading(0)
+text35755.addOpacity(100)
+text35755.arrCSSStyles = new Array();
+text35755.arrCSSStyles.push('span.text35755Font1 { font-size:16px; font-family:"Arial", sans-serif; color:#010101;}');
+text35755.addInnerText('<legend><div id=\"text35755\" aria-hidden=\"true\" ><a id=\"text35755anc\" style=\"display:block;height:0px;width:0px;\"></a>\n<p  style=\"margin-left:0px;text-indent:0px;margin-top:0px;margin-bottom:0px;text-align:left;\" >\n<span class=\"text35755Font1\"  >&nbsp;\n</span ></p >\n</div>\n</legend>\n');
+text35755.build()
+
+text35756 = new ObjText('text35756',null,107,1108,329,27,1,72,null,'div',null,0 )
+text35756.initSLine(1)
+text35756.initHasBullet(0)
+text35756.initRotateAngle(0,0,0)
+text35756.initHasOuterShadow(0)
+text35756.initHasTextShadow(0)
+text35756.initHasBorder(0)
+text35756.initHasOutline(0)
+text35756.initHasMargin(0)
+text35756.addIe8Attr(107, 1108, 329, 27, 0, 0)
+text35756.addHeading(0)
+text35756.addOpacity(100)
+text35756.arrCSSStyles = new Array();
+text35756.arrCSSStyles.push('span.text35756Font1 { font-size:13px; font-family:"Montserrat"; color:#000000;}');
+text35756.addInnerText('<div id=\"text35756\" aria-hidden=\"true\" ><a id=\"text35756anc\" style=\"display:block;height:0px;width:0px;\"></a>\n<label id=\"label35757id\" for=\"radio35757id\" ><p  style=\"margin-left:0px;text-indent:0px;margin-top:0px;margin-bottom:0px;text-align:left;\" >\n<span class=\"text35756Font1\"  >Lebih cepat\n</span ></p >\n</label></div>\n');
+text35756.build()
+
+radio35757 = new ObjInline('radio35757',null,(is.ie?81:80),(is.ie?1111:1110),null,null,1,73, 0, null, null, 0)
+radio35757.arrCSSStyles = new Array();
+radio35757.arrCSSStyles.push('');
+radio35757.build()
+
+text35758 = new ObjText('text35758',null,107,1145,324,25,1,74,null,'div',null,0 )
+text35758.initSLine(1)
+text35758.initHasBullet(0)
+text35758.initRotateAngle(0,0,0)
+text35758.initHasOuterShadow(0)
+text35758.initHasTextShadow(0)
+text35758.initHasBorder(0)
+text35758.initHasOutline(0)
+text35758.initHasMargin(0)
+text35758.addIe8Attr(107, 1145, 324, 25, 0, 0)
+text35758.addHeading(0)
+text35758.addOpacity(100)
+text35758.arrCSSStyles = new Array();
+text35758.arrCSSStyles.push('span.text35758Font1 { font-size:13px; font-family:"Montserrat"; color:#000000;}');
+text35758.addInnerText('<div id=\"text35758\" aria-hidden=\"true\" ><a id=\"text35758anc\" style=\"display:block;height:0px;width:0px;\"></a>\n<label id=\"label35759id\" for=\"radio35759id\" ><p  style=\"margin-left:0px;text-indent:0px;margin-top:0px;margin-bottom:0px;text-align:left;\" >\n<span class=\"text35758Font1\"  >Sama\n</span ></p >\n</label></div>\n');
+text35758.build()
+
+radio35759 = new ObjInline('radio35759',null,(is.ie?81:80),(is.ie?1149:1148),null,null,1,75, 0, null, null, 0)
+radio35759.arrCSSStyles = new Array();
+radio35759.arrCSSStyles.push('');
+radio35759.build()
+
+text35776 = new ObjText('text35776',null,107,1183,536,37,1,76,null,'div',null,0 )
+text35776.initSLine(1)
+text35776.initHasBullet(0)
+text35776.initRotateAngle(0,0,0)
+text35776.initHasOuterShadow(0)
+text35776.initHasTextShadow(0)
+text35776.initHasBorder(0)
+text35776.initHasOutline(0)
+text35776.initHasMargin(0)
+text35776.addIe8Attr(107, 1183, 536, 37, 0, 0)
+text35776.addHeading(0)
+text35776.addOpacity(100)
+text35776.arrCSSStyles = new Array();
+text35776.arrCSSStyles.push('span.text35776Font1 { font-size:13px; font-family:"Montserrat"; color:#000000;}');
+text35776.addInnerText('<div id=\"text35776\" aria-hidden=\"true\" ><a id=\"text35776anc\" style=\"display:block;height:0px;width:0px;\"></a>\n<label id=\"label35777id\" for=\"radio35777id\" ><p  style=\"margin-left:0px;text-indent:0px;margin-top:0px;margin-bottom:0px;text-align:left;\" >\n<span class=\"text35776Font1\"  >Lebih lama\n</span ></p >\n</label></div>\n');
+text35776.build()
+
+radio35777 = new ObjInline('radio35777',null,(is.ie?81:80),(is.ie?1186:1185),null,null,1,77, 0, null, null, 0)
+radio35777.arrCSSStyles = new Array();
+radio35777.arrCSSStyles.push('');
+radio35777.build()
+
+text35813 = new ObjText('text35813',null,82,1219,629,75,1,78,null,'div',null,0 )
+text35813.initSLine(0)
+text35813.initHasBullet(0)
+text35813.initRotateAngle(0,0,0)
+text35813.initHasOuterShadow(0)
+text35813.initHasTextShadow(0)
+text35813.initHasBorder(0)
+text35813.initHasOutline(0)
+text35813.initHasMargin(0)
+text35813.addIe8Attr(82, 1219, 629, 75, 0, 0)
+text35813.addHeading(0)
+text35813.addOpacity(100)
+text35813.arrCSSStyles = new Array();
+text35813.arrCSSStyles.push('span.text35813Font1 { font-size:16px; font-family:"Arial", sans-serif; color:#010101;}');
+text35813.addInnerText('<legend><div id=\"text35813\" aria-hidden=\"true\" ><a id=\"text35813anc\" style=\"display:block;height:0px;width:0px;\"></a>\n<p  style=\"margin-left:0px;text-indent:0px;margin-top:0px;margin-bottom:0px;text-align:left;\" >\n<span class=\"text35813Font1\"  >&nbsp;\n</span ></p >\n</div>\n</legend>\n');
+text35813.build()
+
+text35814 = new ObjText('text35814',null,107,1299,329,27,1,79,null,'div',null,0 )
+text35814.initSLine(1)
+text35814.initHasBullet(0)
+text35814.initRotateAngle(0,0,0)
+text35814.initHasOuterShadow(0)
+text35814.initHasTextShadow(0)
+text35814.initHasBorder(0)
+text35814.initHasOutline(0)
+text35814.initHasMargin(0)
+text35814.addIe8Attr(107, 1299, 329, 27, 0, 0)
+text35814.addHeading(0)
+text35814.addOpacity(100)
+text35814.arrCSSStyles = new Array();
+text35814.arrCSSStyles.push('span.text35814Font1 { font-size:13px; font-family:"Montserrat"; color:#000000;}');
+text35814.addInnerText('<div id=\"text35814\" aria-hidden=\"true\" ><a id=\"text35814anc\" style=\"display:block;height:0px;width:0px;\"></a>\n<label id=\"label35815id\" for=\"radio35815id\" ><p  style=\"margin-left:0px;text-indent:0px;margin-top:0px;margin-bottom:0px;text-align:left;\" >\n<span class=\"text35814Font1\"  >Lebih cepat\n</span ></p >\n</label></div>\n');
+text35814.build()
+
+radio35815 = new ObjInline('radio35815',null,(is.ie?81:80),(is.ie?1302:1301),null,null,1,80, 0, null, null, 0)
+radio35815.arrCSSStyles = new Array();
+radio35815.arrCSSStyles.push('');
+radio35815.build()
+
+text35816 = new ObjText('text35816',null,107,1336,324,25,1,81,null,'div',null,0 )
+text35816.initSLine(1)
+text35816.initHasBullet(0)
+text35816.initRotateAngle(0,0,0)
+text35816.initHasOuterShadow(0)
+text35816.initHasTextShadow(0)
+text35816.initHasBorder(0)
+text35816.initHasOutline(0)
+text35816.initHasMargin(0)
+text35816.addIe8Attr(107, 1336, 324, 25, 0, 0)
+text35816.addHeading(0)
+text35816.addOpacity(100)
+text35816.arrCSSStyles = new Array();
+text35816.arrCSSStyles.push('span.text35816Font1 { font-size:13px; font-family:"Montserrat"; color:#000000;}');
+text35816.addInnerText('<div id=\"text35816\" aria-hidden=\"true\" ><a id=\"text35816anc\" style=\"display:block;height:0px;width:0px;\"></a>\n<label id=\"label35817id\" for=\"radio35817id\" ><p  style=\"margin-left:0px;text-indent:0px;margin-top:0px;margin-bottom:0px;text-align:left;\" >\n<span class=\"text35816Font1\"  >Sama\n</span ></p >\n</label></div>\n');
+text35816.build()
+
+radio35817 = new ObjInline('radio35817',null,(is.ie?81:80),(is.ie?1340:1339),null,null,1,82, 0, null, null, 0)
+radio35817.arrCSSStyles = new Array();
+radio35817.arrCSSStyles.push('');
+radio35817.build()
+
+text35818 = new ObjText('text35818',null,107,1374,536,37,1,83,null,'div',null,0 )
+text35818.initSLine(1)
+text35818.initHasBullet(0)
+text35818.initRotateAngle(0,0,0)
+text35818.initHasOuterShadow(0)
+text35818.initHasTextShadow(0)
+text35818.initHasBorder(0)
+text35818.initHasOutline(0)
+text35818.initHasMargin(0)
+text35818.addIe8Attr(107, 1374, 536, 37, 0, 0)
+text35818.addHeading(0)
+text35818.addOpacity(100)
+text35818.arrCSSStyles = new Array();
+text35818.arrCSSStyles.push('span.text35818Font1 { font-size:13px; font-family:"Montserrat"; color:#000000;}');
+text35818.addInnerText('<div id=\"text35818\" aria-hidden=\"true\" ><a id=\"text35818anc\" style=\"display:block;height:0px;width:0px;\"></a>\n<label id=\"label35819id\" for=\"radio35819id\" ><p  style=\"margin-left:0px;text-indent:0px;margin-top:0px;margin-bottom:0px;text-align:left;\" >\n<span class=\"text35818Font1\"  >Lebih lama\n</span ></p >\n</label></div>\n');
+text35818.build()
+
+radio35819 = new ObjInline('radio35819',null,(is.ie?81:80),(is.ie?1377:1376),null,null,1,84, 0, null, null, 0)
+radio35819.arrCSSStyles = new Array();
+radio35819.arrCSSStyles.push('');
+radio35819.build()
+
+text35934 = new ObjText('text35934',null,81,1571,629,107,1,85,null,'div',null,0 )
+text35934.initSLine(0)
+text35934.initHasBullet(0)
+text35934.initRotateAngle(0,0,0)
+text35934.initHasOuterShadow(0)
+text35934.initHasTextShadow(0)
+text35934.initHasBorder(0)
+text35934.initHasOutline(0)
+text35934.initHasMargin(0)
+text35934.addIe8Attr(81, 1571, 629, 107, 0, 0)
+text35934.addHeading(0)
+text35934.addOpacity(100)
+text35934.arrCSSStyles = new Array();
+text35934.arrCSSStyles.push('span.text35934Font1 { font-size:16px; font-family:"Arial", sans-serif; color:#010101;}');
+text35934.addInnerText('<legend><div id=\"text35934\" aria-hidden=\"true\" ><a id=\"text35934anc\" style=\"display:block;height:0px;width:0px;\"></a>\n<p  style=\"margin-left:0px;text-indent:0px;margin-top:0px;margin-bottom:0px;text-align:left;\" >\n<span class=\"text35934Font1\"  >&nbsp;\n</span ></p >\n</div>\n</legend>\n');
+text35934.build()
+
+text35935 = new ObjText('text35935',null,108,1688,329,27,1,86,null,'div',null,0 )
+text35935.initSLine(1)
+text35935.initHasBullet(0)
+text35935.initRotateAngle(0,0,0)
+text35935.initHasOuterShadow(0)
+text35935.initHasTextShadow(0)
+text35935.initHasBorder(0)
+text35935.initHasOutline(0)
+text35935.initHasMargin(0)
+text35935.addIe8Attr(108, 1688, 329, 27, 0, 0)
+text35935.addHeading(0)
+text35935.addOpacity(100)
+text35935.arrCSSStyles = new Array();
+text35935.arrCSSStyles.push('span.text35935Font1 { font-size:13px; font-family:"Montserrat"; color:#000000;}');
+text35935.arrCSSStyles.push('span.text35935Font2 { font-size:13px; font-family:"Arial", sans-serif; color:#000000;}');
+text35935.addInnerText('<div id=\"text35935\" aria-hidden=\"true\" ><a id=\"text35935anc\" style=\"display:block;height:0px;width:0px;\"></a>\n<label id=\"label35936id\" for=\"radio35936id\" ><p  style=\"margin-left:0px;text-indent:0px;margin-top:0px;margin-bottom:0px;text-align:left;\" >\n<span class=\"text35935Font1\"  >Iya, berubah</span ><span class=\"text35935Font2\" style=\"background-color:transparent\" >\n</span ></p >\n</label></div>\n');
+text35935.build()
+
+radio35936 = new ObjInline('radio35936',null,(is.ie?82:81),(is.ie?1691:1690),null,null,1,87, 0, null, null, 0)
+radio35936.arrCSSStyles = new Array();
+radio35936.arrCSSStyles.push('');
+radio35936.build()
+
+text35937 = new ObjText('text35937',null,108,1730,324,25,1,88,null,'div',null,0 )
+text35937.initSLine(1)
+text35937.initHasBullet(0)
+text35937.initRotateAngle(0,0,0)
+text35937.initHasOuterShadow(0)
+text35937.initHasTextShadow(0)
+text35937.initHasBorder(0)
+text35937.initHasOutline(0)
+text35937.initHasMargin(0)
+text35937.addIe8Attr(108, 1730, 324, 25, 0, 0)
+text35937.addHeading(0)
+text35937.addOpacity(100)
+text35937.arrCSSStyles = new Array();
+text35937.arrCSSStyles.push('span.text35937Font1 { font-size:13px; font-family:"Montserrat"; color:#000000;}');
+text35937.arrCSSStyles.push('span.text35937Font2 { font-size:13px; font-family:"Arial", sans-serif; color:#000000;}');
+text35937.addInnerText('<div id=\"text35937\" aria-hidden=\"true\" ><a id=\"text35937anc\" style=\"display:block;height:0px;width:0px;\"></a>\n<label id=\"label35938id\" for=\"radio35938id\" ><p  style=\"margin-left:0px;text-indent:0px;margin-top:0px;margin-bottom:0px;text-align:left;\" >\n<span class=\"text35937Font1\"  >Tidak berubah</span ><span class=\"text35937Font2\" style=\"background-color:transparent\" >\n</span ></p >\n</label></div>\n');
+text35937.build()
+
+radio35938 = new ObjInline('radio35938',null,(is.ie?82:81),(is.ie?1734:1733),null,null,1,89, 0, null, null, 0)
+radio35938.arrCSSStyles = new Array();
+radio35938.arrCSSStyles.push('');
+radio35938.build()
+
+text35968 = new ObjText('text35968',null,80,1771,629,112,1,90,null,'div',null,0 )
+text35968.initSLine(0)
+text35968.initHasBullet(0)
+text35968.initRotateAngle(0,0,0)
+text35968.initHasOuterShadow(0)
+text35968.initHasTextShadow(0)
+text35968.initHasBorder(0)
+text35968.initHasOutline(0)
+text35968.initHasMargin(0)
+text35968.addIe8Attr(80, 1771, 629, 112, 0, 0)
+text35968.addHeading(0)
+text35968.addOpacity(100)
+text35968.arrCSSStyles = new Array();
+text35968.arrCSSStyles.push('span.text35968Font1 { font-size:16px; font-family:"Arial", sans-serif; color:#010101;}');
+text35968.addInnerText('<legend><div id=\"text35968\" aria-hidden=\"true\" ><a id=\"text35968anc\" style=\"display:block;height:0px;width:0px;\"></a>\n<p  style=\"margin-left:0px;text-indent:0px;margin-top:0px;margin-bottom:0px;text-align:left;\" >\n<span class=\"text35968Font1\"  >&nbsp;\n</span ></p >\n</div>\n</legend>\n');
+text35968.build()
+
+text35969 = new ObjText('text35969',null,107,1892,329,27,1,91,null,'div',null,0 )
+text35969.initSLine(1)
+text35969.initHasBullet(0)
+text35969.initRotateAngle(0,0,0)
+text35969.initHasOuterShadow(0)
+text35969.initHasTextShadow(0)
+text35969.initHasBorder(0)
+text35969.initHasOutline(0)
+text35969.initHasMargin(0)
+text35969.addIe8Attr(107, 1892, 329, 27, 0, 0)
+text35969.addHeading(0)
+text35969.addOpacity(100)
+text35969.arrCSSStyles = new Array();
+text35969.arrCSSStyles.push('span.text35969Font1 { font-size:13px; font-family:"Montserrat"; color:#000000;}');
+text35969.arrCSSStyles.push('span.text35969Font2 { font-size:13px; font-family:"Arial", sans-serif; color:#000000;}');
+text35969.addInnerText('<div id=\"text35969\" aria-hidden=\"true\" ><a id=\"text35969anc\" style=\"display:block;height:0px;width:0px;\"></a>\n<label id=\"label35970id\" for=\"radio35970id\" ><p  style=\"margin-left:0px;text-indent:0px;margin-top:0px;margin-bottom:0px;text-align:left;\" >\n<span class=\"text35969Font1\"  >8 menit</span ><span class=\"text35969Font2\" style=\"background-color:transparent\" >\n</span ></p >\n</label></div>\n');
+text35969.build()
+
+radio35970 = new ObjInline('radio35970',null,(is.ie?81:80),(is.ie?1895:1894),null,null,1,92, 0, null, null, 0)
+radio35970.arrCSSStyles = new Array();
+radio35970.arrCSSStyles.push('');
+radio35970.build()
+
+text35971 = new ObjText('text35971',null,107,1932,324,26,1,93,null,'div',null,0 )
+text35971.initSLine(1)
+text35971.initHasBullet(0)
+text35971.initRotateAngle(0,0,0)
+text35971.initHasOuterShadow(0)
+text35971.initHasTextShadow(0)
+text35971.initHasBorder(0)
+text35971.initHasOutline(0)
+text35971.initHasMargin(0)
+text35971.addIe8Attr(107, 1932, 324, 26, 0, 0)
+text35971.addHeading(0)
+text35971.addOpacity(100)
+text35971.arrCSSStyles = new Array();
+text35971.arrCSSStyles.push('span.text35971Font1 { font-size:13px; font-family:"Montserrat"; color:#000000;}');
+text35971.arrCSSStyles.push('span.text35971Font2 { font-size:13px; font-family:"Arial", sans-serif; color:#000000;}');
+text35971.addInnerText('<div id=\"text35971\" aria-hidden=\"true\" ><a id=\"text35971anc\" style=\"display:block;height:0px;width:0px;\"></a>\n<label id=\"label35972id\" for=\"radio35972id\" ><p  style=\"margin-left:0px;text-indent:0px;margin-top:0px;margin-bottom:0px;text-align:left;\" >\n<span class=\"text35971Font1\"  >10 menit</span ><span class=\"text35971Font2\" style=\"background-color:transparent\" >\n</span ></p >\n</label></div>\n');
+text35971.build()
+
+radio35972 = new ObjInline('radio35972',null,(is.ie?81:80),(is.ie?1935:1934),null,null,1,94, 0, null, null, 0)
+radio35972.arrCSSStyles = new Array();
+radio35972.arrCSSStyles.push('');
+radio35972.build()
+
+text35973 = new ObjText('text35973',null,107,1973,267,37,1,95,null,'div',null,0 )
+text35973.initSLine(1)
+text35973.initHasBullet(0)
+text35973.initRotateAngle(0,0,0)
+text35973.initHasOuterShadow(0)
+text35973.initHasTextShadow(0)
+text35973.initHasBorder(0)
+text35973.initHasOutline(0)
+text35973.initHasMargin(0)
+text35973.addIe8Attr(107, 1973, 267, 37, 0, 0)
+text35973.addHeading(0)
+text35973.addOpacity(100)
+text35973.arrCSSStyles = new Array();
+text35973.arrCSSStyles.push('span.text35973Font1 { font-size:13px; font-family:"Montserrat"; color:#000000;}');
+text35973.arrCSSStyles.push('span.text35973Font2 { font-size:13px; font-family:"Arial", sans-serif; color:#000000;}');
+text35973.addInnerText('<div id=\"text35973\" aria-hidden=\"true\" ><a id=\"text35973anc\" style=\"display:block;height:0px;width:0px;\"></a>\n<label id=\"label35974id\" for=\"radio35974id\" ><p  style=\"margin-left:0px;text-indent:0px;margin-top:0px;margin-bottom:0px;text-align:left;\" >\n<span class=\"text35973Font1\"  >12 menit</span ><span class=\"text35973Font2\" style=\"background-color:transparent\" >\n</span ></p >\n</label></div>\n');
+text35973.build()
+
+radio35974 = new ObjInline('radio35974',null,(is.ie?81:80),(is.ie?1976:1975),null,null,1,96, 0, null, null, 0)
+radio35974.arrCSSStyles = new Array();
+radio35974.arrCSSStyles.push('');
+radio35974.build()
+
+text35975 = new ObjText('text35975',null,107,2013,131,37,1,97,null,'div',null,0 )
+text35975.initSLine(1)
+text35975.initHasBullet(0)
+text35975.initRotateAngle(0,0,0)
+text35975.initHasOuterShadow(0)
+text35975.initHasTextShadow(0)
+text35975.initHasBorder(0)
+text35975.initHasOutline(0)
+text35975.initHasMargin(0)
+text35975.addIe8Attr(107, 2013, 131, 37, 0, 0)
+text35975.addHeading(0)
+text35975.addOpacity(100)
+text35975.arrCSSStyles = new Array();
+text35975.arrCSSStyles.push('span.text35975Font1 { font-size:13px; font-family:"Montserrat"; color:#000000;}');
+text35975.arrCSSStyles.push('span.text35975Font2 { font-size:13px; font-family:"Arial", sans-serif; color:#000000;}');
+text35975.addInnerText('<div id=\"text35975\" aria-hidden=\"true\" ><a id=\"text35975anc\" style=\"display:block;height:0px;width:0px;\"></a>\n<label id=\"label35976id\" for=\"radio35976id\" ><p  style=\"margin-left:0px;text-indent:0px;margin-top:0px;margin-bottom:0px;text-align:left;\" >\n<span class=\"text35975Font1\"  >16 menit</span ><span class=\"text35975Font2\" style=\"background-color:transparent\" >\n</span ></p >\n</label></div>\n');
+text35975.build()
+
+radio35976 = new ObjInline('radio35976',null,(is.ie?81:80),(is.ie?2016:2015),null,null,1,98, 0, null, null, 0)
+radio35976.arrCSSStyles = new Array();
+radio35976.arrCSSStyles.push('');
+radio35976.build()
+
+text36069 = new ObjText('text36069',null,80,2049,629,112,1,99,null,'div',null,0 )
+text36069.initSLine(0)
+text36069.initHasBullet(0)
+text36069.initRotateAngle(0,0,0)
+text36069.initHasOuterShadow(0)
+text36069.initHasTextShadow(0)
+text36069.initHasBorder(0)
+text36069.initHasOutline(0)
+text36069.initHasMargin(0)
+text36069.addIe8Attr(80, 2049, 629, 112, 0, 0)
+text36069.addHeading(0)
+text36069.addOpacity(100)
+text36069.arrCSSStyles = new Array();
+text36069.arrCSSStyles.push('span.text36069Font1 { font-size:16px; font-family:"Arial", sans-serif; color:#010101;}');
+text36069.addInnerText('<legend><div id=\"text36069\" aria-hidden=\"true\" ><a id=\"text36069anc\" style=\"display:block;height:0px;width:0px;\"></a>\n<p  style=\"margin-left:0px;text-indent:0px;margin-top:0px;margin-bottom:0px;text-align:left;\" >\n<span class=\"text36069Font1\"  >&nbsp;\n</span ></p >\n</div>\n</legend>\n');
+text36069.build()
+
+text36070 = new ObjText('text36070',null,107,2170,329,27,1,100,null,'div',null,0 )
+text36070.initSLine(1)
+text36070.initHasBullet(0)
+text36070.initRotateAngle(0,0,0)
+text36070.initHasOuterShadow(0)
+text36070.initHasTextShadow(0)
+text36070.initHasBorder(0)
+text36070.initHasOutline(0)
+text36070.initHasMargin(0)
+text36070.addIe8Attr(107, 2170, 329, 27, 0, 0)
+text36070.addHeading(0)
+text36070.addOpacity(100)
+text36070.arrCSSStyles = new Array();
+text36070.arrCSSStyles.push('span.text36070Font1 { font-size:13px; font-family:"Montserrat"; color:#000000;}');
+text36070.arrCSSStyles.push('span.text36070Font2 { font-size:13px; font-family:"Arial", sans-serif; color:#000000;}');
+text36070.addInnerText('<div id=\"text36070\" aria-hidden=\"true\" ><a id=\"text36070anc\" style=\"display:block;height:0px;width:0px;\"></a>\n<label id=\"label36071id\" for=\"radio36071id\" ><p  style=\"margin-left:0px;text-indent:0px;margin-top:0px;margin-bottom:0px;text-align:left;\" >\n<span class=\"text36070Font1\"  >8 menit</span ><span class=\"text36070Font2\" style=\"background-color:transparent\" >\n</span ></p >\n</label></div>\n');
+text36070.build()
+
+radio36071 = new ObjInline('radio36071',null,(is.ie?81:80),(is.ie?2173:2172),null,null,1,101, 0, null, null, 0)
+radio36071.arrCSSStyles = new Array();
+radio36071.arrCSSStyles.push('');
+radio36071.build()
+
+text36072 = new ObjText('text36072',null,107,2210,324,51,1,102,null,'div',null,0 )
+text36072.initSLine(1)
+text36072.initHasBullet(0)
+text36072.initRotateAngle(0,0,0)
+text36072.initHasOuterShadow(0)
+text36072.initHasTextShadow(0)
+text36072.initHasBorder(0)
+text36072.initHasOutline(0)
+text36072.initHasMargin(0)
+text36072.addIe8Attr(107, 2210, 324, 51, 0, 0)
+text36072.addHeading(0)
+text36072.addOpacity(100)
+text36072.arrCSSStyles = new Array();
+text36072.arrCSSStyles.push('span.text36072Font1 { font-size:13px; font-family:"Montserrat"; color:#000000;}');
+text36072.arrCSSStyles.push('span.text36072Font2 { font-size:13px; font-family:"Arial", sans-serif; color:#000000;}');
+text36072.addInnerText('<div id=\"text36072\" aria-hidden=\"true\" ><a id=\"text36072anc\" style=\"display:block;height:0px;width:0px;\"></a>\n<label id=\"label36073id\" for=\"radio36073id\" ><p  style=\"margin-left:0px;text-indent:0px;margin-top:0px;margin-bottom:0px;text-align:left;\" >\n<span class=\"text36072Font1\"  >12 menit</span ><span class=\"text36072Font2\" style=\"background-color:transparent\" >\n</span ></p >\n</label></div>\n');
+text36072.build()
+
+radio36073 = new ObjInline('radio36073',null,(is.ie?81:80),(is.ie?2213:2212),null,null,1,103, 0, null, null, 0)
+radio36073.arrCSSStyles = new Array();
+radio36073.arrCSSStyles.push('');
+radio36073.build()
+
+text36074 = new ObjText('text36074',null,107,2251,267,37,1,104,null,'div',null,0 )
+text36074.initSLine(1)
+text36074.initHasBullet(0)
+text36074.initRotateAngle(0,0,0)
+text36074.initHasOuterShadow(0)
+text36074.initHasTextShadow(0)
+text36074.initHasBorder(0)
+text36074.initHasOutline(0)
+text36074.initHasMargin(0)
+text36074.addIe8Attr(107, 2251, 267, 37, 0, 0)
+text36074.addHeading(0)
+text36074.addOpacity(100)
+text36074.arrCSSStyles = new Array();
+text36074.arrCSSStyles.push('span.text36074Font1 { font-size:13px; font-family:"Montserrat"; color:#000000;}');
+text36074.arrCSSStyles.push('span.text36074Font2 { font-size:13px; font-family:"Arial", sans-serif; color:#000000;}');
+text36074.addInnerText('<div id=\"text36074\" aria-hidden=\"true\" ><a id=\"text36074anc\" style=\"display:block;height:0px;width:0px;\"></a>\n<label id=\"label36075id\" for=\"radio36075id\" ><p  style=\"margin-left:0px;text-indent:0px;margin-top:0px;margin-bottom:0px;text-align:left;\" >\n<span class=\"text36074Font1\"  >24 menit</span ><span class=\"text36074Font2\" style=\"background-color:transparent\" >\n</span ></p >\n</label></div>\n');
+text36074.build()
+
+radio36075 = new ObjInline('radio36075',null,(is.ie?81:80),(is.ie?2254:2253),null,null,1,105, 0, null, null, 0)
+radio36075.arrCSSStyles = new Array();
+radio36075.arrCSSStyles.push('');
+radio36075.build()
+
+text36076 = new ObjText('text36076',null,107,2291,131,37,1,106,null,'div',null,0 )
+text36076.initSLine(1)
+text36076.initHasBullet(0)
+text36076.initRotateAngle(0,0,0)
+text36076.initHasOuterShadow(0)
+text36076.initHasTextShadow(0)
+text36076.initHasBorder(0)
+text36076.initHasOutline(0)
+text36076.initHasMargin(0)
+text36076.addIe8Attr(107, 2291, 131, 37, 0, 0)
+text36076.addHeading(0)
+text36076.addOpacity(100)
+text36076.arrCSSStyles = new Array();
+text36076.arrCSSStyles.push('span.text36076Font1 { font-size:13px; font-family:"Montserrat"; color:#000000;}');
+text36076.arrCSSStyles.push('span.text36076Font2 { font-size:13px; font-family:"Arial", sans-serif; color:#000000;}');
+text36076.addInnerText('<div id=\"text36076\" aria-hidden=\"true\" ><a id=\"text36076anc\" style=\"display:block;height:0px;width:0px;\"></a>\n<label id=\"label36077id\" for=\"radio36077id\" ><p  style=\"margin-left:0px;text-indent:0px;margin-top:0px;margin-bottom:0px;text-align:left;\" >\n<span class=\"text36076Font1\"  >36 menit</span ><span class=\"text36076Font2\" style=\"background-color:transparent\" >\n</span ></p >\n</label></div>\n');
+text36076.build()
+
+radio36077 = new ObjInline('radio36077',null,(is.ie?81:80),(is.ie?2294:2293),null,null,1,107, 0, null, null, 0)
+radio36077.arrCSSStyles = new Array();
+radio36077.arrCSSStyles.push('');
+radio36077.build()
+
+text36123 = new ObjText('text36123',null,80,2330,629,75,1,108,null,'div',null,0 )
+text36123.initSLine(1)
+text36123.initHasBullet(0)
+text36123.initRotateAngle(0,0,0)
+text36123.initHasOuterShadow(0)
+text36123.initHasTextShadow(0)
+text36123.initHasBorder(0)
+text36123.initHasOutline(0)
+text36123.initHasMargin(0)
+text36123.addIe8Attr(80, 2330, 629, 75, 0, 0)
+text36123.addHeading(0)
+text36123.addOpacity(100)
+text36123.arrCSSStyles = new Array();
+text36123.arrCSSStyles.push('span.text36123Font1 { font-size:16px; font-family:"Arial", sans-serif; color:#010101;}');
+text36123.addInnerText('<legend><div id=\"text36123\" aria-hidden=\"true\" ><a id=\"text36123anc\" style=\"display:block;height:0px;width:0px;\"></a>\n<p  style=\"margin-left:0px;text-indent:0px;margin-top:0px;margin-bottom:0px;text-align:left;\" >\n<span class=\"text36123Font1\"  >&nbsp;\n</span ></p >\n</div>\n</legend>\n');
+text36123.build()
+
+text36124 = new ObjText('text36124',null,107,2415,329,27,1,109,null,'div',null,0 )
+text36124.initSLine(1)
+text36124.initHasBullet(0)
+text36124.initRotateAngle(0,0,0)
+text36124.initHasOuterShadow(0)
+text36124.initHasTextShadow(0)
+text36124.initHasBorder(0)
+text36124.initHasOutline(0)
+text36124.initHasMargin(0)
+text36124.addIe8Attr(107, 2415, 329, 27, 0, 0)
+text36124.addHeading(0)
+text36124.addOpacity(100)
+text36124.arrCSSStyles = new Array();
+text36124.arrCSSStyles.push('span.text36124Font1 { font-size:13px; font-family:"Montserrat"; color:#000000;}');
+text36124.arrCSSStyles.push('span.text36124Font2 { font-size:13px; font-family:"Arial", sans-serif; color:#000000;}');
+text36124.addInnerText('<div id=\"text36124\" aria-hidden=\"true\" ><a id=\"text36124anc\" style=\"display:block;height:0px;width:0px;\"></a>\n<label id=\"label36125id\" for=\"radio36125id\" ><p  style=\"margin-left:0px;text-indent:0px;margin-top:0px;margin-bottom:0px;text-align:left;\" >\n<span class=\"text36124Font1\"  >Perbandingan senilai</span ><span class=\"text36124Font2\" style=\"background-color:transparent\" >\n</span ></p >\n</label></div>\n');
+text36124.build()
+
+radio36125 = new ObjInline('radio36125',null,(is.ie?81:80),(is.ie?2418:2417),null,null,1,110, 0, null, null, 0)
+radio36125.arrCSSStyles = new Array();
+radio36125.arrCSSStyles.push('');
+radio36125.build()
+
+text36126 = new ObjText('text36126',null,107,2457,324,25,1,111,null,'div',null,0 )
+text36126.initSLine(1)
+text36126.initHasBullet(0)
+text36126.initRotateAngle(0,0,0)
+text36126.initHasOuterShadow(0)
+text36126.initHasTextShadow(0)
+text36126.initHasBorder(0)
+text36126.initHasOutline(0)
+text36126.initHasMargin(0)
+text36126.addIe8Attr(107, 2457, 324, 25, 0, 0)
+text36126.addHeading(0)
+text36126.addOpacity(100)
+text36126.arrCSSStyles = new Array();
+text36126.arrCSSStyles.push('span.text36126Font1 { font-size:13px; font-family:"Montserrat"; color:#000000;}');
+text36126.arrCSSStyles.push('span.text36126Font2 { font-size:13px; font-family:"Arial", sans-serif; color:#000000;}');
+text36126.addInnerText('<div id=\"text36126\" aria-hidden=\"true\" ><a id=\"text36126anc\" style=\"display:block;height:0px;width:0px;\"></a>\n<label id=\"label36127id\" for=\"radio36127id\" ><p  style=\"margin-left:0px;text-indent:0px;margin-top:0px;margin-bottom:0px;text-align:left;\" >\n<span class=\"text36126Font1\"  >Perbandingan berbalik nilai</span ><span class=\"text36126Font2\" style=\"background-color:transparent\" >\n</span ></p >\n</label></div>\n');
+text36126.build()
+
+radio36127 = new ObjInline('radio36127',null,(is.ie?81:80),(is.ie?2461:2460),null,null,1,112, 0, null, null, 0)
+radio36127.arrCSSStyles = new Array();
+radio36127.arrCSSStyles.push('');
+radio36127.build()
+
+entry84000 = new ObjInline('entry84000',null,(is.ie?88:88),(is.ie?2541:2540),null,null,1,113, 0, null, null, 0)
+entry84000.onSelChg = entry84000onSelChg
+entry84000.arrCSSStyles = new Array();
+entry84000.arrCSSStyles.push('input.entry84000 { font-size:16px; font-family:"Arial", sans-serif; color:#000000; width:608px; height:118px; -webkit-appearance:none; background-color:#ffffff; }');
+entry84000.build()
+
+button37925 = new ObjButton('button37925', 'Button_Lanjut43',492,2844,217.000000,69.000000,1,114,'div','',1,0)
+button37925.setFillStyle(2)
+button37925.setUniqueFillID('kasus_4_investigate_4_3_button37925')
+button37925.initRotateAngle(0,0,0,-0.000000,-0.000000,216,68)
+button37925.initHasShadow(0)
+button37925.initHasReflection(0)
+button37925.setImages('images/transbtn.gif', '', '','');
+button37925.setStateOpacity( 0.000000, 0.000000, 0.000000, 0.000000 );
+button37925.addIe8Attr(492.000000, 2844.000000, 217.000000, 69.000000, 0, 0)
+button37925.addOpacity(0)
+button37925.initImageMap('34,0,182,0,189,1,195,3,201,6,206,10,210,15,213,21,215,27,216,34,216,34,215,41,213,47,210,53,206,58,201,62,195,65,189,67,182,68,34,68,27,67,21,65,15,62,10,58,6,53,3,47,1,41,0,34,0,34,1,27,3,21,6,15,10,10,15,6,21,3,27,1,34,0','M 34.000000 0.000000 L 182.000000 0.000000 L 188.875000 0.687500 L 195.250000 2.687500 L 201.000000 5.812500 L 206.062500 10.000000 L 210.187500 15.000000 L 213.312500 20.750000 L 215.312500 27.125000 L 216.000000 34.000000 L 216.000000 34.000000 L 215.312500 40.875000 L 213.312500 47.250000 L 210.187500 53.000000 L 206.062500 58.062500 L 201.000000 62.187500 L 195.250000 65.312500 L 188.875000 67.312500 L 182.000000 68.000000 L 34.000000 68.000000 L 27.375000 67.375000 L 21.000000 65.437500 L 15.187500 62.312500 L 10.000000 58.062500 L 5.750000 52.875000 L 2.625000 47.062500 L 0.687500 40.687500 L 0.000000 34.000000 L 0.000000 34.000000 L 0.687500 27.125000 L 2.687500 20.750000 L 5.812500 15.000000 L 10.000000 10.000000 L 15.000000 5.812500 L 20.750000 2.687500 L 27.125000 0.687500 L 34.000000 0.000000 z')
+button37925.setFills('                <pattern id="Picture_kasus_4_investigate_4_3_button37925" x="0" y="0" width="217.000000" height="69.000000" patternUnits="userSpaceOnUse">                <image xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAANkAAABFCAYAAADHGkNOAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAABRSURBVHhe7cExAQAAAMKg9U9tCy+gAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAE4G6jkAAQdYx/4AAAAASUVORK5CYII=" x="0" y="0" width="217.000000" height="69.000000"  preserveAspectRatio="none"/>           </pattern>       ','                <pattern id="Picture_kasus_4_investigate_4_3_button37925_over" x="0" y="0" width="217.000000" height="69.000000" patternUnits="userSpaceOnUse">                <image xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAANkAAABFCAYAAADHGkNOAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAABRSURBVHhe7cExAQAAAMKg9U9tCy+gAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAE4G6jkAAQdYx/4AAAAASUVORK5CYII=" x="0" y="0" width="217.000000" height="69.000000"  preserveAspectRatio="none"/>           </pattern>       ','                <pattern id="Picture_kasus_4_investigate_4_3_button37925_down" x="0" y="0" width="219.000000" height="71.000000" patternUnits="userSpaceOnUse">                <image xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAANsAAABHCAYAAACOJzJ4AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAABTSURBVHhe7cExAQAAAMKg9U9tCj+gAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAOBnzOwAB9VfxwgAAAABJRU5ErkJggg==" x="0" y="0" width="219.000000" height="71.000000"  preserveAspectRatio="none"/>           </pattern>       ','                <pattern id="Picture_kasus_4_investigate_4_3_button37925_disabled" x="0" y="0" width="217.000000" height="69.000000" patternUnits="userSpaceOnUse">                <image xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAANkAAABFCAYAAADHGkNOAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAABRSURBVHhe7cExAQAAAMKg9U9tCy+gAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAE4G6jkAAQdYx/4AAAAASUVORK5CYII=" x="0" y="0" width="217.000000" height="69.000000"  preserveAspectRatio="none"/>           </pattern>       ','fill:url(#Picture_kasus_4_investigate_4_3_button37925);"','fill:url(#Picture_kasus_4_investigate_4_3_button37925_over);"','stroke:#0963B1; stroke-width:2; stroke-linejoin:round;stroke-dasharray: none; fill:url(#Picture_kasus_4_investigate_4_3_button37925_down);"','fill:url(#Picture_kasus_4_investigate_4_3_button37925_disabled);"')
+button37925.setTextVal('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAANkAAABFCAYAAADHGkNOAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAABRSURBVHhe7cExAQAAAMKg9U9tCy+gAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAE4G6jkAAQdYx/4AAAAASUVORK5CYII=' , 'fill:url(#Text_kasus_4_investigate_4_3_button37925)', 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAANkAAABFCAYAAADHGkNOAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAABRSURBVHhe7cExAQAAAMKg9U9tCy+gAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAE4G6jkAAQdYx/4AAAAASUVORK5CYII=', 'fill:url(#Text_kasus_4_investigate_4_3_button37925_over)', 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAANsAAABHCAYAAACOJzJ4AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAABTSURBVHhe7cExAQAAAMKg9U9tCj+gAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAOBnzOwAB9VfxwgAAAABJRU5ErkJggg==', 'fill:url(#Text_kasus_4_investigate_4_3_button37925_down)', 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAANkAAABFCAYAAADHGkNOAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAABRSURBVHhe7cExAQAAAMKg9U9tCy+gAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAE4G6jkAAQdYx/4AAAAASUVORK5CYII=', 'fill:url(#Text_kasus_4_investigate_4_3_button37925_disabled)')
+button37925.setBase64Images( 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAANkAAABFCAYAAADHGkNOAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAABRSURBVHhe7cExAQAAAMKg9U9tCy+gAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAE4G6jkAAQdYx/4AAAAASUVORK5CYII=' , 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAANkAAABFCAYAAADHGkNOAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAABRSURBVHhe7cExAQAAAMKg9U9tCy+gAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAE4G6jkAAQdYx/4AAAAASUVORK5CYII=' , 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAANsAAABHCAYAAACOJzJ4AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAABTSURBVHhe7cExAQAAAMKg9U9tCj+gAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAOBnzOwAB9VfxwgAAAABJRU5ErkJggg==' , 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAANkAAABFCAYAAADHGkNOAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAABRSURBVHhe7cExAQAAAMKg9U9tCy+gAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAE4G6jkAAQdYx/4AAAAASUVORK5CYII=' )
+button37925.setImgFillVal('fill:url(#Picture_kasus_4_investigate_4_3_button37925)','data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAANkAAABFCAYAAADHGkNOAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAABRSURBVHhe7cExAQAAAMKg9U9tCy+gAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAE4G6jkAAQdYx/4AAAAASUVORK5CYII=','fill:url(#Picture_kasus_4_investigate_4_3_button37925_over)','data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAANkAAABFCAYAAADHGkNOAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAABRSURBVHhe7cExAQAAAMKg9U9tCy+gAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAE4G6jkAAQdYx/4AAAAASUVORK5CYII=','fill:url(#Picture_kasus_4_investigate_4_3_button37925_down)','data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAANsAAABHCAYAAACOJzJ4AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAABTSURBVHhe7cExAQAAAMKg9U9tCj+gAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAOBnzOwAB9VfxwgAAAABJRU5ErkJggg==','fill:url(#Picture_kasus_4_investigate_4_3_button37925_disabled)','data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAANkAAABFCAYAAADHGkNOAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAABRSURBVHhe7cExAQAAAMKg9U9tCy+gAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAE4G6jkAAQdYx/4AAAAASUVORK5CYII=' )
+button37925.initLineWeight('0')
+button37925.onUp = button37925onUp
+button37925.hasOnUp = true
+button37925.capture=4
+button37925.build()
+
+button38133 = new ObjButton('button38133', 'Button_Kembali43',81,2844,217.000000,69.000000,1,115,'div','',1,0)
+button38133.setFillStyle(2)
+button38133.setUniqueFillID('kasus_4_investigate_4_3_button38133')
+button38133.initRotateAngle(0,0,0,-0.000000,-0.000000,216,68)
+button38133.initHasShadow(0)
+button38133.initHasReflection(0)
+button38133.setImages('images/transbtn.gif', '', '','');
+button38133.setStateOpacity( 0.000000, 0.000000, 0.000000, 0.000000 );
+button38133.addIe8Attr(81.000000, 2844.000000, 217.000000, 69.000000, 0, 0)
+button38133.addOpacity(0)
+button38133.initImageMap('34,0,182,0,189,1,195,3,201,6,206,10,210,15,213,21,215,27,216,34,216,34,215,41,213,47,210,53,206,58,201,62,195,65,189,67,182,68,34,68,27,67,21,65,15,62,10,58,6,53,3,47,1,41,0,34,0,34,1,27,3,21,6,15,10,10,15,6,21,3,27,1,34,0','M 34.000000 0.000000 L 182.000000 0.000000 L 188.875000 0.687500 L 195.250000 2.687500 L 201.000000 5.812500 L 206.062500 10.000000 L 210.187500 15.000000 L 213.312500 20.750000 L 215.312500 27.125000 L 216.000000 34.000000 L 216.000000 34.000000 L 215.312500 40.875000 L 213.312500 47.250000 L 210.187500 53.000000 L 206.062500 58.062500 L 201.000000 62.187500 L 195.250000 65.312500 L 188.875000 67.312500 L 182.000000 68.000000 L 34.000000 68.000000 L 27.375000 67.375000 L 21.000000 65.437500 L 15.187500 62.312500 L 10.000000 58.062500 L 5.750000 52.875000 L 2.625000 47.062500 L 0.687500 40.687500 L 0.000000 34.000000 L 0.000000 34.000000 L 0.687500 27.125000 L 2.687500 20.750000 L 5.812500 15.000000 L 10.000000 10.000000 L 15.000000 5.812500 L 20.750000 2.687500 L 27.125000 0.687500 L 34.000000 0.000000 z')
+button38133.setFills('                <pattern id="Picture_kasus_4_investigate_4_3_button38133" x="0" y="0" width="217.000000" height="69.000000" patternUnits="userSpaceOnUse">                <image xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAANkAAABFCAYAAADHGkNOAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAABRSURBVHhe7cExAQAAAMKg9U9tCy+gAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAE4G6jkAAQdYx/4AAAAASUVORK5CYII=" x="0" y="0" width="217.000000" height="69.000000"  preserveAspectRatio="none"/>           </pattern>       ','                <pattern id="Picture_kasus_4_investigate_4_3_button38133_over" x="0" y="0" width="217.000000" height="69.000000" patternUnits="userSpaceOnUse">                <image xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAANkAAABFCAYAAADHGkNOAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAABRSURBVHhe7cExAQAAAMKg9U9tCy+gAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAE4G6jkAAQdYx/4AAAAASUVORK5CYII=" x="0" y="0" width="217.000000" height="69.000000"  preserveAspectRatio="none"/>           </pattern>       ','                <pattern id="Picture_kasus_4_investigate_4_3_button38133_down" x="0" y="0" width="219.000000" height="71.000000" patternUnits="userSpaceOnUse">                <image xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAANsAAABHCAYAAACOJzJ4AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAABTSURBVHhe7cExAQAAAMKg9U9tCj+gAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAOBnzOwAB9VfxwgAAAABJRU5ErkJggg==" x="0" y="0" width="219.000000" height="71.000000"  preserveAspectRatio="none"/>           </pattern>       ','                <pattern id="Picture_kasus_4_investigate_4_3_button38133_disabled" x="0" y="0" width="217.000000" height="69.000000" patternUnits="userSpaceOnUse">                <image xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAANkAAABFCAYAAADHGkNOAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAABRSURBVHhe7cExAQAAAMKg9U9tCy+gAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAE4G6jkAAQdYx/4AAAAASUVORK5CYII=" x="0" y="0" width="217.000000" height="69.000000"  preserveAspectRatio="none"/>           </pattern>       ','fill:url(#Picture_kasus_4_investigate_4_3_button38133);"','fill:url(#Picture_kasus_4_investigate_4_3_button38133_over);"','stroke:#0963B1; stroke-width:2; stroke-linejoin:round;stroke-dasharray: none; fill:url(#Picture_kasus_4_investigate_4_3_button38133_down);"','fill:url(#Picture_kasus_4_investigate_4_3_button38133_disabled);"')
+button38133.setTextVal('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAANkAAABFCAYAAADHGkNOAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAABRSURBVHhe7cExAQAAAMKg9U9tCy+gAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAE4G6jkAAQdYx/4AAAAASUVORK5CYII=' , 'fill:url(#Text_kasus_4_investigate_4_3_button38133)', 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAANkAAABFCAYAAADHGkNOAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAABRSURBVHhe7cExAQAAAMKg9U9tCy+gAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAE4G6jkAAQdYx/4AAAAASUVORK5CYII=', 'fill:url(#Text_kasus_4_investigate_4_3_button38133_over)', 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAANsAAABHCAYAAACOJzJ4AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAABTSURBVHhe7cExAQAAAMKg9U9tCj+gAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAOBnzOwAB9VfxwgAAAABJRU5ErkJggg==', 'fill:url(#Text_kasus_4_investigate_4_3_button38133_down)', 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAANkAAABFCAYAAADHGkNOAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAABRSURBVHhe7cExAQAAAMKg9U9tCy+gAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAE4G6jkAAQdYx/4AAAAASUVORK5CYII=', 'fill:url(#Text_kasus_4_investigate_4_3_button38133_disabled)')
+button38133.setBase64Images( 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAANkAAABFCAYAAADHGkNOAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAABRSURBVHhe7cExAQAAAMKg9U9tCy+gAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAE4G6jkAAQdYx/4AAAAASUVORK5CYII=' , 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAANkAAABFCAYAAADHGkNOAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAABRSURBVHhe7cExAQAAAMKg9U9tCy+gAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAE4G6jkAAQdYx/4AAAAASUVORK5CYII=' , 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAANsAAABHCAYAAACOJzJ4AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAABTSURBVHhe7cExAQAAAMKg9U9tCj+gAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAOBnzOwAB9VfxwgAAAABJRU5ErkJggg==' , 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAANkAAABFCAYAAADHGkNOAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAABRSURBVHhe7cExAQAAAMKg9U9tCy+gAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAE4G6jkAAQdYx/4AAAAASUVORK5CYII=' )
+button38133.setImgFillVal('fill:url(#Picture_kasus_4_investigate_4_3_button38133)','data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAANkAAABFCAYAAADHGkNOAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAABRSURBVHhe7cExAQAAAMKg9U9tCy+gAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAE4G6jkAAQdYx/4AAAAASUVORK5CYII=','fill:url(#Picture_kasus_4_investigate_4_3_button38133_over)','data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAANkAAABFCAYAAADHGkNOAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAABRSURBVHhe7cExAQAAAMKg9U9tCy+gAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAE4G6jkAAQdYx/4AAAAASUVORK5CYII=','fill:url(#Picture_kasus_4_investigate_4_3_button38133_down)','data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAANsAAABHCAYAAACOJzJ4AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAABTSURBVHhe7cExAQAAAMKg9U9tCj+gAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAOBnzOwAB9VfxwgAAAABJRU5ErkJggg==','fill:url(#Picture_kasus_4_investigate_4_3_button38133_disabled)','data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAANkAAABFCAYAAADHGkNOAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAABRSURBVHhe7cExAQAAAMKg9U9tCy+gAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAE4G6jkAAQdYx/4AAAAASUVORK5CYII=' )
+button38133.initLineWeight('0')
+button38133.onUp = button38133onUp
+button38133.hasOnUp = true
+button38133.capture=4
+button38133.build()
+
+image144768 = new ObjImage('image144768','images/invstgt_4.3.png','invstgt_4.3',-41,-846,720,2030,1,49,'div',null, 0 )
+image144768.initRotateAngle(0,0,0,0,0,0,0)
+image144768.initHasShadow(0)
+image144768.initHasReflection(0)
+image144768.addIe8Attr(-41, -846, 720, 2030, 0, 0)
+image144768.initImageMap(1,'0,0,720,0,720,2030,0,2030,0,0','M 0 0 L 720 0 L 720 2030 L 0 2030 L 0 0 z')
+image144768.addBorder(0)
+image144768.addOpacity(100)
+image144768.build()
+
+qu35754 = new ObjInline('qu35754',null,40,443,436,91,1,0)
+qu35754.isGrp = true
+qu35754.addChild('text35755')
+qu35754.addChild('text35756')
+qu35754.addChild('radio35757')
+qu35754.addChild('text35758')
+qu35754.addChild('radio35759')
+qu35754.addChild('text35776')
+qu35754.addChild('radio35777')
+qu35754.ansVar=Var4_16_q;
+qu35754.build()
+
+qu35812 = new ObjInline('qu35812',null,40,527,431,90,1,0)
+qu35812.isGrp = true
+qu35812.addChild('text35813')
+qu35812.addChild('text35814')
+qu35812.addChild('radio35815')
+qu35812.addChild('text35816')
+qu35812.addChild('radio35817')
+qu35812.addChild('text35818')
+qu35812.addChild('radio35819')
+qu35812.ansVar=Var4_17_q;
+qu35812.build()
+
+qu35886 = new ObjInline('qu35886',null,40,610,425,79,1,0)
+qu35886.isGrp = true
+qu35886.addChild('text35888')
+qu35886.addChild('entry35889')
+qu35886.ansVar=Var4_18_i;
+qu35886.build()
+
+text35888 = new ObjText('text35888',null,80,1409,506,68,1,50,null,'div',null,0 )
+text35888.initSLine(1)
+text35888.initHasBullet(0)
+text35888.initRotateAngle(0,0,0)
+text35888.initHasOuterShadow(0)
+text35888.initHasTextShadow(0)
+text35888.initHasBorder(0)
+text35888.initHasOutline(0)
+text35888.initHasMargin(0)
+text35888.addIe8Attr(80, 1409, 506, 68, 0, 0)
+text35888.addHeading(0)
+text35888.addOpacity(100)
+text35888.arrCSSStyles = new Array();
+text35888.arrCSSStyles.push('span.text35888Font1 { font-size:16px; font-family:"Arial", sans-serif; color:#010101;}');
+text35888.addInnerText('<legend><div id=\"text35888\" aria-hidden=\"true\" ><a id=\"text35888anc\" style=\"display:block;height:0px;width:0px;\"></a>\n<label id=\"label35889id\" for=\"entry35889id\" ><p  style=\"margin-left:0px;text-indent:0px;margin-top:0px;margin-bottom:0px;text-align:left;\" >\n<span class=\"text35888Font1\"  >&nbsp;\n</span ></p >\n</label></div>\n</legend>\n');
+text35888.build()
+
+entry35889 = new ObjInline('entry35889',null,(is.ie?89:89),(is.ie?1485:1484),null,null,1,51, 0, null, null, 0)
+entry35889.arrCSSStyles = new Array();
+entry35889.arrCSSStyles.push('input.entry35889 { font-size:16px; font-family:"Arial", sans-serif; color:#000000; width:604px; height:69px; -webkit-appearance:none; background-color:#ffffff; }');
+entry35889.build()
+
+qu35933 = new ObjInline('qu35933',null,40,694,339,90,1,0)
+qu35933.isGrp = true
+qu35933.addChild('text35934')
+qu35933.addChild('text35935')
+qu35933.addChild('radio35936')
+qu35933.addChild('text35937')
+qu35933.addChild('radio35938')
+qu35933.ansVar=Var4_19_q;
+qu35933.build()
+
+qu35967 = new ObjInline('qu35967',null,40,776,435,130,1,0)
+qu35967.isGrp = true
+qu35967.addChild('text35968')
+qu35967.addChild('text35969')
+qu35967.addChild('radio35970')
+qu35967.addChild('text35971')
+qu35967.addChild('radio35972')
+qu35967.addChild('text35973')
+qu35967.addChild('radio35974')
+qu35967.addChild('text35975')
+qu35967.addChild('radio35976')
+qu35967.ansVar=Var4_20_q;
+qu35967.build()
+
+qu36068 = new ObjInline('qu36068',null,40,897,435,128,1,0)
+qu36068.isGrp = true
+qu36068.addChild('text36069')
+qu36068.addChild('text36070')
+qu36068.addChild('radio36071')
+qu36068.addChild('text36072')
+qu36068.addChild('radio36073')
+qu36068.addChild('text36074')
+qu36068.addChild('radio36075')
+qu36068.addChild('text36076')
+qu36068.addChild('radio36077')
+qu36068.ansVar=Var4_21_q;
+qu36068.build()
+
+qu36122 = new ObjInline('qu36122',null,40,1015,377,70,1,0)
+qu36122.isGrp = true
+qu36122.addChild('text36123')
+qu36122.addChild('text36124')
+qu36122.addChild('radio36125')
+qu36122.addChild('text36126')
+qu36122.addChild('radio36127')
+qu36122.ansVar=Var4_22_q;
+qu36122.build()
+
+var trivQuestionArray=[qu35754,qu35812,qu35886,qu35933,qu35967,qu36068,qu36122];
+arObjs.push(text80120);
+arObjs.push(text68974);
+arObjs.push(text35755);
+arObjs.push(text35756);
+arObjs.push(radio35757);
+arObjs.push(radio35757);
+arObjs.push(radio35757);
+arObjs.push(text35758);
+arObjs.push(radio35759);
+arObjs.push(radio35759);
+arObjs.push(radio35759);
+arObjs.push(text35776);
+arObjs.push(radio35777);
+arObjs.push(radio35777);
+arObjs.push(radio35777);
+arObjs.push(text35813);
+arObjs.push(text35814);
+arObjs.push(radio35815);
+arObjs.push(radio35815);
+arObjs.push(radio35815);
+arObjs.push(text35816);
+arObjs.push(radio35817);
+arObjs.push(radio35817);
+arObjs.push(radio35817);
+arObjs.push(text35818);
+arObjs.push(radio35819);
+arObjs.push(radio35819);
+arObjs.push(radio35819);
+arObjs.push(text35934);
+arObjs.push(text35935);
+arObjs.push(radio35936);
+arObjs.push(radio35936);
+arObjs.push(radio35936);
+arObjs.push(text35937);
+arObjs.push(radio35938);
+arObjs.push(radio35938);
+arObjs.push(radio35938);
+arObjs.push(text35968);
+arObjs.push(text35969);
+arObjs.push(radio35970);
+arObjs.push(radio35970);
+arObjs.push(radio35970);
+arObjs.push(text35971);
+arObjs.push(radio35972);
+arObjs.push(radio35972);
+arObjs.push(radio35972);
+arObjs.push(text35973);
+arObjs.push(radio35974);
+arObjs.push(radio35974);
+arObjs.push(radio35974);
+arObjs.push(text35975);
+arObjs.push(radio35976);
+arObjs.push(radio35976);
+arObjs.push(radio35976);
+arObjs.push(text36069);
+arObjs.push(text36070);
+arObjs.push(radio36071);
+arObjs.push(radio36071);
+arObjs.push(radio36071);
+arObjs.push(text36072);
+arObjs.push(radio36073);
+arObjs.push(radio36073);
+arObjs.push(radio36073);
+arObjs.push(text36074);
+arObjs.push(radio36075);
+arObjs.push(radio36075);
+arObjs.push(radio36075);
+arObjs.push(text36076);
+arObjs.push(radio36077);
+arObjs.push(radio36077);
+arObjs.push(radio36077);
+arObjs.push(text36123);
+arObjs.push(text36124);
+arObjs.push(radio36125);
+arObjs.push(radio36125);
+arObjs.push(radio36125);
+arObjs.push(text36126);
+arObjs.push(radio36127);
+arObjs.push(radio36127);
+arObjs.push(radio36127);
+arObjs.push(entry84000);
+arObjs.push(entry84000);
+arObjs.push(entry84000);
+arObjs.push(entry84000);
+arObjs.push(button37925);
+arObjs.push(button38133);
+arObjs.push(image144768);
+arObjs.push(qu35754);
+arObjs.push(qu35754);
+arObjs.push(qu35812);
+arObjs.push(qu35812);
+arObjs.push(qu35886);
+arObjs.push(qu35886);
+arObjs.push(text35888);
+arObjs.push(entry35889);
+arObjs.push(entry35889);
+arObjs.push(entry35889);
+arObjs.push(entry35889);
+arObjs.push(qu35933);
+arObjs.push(qu35933);
+arObjs.push(qu35967);
+arObjs.push(qu35967);
+arObjs.push(qu36068);
+arObjs.push(qu36068);
+arObjs.push(qu36122);
+arObjs.push(qu36122);
+
+
+writeStyleSheets(arObjs);}
+// -->
+
+</script>
+</head>
+
+<body onfocus="trivOnFocus()" onResize="ReFlow()">
+
+    <DIV style="visibility:hidden;" id="pageDIV" class="pageDIV">
+   </DIV>
+<script>
+if( is.min ){
+    findWH()
+    var left = (winW > 786) ? (winW-786)/2 : 0
+    document.write('<style type="text/css">.pageDIV { position: absolute; top:0px; left: ' + left + 'px; width:786px; height:3066px; clip:rect(0px 786px 3066px 0px); overflow:hidden;' )
+    if(is.iOS)
+		document.write('-webkit-text-size-adjust:100%;')
+    document.write('} </style>')
+}
+</script>
+
+<script>
+if( is.min ){
+    appendElement(text80120, null, null);
+    appendElement(text68974, null, null);
+    appendElement(text35755, '<fieldset id="qu35754_fieldset" style="border:0;"></fieldset>', null);
+    appendElement(text35756, '<fieldset id="qu35754_fieldset" style="border:0;"></fieldset>', null);
+    appendElement(null, '<fieldset id="qu35754_fieldset" style="border:0;"></fieldset>', '<div id="radio35757"><a id="radio35757anc"></a></div>');
+    appendElement(null, radio35757.div, '<input type="radio" name="qu35754" id="radio35757id" value="Lebih cepat" onClick="Update_qu35754(this.value);doImmFeedback(\'qu35754\');" >');
+    appendElement(text35758, '<fieldset id="qu35754_fieldset" style="border:0;"></fieldset>', null);
+    appendElement(null, '<fieldset id="qu35754_fieldset" style="border:0;"></fieldset>', '<div id="radio35759"><a id="radio35759anc"></a></div>');
+    appendElement(null, radio35759.div, '<input type="radio" name="qu35754" id="radio35759id" value="Sama" onClick="Update_qu35754(this.value);doImmFeedback(\'qu35754\');" >');
+    appendElement(text35776, '<fieldset id="qu35754_fieldset" style="border:0;"></fieldset>', null);
+    appendElement(null, '<fieldset id="qu35754_fieldset" style="border:0;"></fieldset>', '<div id="radio35777"><a id="radio35777anc"></a></div>');
+    appendElement(null, radio35777.div, '<input type="radio" name="qu35754" id="radio35777id" value="Lebih lama" onClick="Update_qu35754(this.value);doImmFeedback(\'qu35754\');" >');
+    appendElement(text35813, '<fieldset id="qu35812_fieldset" style="border:0;"></fieldset>', null);
+    appendElement(text35814, '<fieldset id="qu35812_fieldset" style="border:0;"></fieldset>', null);
+    appendElement(null, '<fieldset id="qu35812_fieldset" style="border:0;"></fieldset>', '<div id="radio35815"><a id="radio35815anc"></a></div>');
+    appendElement(null, radio35815.div, '<input type="radio" name="qu35812" id="radio35815id" value="Lebih cepat" onClick="Update_qu35812(this.value);doImmFeedback(\'qu35812\');" >');
+    appendElement(text35816, '<fieldset id="qu35812_fieldset" style="border:0;"></fieldset>', null);
+    appendElement(null, '<fieldset id="qu35812_fieldset" style="border:0;"></fieldset>', '<div id="radio35817"><a id="radio35817anc"></a></div>');
+    appendElement(null, radio35817.div, '<input type="radio" name="qu35812" id="radio35817id" value="Sama" onClick="Update_qu35812(this.value);doImmFeedback(\'qu35812\');" >');
+    appendElement(text35818, '<fieldset id="qu35812_fieldset" style="border:0;"></fieldset>', null);
+    appendElement(null, '<fieldset id="qu35812_fieldset" style="border:0;"></fieldset>', '<div id="radio35819"><a id="radio35819anc"></a></div>');
+    appendElement(null, radio35819.div, '<input type="radio" name="qu35812" id="radio35819id" value="Lebih lama" onClick="Update_qu35812(this.value);doImmFeedback(\'qu35812\');" >');
+    appendElement(text35934, '<fieldset id="qu35933_fieldset" style="border:0;"></fieldset>', null);
+    appendElement(text35935, '<fieldset id="qu35933_fieldset" style="border:0;"></fieldset>', null);
+    appendElement(null, '<fieldset id="qu35933_fieldset" style="border:0;"></fieldset>', '<div id="radio35936"><a id="radio35936anc"></a></div>');
+    appendElement(null, radio35936.div, '<input type="radio" name="qu35933" id="radio35936id" value="Iya, berubah" onClick="Update_qu35933(this.value);doImmFeedback(\'qu35933\');" >');
+    appendElement(text35937, '<fieldset id="qu35933_fieldset" style="border:0;"></fieldset>', null);
+    appendElement(null, '<fieldset id="qu35933_fieldset" style="border:0;"></fieldset>', '<div id="radio35938"><a id="radio35938anc"></a></div>');
+    appendElement(null, radio35938.div, '<input type="radio" name="qu35933" id="radio35938id" value="Tidak berubah" onClick="Update_qu35933(this.value);doImmFeedback(\'qu35933\');" >');
+    appendElement(text35968, '<fieldset id="qu35967_fieldset" style="border:0;"></fieldset>', null);
+    appendElement(text35969, '<fieldset id="qu35967_fieldset" style="border:0;"></fieldset>', null);
+    appendElement(null, '<fieldset id="qu35967_fieldset" style="border:0;"></fieldset>', '<div id="radio35970"><a id="radio35970anc"></a></div>');
+    appendElement(null, radio35970.div, '<input type="radio" name="qu35967" id="radio35970id" value="8 menit" onClick="Update_qu35967(this.value);doImmFeedback(\'qu35967\');" >');
+    appendElement(text35971, '<fieldset id="qu35967_fieldset" style="border:0;"></fieldset>', null);
+    appendElement(null, '<fieldset id="qu35967_fieldset" style="border:0;"></fieldset>', '<div id="radio35972"><a id="radio35972anc"></a></div>');
+    appendElement(null, radio35972.div, '<input type="radio" name="qu35967" id="radio35972id" value="10 menit" onClick="Update_qu35967(this.value);doImmFeedback(\'qu35967\');" >');
+    appendElement(text35973, '<fieldset id="qu35967_fieldset" style="border:0;"></fieldset>', null);
+    appendElement(null, '<fieldset id="qu35967_fieldset" style="border:0;"></fieldset>', '<div id="radio35974"><a id="radio35974anc"></a></div>');
+    appendElement(null, radio35974.div, '<input type="radio" name="qu35967" id="radio35974id" value="12 menit" onClick="Update_qu35967(this.value);doImmFeedback(\'qu35967\');" >');
+    appendElement(text35975, '<fieldset id="qu35967_fieldset" style="border:0;"></fieldset>', null);
+    appendElement(null, '<fieldset id="qu35967_fieldset" style="border:0;"></fieldset>', '<div id="radio35976"><a id="radio35976anc"></a></div>');
+    appendElement(null, radio35976.div, '<input type="radio" name="qu35967" id="radio35976id" value="16 menit" onClick="Update_qu35967(this.value);doImmFeedback(\'qu35967\');" >');
+    appendElement(text36069, '<fieldset id="qu36068_fieldset" style="border:0;"></fieldset>', null);
+    appendElement(text36070, '<fieldset id="qu36068_fieldset" style="border:0;"></fieldset>', null);
+    appendElement(null, '<fieldset id="qu36068_fieldset" style="border:0;"></fieldset>', '<div id="radio36071"><a id="radio36071anc"></a></div>');
+    appendElement(null, radio36071.div, '<input type="radio" name="qu36068" id="radio36071id" value="8 menit" onClick="Update_qu36068(this.value);doImmFeedback(\'qu36068\');" >');
+    appendElement(text36072, '<fieldset id="qu36068_fieldset" style="border:0;"></fieldset>', null);
+    appendElement(null, '<fieldset id="qu36068_fieldset" style="border:0;"></fieldset>', '<div id="radio36073"><a id="radio36073anc"></a></div>');
+    appendElement(null, radio36073.div, '<input type="radio" name="qu36068" id="radio36073id" value="12 menit" onClick="Update_qu36068(this.value);doImmFeedback(\'qu36068\');" >');
+    appendElement(text36074, '<fieldset id="qu36068_fieldset" style="border:0;"></fieldset>', null);
+    appendElement(null, '<fieldset id="qu36068_fieldset" style="border:0;"></fieldset>', '<div id="radio36075"><a id="radio36075anc"></a></div>');
+    appendElement(null, radio36075.div, '<input type="radio" name="qu36068" id="radio36075id" value="24 menit" onClick="Update_qu36068(this.value);doImmFeedback(\'qu36068\');" >');
+    appendElement(text36076, '<fieldset id="qu36068_fieldset" style="border:0;"></fieldset>', null);
+    appendElement(null, '<fieldset id="qu36068_fieldset" style="border:0;"></fieldset>', '<div id="radio36077"><a id="radio36077anc"></a></div>');
+    appendElement(null, radio36077.div, '<input type="radio" name="qu36068" id="radio36077id" value="36 menit" onClick="Update_qu36068(this.value);doImmFeedback(\'qu36068\');" >');
+    appendElement(text36123, '<fieldset id="qu36122_fieldset" style="border:0;"></fieldset>', null);
+    appendElement(text36124, '<fieldset id="qu36122_fieldset" style="border:0;"></fieldset>', null);
+    appendElement(null, '<fieldset id="qu36122_fieldset" style="border:0;"></fieldset>', '<div id="radio36125"><a id="radio36125anc"></a></div>');
+    appendElement(null, radio36125.div, '<input type="radio" name="qu36122" id="radio36125id" value="Perbandingan senilai" onClick="Update_qu36122(this.value);doImmFeedback(\'qu36122\');" >');
+    appendElement(text36126, '<fieldset id="qu36122_fieldset" style="border:0;"></fieldset>', null);
+    appendElement(null, '<fieldset id="qu36122_fieldset" style="border:0;"></fieldset>', '<div id="radio36127"><a id="radio36127anc"></a></div>');
+    appendElement(null, radio36127.div, '<input type="radio" name="qu36122" id="radio36127id" value="Perbandingan berbalik nilai" onClick="Update_qu36122(this.value);doImmFeedback(\'qu36122\');" >');
+    appendElement(null, null, '<div id="entry84000"><a id="entry84000anc"></a></div>');
+    appendElement(null, '<div id="entry84000"><a id="entry84000anc"></a></div>', '<form id="entry84000form"  name="entry84000form" onSubmit="return false;"></form>');
+    appendElement(null, '<form id="entry84000form"  name="entry84000form" onSubmit="return false;"></form>', '<input class="entry84000" type="text" name="Isian4_4" title="Isian4_4" id="entry84000id" size="47" maxlength="500" onPropertyChange="if( !Var4_23_e.equals(this.value) ) { Var4_23_e.set(this.value);entry84000Object.onSelChg(); }" onChange="if( !Var4_23_e.equals(this.value) ) { Var4_23_e.set(this.value);entry84000Object.onSelChg(); }" onKeyUp="Var4_23_e.set(this.value);entry84000Object.onSelChg();;" onBlur="" >');
+    appendElement(button37925, null, null);
+    appendElement(button38133, null, null);
+    appendElement(image144768, null, null);
+    appendElement( qu35754, '<fieldset id="qu35754_fieldset" style="border:0;"></fieldset>', '<div id="qu35754"><a id="qu35754anc"></a></div>');
+    appendElement( qu35812, '<fieldset id="qu35812_fieldset" style="border:0;"></fieldset>', '<div id="qu35812"><a id="qu35812anc"></a></div>');
+    appendElement( qu35886, '<fieldset id="qu35886_fieldset" style="border:0;"></fieldset>', '<div id="qu35886"><a id="qu35886anc"></a></div>');
+    appendElement(text35888, '<fieldset id="qu35886_fieldset" style="border:0;"></fieldset>', null);
+    appendElement(null, '<fieldset id="qu35886_fieldset" style="border:0;"></fieldset>', '<div id="entry35889"><a id="entry35889anc"></a></div>');
+    appendElement(null, '<div id="entry35889"><a id="entry35889anc"></a></div>', '<form id="entry35889form"  name="entry35889form" onSubmit="return false;"></form>');
+    appendElement(null, '<form id="entry35889form"  name="entry35889form" onSubmit="return false;"></form>', '<input class="entry35889" type="text" name="Question14_4" title="Question14_4" id="entry35889id" size="47" maxlength="50" onPropertyChange="if( !Var4_18_i.equals(this.value) ) { Var4_18_i.set(this.value); }" onChange="if( !Var4_18_i.equals(this.value) ) { Var4_18_i.set(this.value); }qu35886Object.hasBeenProcessed=false;" onKeyUp="Var4_18_i.set(this.value);;qu35886Object.hasBeenProcessed=false;" onBlur="doImmFeedback(\'qu35886\');" >');
+    appendElement( qu35933, '<fieldset id="qu35933_fieldset" style="border:0;"></fieldset>', '<div id="qu35933"><a id="qu35933anc"></a></div>');
+    appendElement( qu35967, '<fieldset id="qu35967_fieldset" style="border:0;"></fieldset>', '<div id="qu35967"><a id="qu35967anc"></a></div>');
+    appendElement( qu36068, '<fieldset id="qu36068_fieldset" style="border:0;"></fieldset>', '<div id="qu36068"><a id="qu36068anc"></a></div>');
+    appendElement( qu36122, '<fieldset id="qu36122_fieldset" style="border:0;"></fieldset>', '<div id="qu36122"><a id="qu36122anc"></a></div>');
+}
+</script>
+
+</body>
+</html>

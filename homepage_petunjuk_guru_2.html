@@ -1,0 +1,787 @@
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link
+  href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300..700&display=swap"
+  rel="stylesheet"
+/>
+<style>
+  .no-border input {
+    font-family: "Fredoka" !important;
+    border: none;
+    outline: none;
+  }
+  .circle-paint {
+    height: 100px;
+    width: 100px;
+    border-radius: 1000px;
+    background: #000000;
+    transition: all 0.3s ease;
+  }
+</style>
+<script>
+  function safeParseMaybeString(v) {
+    if (typeof v === "string") {
+      try {
+        return JSON.parse(v);
+      } catch {
+        return v;
+      }
+    }
+    return v;
+  }
+  window.ip = function () {
+    if (typeof Varip === "undefined") return null;
+    return Varip.getValue();
+  };
+  document.addEventListener("DOMContentLoaded", async () => {
+    const api = axios.create({
+      baseURL: `https://${ip()}/api`,
+      timeout: 10000,
+    });
+    api.interceptors.request.use(
+      (config) => {
+        try {
+          if (window.VarToken?.getValue) {
+            const token = VarToken.getValue();
+            if (token) {
+              config.headers.Authorization = `Bearer ${token}`;
+            }
+          }
+        } catch (e) {
+          console.warn("Token belum siap");
+        }
+        return config;
+      },
+      (error) => Promise.reject(error)
+    );
+    window.api = api;
+    async function check() {
+      try {
+        const token = VarToken.getValue();
+        const request = await api.post("/auth/check", {
+          token,
+        });
+        if (
+          request.data.status == "failed" &&
+          !window.location.href.includes("login")
+        ) {
+          trivExitPage("splash_screen_login_page_login.html", true);
+        }
+        if (request.data.status == "success") {
+          if (window.location.href.includes("login") && !window.location.href.includes("page_splash")) {
+            trivExitPage("homepage_homepage.html", true);
+          }
+          Varpoints.set(JSON.stringify(request.data.progress.points));
+          Varstage.set(request.data.progress.stage);
+          totalPoints(request.data.progress.points);
+        }
+      } catch (error) {
+        console.error("Error:", error);
+      }
+    }
+    await check();
+    let pointsRaw =
+      typeof Varpoints !== "undefined" ? Varpoints.getValue() : "{}";
+    let points = safeParseMaybeString(pointsRaw);
+    if (!points || typeof points !== "object") points = {};
+    console.log("initial points:", points);
+    function ipLocal() {
+      return typeof Varip !== "undefined" ? Varip.getValue() : null;
+    }
+    function essay(array, answer, kasus, quest, point) {
+      let acc = 0;
+      const lowerAns = (answer || "").toLowerCase();
+      array.forEach((item) => {
+        const check = item.some((key) => {
+          if (typeof key === "object") {
+            let checker = false;
+            key.forEach((value) => {
+              if (lowerAns.includes(value)) checker = true;
+              else {
+                checker = false;
+                return;
+              }
+            });
+            return checker;
+          } else {
+            return lowerAns.includes(key);
+          }
+        });
+        if (check) acc += point;
+      });
+      setPoint(kasus, quest, acc);
+    }
+    async function setPoint(kasus, quest, pointValue) {
+      try {
+        const temp = points["case" + kasus] || {};
+        temp[quest] = pointValue;
+        points["case" + kasus] = temp;
+        if (typeof Varpoints !== "undefined") {
+          Varpoints.set(JSON.stringify(points));
+        }
+        console.log("points updated:", points);
+        const data = collectPageValues();
+        const stage = parseInt(Varstage.getValue());
+        const request = await api.post(
+          "https://" + ip() + "/api/progress/save",
+          {
+            caseId: kasus,
+            data,
+            point: points,
+            stage,
+          }
+        );
+        if (request.status == 200) {
+          console.log("Success");
+        }
+      } catch (error) {
+        console.error("Error:", error);
+      }
+    }
+    async function casePoints(kasus, minPoint) {
+      try {
+        const target = points["case" + kasus] || {};
+        const point =
+          Object.keys(target).length > 0
+            ? Object.values(target).reduce((a, b) => a + b, 0)
+            : 0;
+            let totalPoint = 0;
+        Object.values(points).forEach((point) => {
+          totalPoint += Object.values(point).reduce((a, b) => a + b, 0);
+        });
+        if (typeof VarTotalPoint !== "undefined") VarTotalPoint.set(totalPoint);
+        if (typeof VarFinalPoint !== "undefined") VarFinalPoint.set(point);
+        console.log(point, minPoint);
+        const status = point >= minPoint;
+        if (status) Varstage.set(kasus);
+        const data = collectPageValues();
+        const stage = Varstage. getValue()
+        const request = await api.post(
+          "https://" + ip() + "/api/progress/save",
+          {
+            caseId: kasus,
+            data,
+            point: points,
+            stage: stage && kasus,
+          }
+        );
+        if (request.status == 200) {
+          console.log("Success");
+        }
+        trivExitPage(
+          `kasus_${kasus}_result_${kasus}${status ? "" : "x"}.html`,
+          true
+        );
+      } catch (error) {
+        console.error("Error:", error);
+      }
+    }
+    function totalPoints(data) {
+     
+      let total = 0;
+      Object.values(data || points).forEach((k) => {
+        total += Object.values(k).reduce((a, b) => a + b, 0);
+      });
+      console.log(data)
+      console.log(total)
+      VarTotalPoint.set(total);
+    }
+    function pt(status, kasus, quest, point) {
+      const newPoint = status && point ? point : 0;
+      setPoint(kasus, quest, newPoint);
+    }
+    function dl(ratio, kasus, quest, point, ...value) {
+      const dec = ratio.reduce((a, b) => a / b);
+      const valueRatio = value.reduce((a, b) => a / b);
+      const newPoint = dec === valueRatio ? point : 0;
+      setPoint(kasus, quest, newPoint);
+    }
+    function collectPageValues() {
+      let data = {};
+      let droplist = [];
+      for (let key in window) {
+        if (key.startsWith("Var")) {
+          try {
+            let varObj = window[key];
+            if (varObj && typeof varObj.getValue === "function") {
+              let cleanName = key.replace("Var", "");
+              let arrayName = cleanName.split("_");
+              console.log(cleanName);
+              console.log("a");
+              const allow = ["q", "droplist", "e", "i", "c", "k", "f"];
+              const filter = allow.filter((v) => arrayName[2] == v);
+              if (filter.length !== 0 && arrayName.length >= 3) {
+                console.log(arrayName);
+                if (arrayName[2] == "droplist") {
+                  const refKey =
+                    "Var" + cleanName.split("_").slice(0, -1).join("_");
+                  if (!droplist.includes(refKey)) {
+                    droplist.push(refKey);
+                    const droplistValue = Object.keys(window)
+                      .filter((k) => k.startsWith(refKey))
+                      .map((k) => window[k].getValue())
+                      .join(";");
+                    data[arrayName[1]] = droplistValue;
+                  }
+                } else {
+                  data[arrayName[1]] = varObj.getValue();
+                }
+              }
+            }
+          } catch (e) {
+            console.log("skip:", key);
+          }
+        }
+      }
+      console.log("All page values:", data);
+      return data;
+    }
+    async function login() {
+      const url = "https://" + ip() + "/api/auth/login";
+      const username =  Varusername_1.getValue();
+      const password =  Varpassword_1.getValue();
+      await axios
+        .post(url, { username, password })
+        .then(async function (response) {
+          console.log("Login sukses:", response.data);
+          if (response.data && response.data.token) {
+            VarToken.set(response.data.token);
+            await check()
+            trivExitPage("homepage_homepage.html", true);
+          } else {
+            alert("Login gagal: token tidak ditemukan.");
+          }
+        })
+        .catch(function (error) {
+          console.error("Error:", error);
+          if (error.response) {
+            alert("Login gagal: " + error.response.data.message);
+          } else {
+            alert("Tidak bisa terhubung ke server!");
+          }
+        });
+    }
+    async function signup() {
+      const url = "https://" + ip() + "/api/auth/signup";
+      const username = Varusername_1.getValue();
+      const password = Varpassword_1.getValue();
+      axios
+        .post(url, { username, password })
+        .then(function (response) {
+          console.log("Login sukses:", response.data);
+          if (response.data && response.data.token) {
+            VarToken.set(response.data.token);
+            trivExitPage("homepage_homepage.html", true);
+          } else {
+            alert("Login gagal: token tidak ditemukan.");
+          }
+        })
+        .catch(function (error) {
+          console.error("Error:", error);
+          if (error.response) {
+            alert("Login gagal: " + error.response.data.message);
+          } else {
+            alert("Tidak bisa terhubung ke server!");
+          }
+        });
+    }
+    window.collectPageValues = collectPageValues;
+    window.ip = ipLocal;
+    window.pt = pt;
+    window.essay = essay;
+    window.dl = dl;
+    window.casePoints = casePoints;
+    window.login = login;
+    window.signup = signup;
+    window.totalPoint = totalPoints;
+  });
+</script>
+<!DOCTYPE html>
+<html lang="en">
+<!--GENERATED BY:  Lectora Inspire v.18.2.3(11897) (http://www.trivantis.com) -->
+<!--TITLE: C:\Users\Nuzul Izzati\OneDrive\Documents\My Titles -->
+
+
+<head>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta charset="utf-8" />
+<meta name="viewport" content=" minimum-scale = 1.0 , initial-scale= 1" />
+<meta http-equiv="Page-Enter" content="revealTrans(Transition=34,Duration=5.0)">
+<title>Petunjuk_Guru_2</title>
+
+<link rel="stylesheet" href="trivantis.css" type="text/css" />
+<style type="text/css">
+</style>
+
+<!--[if lt IE 7]>
+<style type="text/css">
+    #image94045 img { filter:progid:DXImageTransform.Microsoft.Alpha(opacity=0); }
+    #image94045 { filter:progid:DXImageTransform.Microsoft.AlphaImageLoader(src='images/guide-page6.png',sizingMethod='scale'); }
+</style>
+<![endif]-->
+
+<!--[if lte IE 9]>
+<script>
+document.namespaces.add('v', 'urn:schemas-microsoft-com:vml', "#default#VML")
+</script>
+<![endif]-->
+
+<script src="trivantis.js"></script>
+<script src="trivantis-timedate.js"></script>
+<script src="es6-promise-2.0.0.min.js"></script>
+<script src="jquery-3.4.1.min.js"></script>
+<script src="trivantis-cookie.js"></script>
+<script src="trivantis-button.js"></script>
+<script src="trivantis-image.js"></script>
+<script src="trivantis-inline.js"></script>
+<script src="trivantis-text.js"></script>
+<script src="trivantis-trans.js"></script>
+<script src="trivantis-pagetracking.js"></script>
+<script src="device_desktop/homepage_petunjuk_guru_2.js"></script>
+<script src="device_tablet/homepage_petunjuk_guru_2.js"></script>
+<script src="device_phone/homepage_petunjuk_guru_2.js"></script>
+<script src="trivantis-strings.js"></script>
+<script src="hammer.js"></script>
+<script>
+
+<!-- 
+
+var hmr = null;
+function initGEV(){
+   hmr = new Hammer(getDisplayDocument().getElementById(GetCurrentPageID()));
+}
+
+var trivPageScope = {};
+var pgID = 'page62340';
+trivWeb20Popups = true;
+var trivPlayer = null;
+var bPageLoaded = false;
+var pageScale = 1;
+var bDisableBrowserResize = false;
+var bScaleToWindow = false;
+var bFitToWidth = false;
+var bFitToMobile = false;
+var pageHeight = 766;
+var bLoadedVariables = false;
+
+var arObjs = [];
+
+if(bDisableBrowserResize && !is.isMobile.any()){
+	var bTrivResponsive = false;
+	saveResponsiveData("Desktop",eval("DesktopResponsive"));
+}
+else{
+	var bTrivResponsive = true;
+	saveResponsiveData("Desktop",eval("DesktopResponsive"));
+	saveResponsiveData("Tablet",eval("TabletResponsive"));
+	saveResponsiveData("Phone",eval("PhoneResponsive"));
+}
+	var viewOverrideMap = {};
+	viewOverrideMap["PhoneLandscape"] = "TabletLandscape";
+ 	viewOverrideMap["TabletPortrait"] = "Desktop";
+ 	viewOverrideMap["TabletLandscape"] = "Desktop";
+ if( !is.min )
+  document.write( 'Your browser does not support dynamic html. Please download a current version of either <a href="http://www.microsoft.com/ie/">Microsoft Internet Explorer</a> or <a href="http://www.mozilla.com/en-US/firefox/">Mozilla Firefox </a> and try visiting our site again.  Thank You.<br /><br />' )
+
+var pageLayer = null
+var winW = getDisplayWindow().screen.width
+var winH = getDisplayWindow().screen.height
+var transformScale = 1
+
+function findWH(){	//echo LD-769
+	if (is.ie9) {
+	var vScrollAdj =  (is.ns ? 16 : 20);
+	winW = (is.ns) ? window.innerWidth - vScrollAdj : document.body.offsetWidth;
+	winH = (is.ns) ? window.innerHeight : document.body.offsetHeight;
+	}
+	else if (is.ie) {
+   winW = Math.max(Math.max(getDisplayDocument().body.scrollWidth, getDisplayDocument().documentElement.scrollWidth)-16,
+					  Math.max(getDisplayDocument().body.offsetWidth, getDisplayDocument().documentElement.offsetWidth)-16,
+					  Math.max(getDisplayDocument().body.clientWidth, getDisplayDocument().documentElement.clientWidth)-16 );
+   winH = Math.max(Math.max(getDisplayDocument().body.scrollHeight, getDisplayDocument().documentElement.scrollHeight)-16,
+					  Math.max(getDisplayDocument().body.offsetHeight, getDisplayDocument().documentElement.offsetHeight)-16,
+					  Math.max(getDisplayDocument().body.clientHeight, getDisplayDocument().documentElement.clientHeight)-16 );
+	}
+	else
+	{
+   winW =  getDisplayDocument().documentElement.clientWidth ? getDisplayDocument().documentElement.clientWidth : getDisplayDocument().body.clientWidth;
+   if(is.iOS && (navigator.userAgent.indexOf('CellCast-iPad') != -1 || navigator.userAgent.indexOf('CellCast-iPhone') != -1) )
+		 winW =  getScreenWidth();
+   winH =  getDisplayDocument().documentElement.clientHeight ? getDisplayDocument().documentElement.clientHeight : getDisplayDocument().body.clientHeight;
+	}
+}
+
+trivSetupPage();
+
+ if( isSppCapable() && window.trivPlayer === null ) setTimeout( function() { var objScrollTo =  trivGetScrollObj(window.location.href); window.location.replace("index.html?jmptopg=homepage_petunjuk_guru_2.html#" + objScrollTo);}, 100)
+ function ReFlow() {
+  findWH()
+  var pageEleWidth = pageLayer.ele.clientWidth;
+  if (  (is.ieAny || is.edge )  && pageLayer.ele.clientWidth == 0 && isSinglePagePlayerAvail()) pageEleWidth = parseFloat(GetPageWidth()) ;
+  if (pageLayer)
+  {
+     if(bTrivResponsive){
+    var left = (winW > pageEleWidth) ? (winW-pageEleWidth)/2 : 0
+    bReviewLink = window.myTop.document.getElementById('vBodyFrame');
+    transformScale = (winW > pageEleWidth) ? 1 : (winW/pageEleWidth) 
+    if(is.isMobile.any() || bReviewLink && typeof(getDisplayWindow().myTop)!='undefined' && getDisplayWindow().myTop._respView != 'Desktop')
+			left = 0
+    if(is.iOS && isInIframe( getDisplayWindow() , 0))
+			transformScale = (getScreenWidth() > pageEleWidth) ? 1 : (getScreenWidth()/pageEleWidth) 
+    var transSty = calculateScale();
+    pageLayer.moveTo( left, 0 );
+    pageLayer.hasMoved = true;
+    pageLayer.newX = left;
+    pageLayer.newY = 0;
+    if(CanScale()){
+       pageLayer.styObj.transform =  transSty;
+       pageLayer.styObj.webkitTransform =  transSty;
+    }else
+       transformScale = 1;
+    pageLayer.styObj.transformOrigin =  '0 0';
+     }
+    if(bDisableBrowserResize && !is.isMobile.any()){
+       var left = (winW > pageEleWidth) ? (winW-pageEleWidth)/2 : 0
+       bReviewLink = window.myTop.document.getElementById('vBodyFrame');
+       if(is.isMobile.any() || bReviewLink && typeof(getDisplayWindow().myTop)!='undefined' && getDisplayWindow().myTop._respView != 'Desktop')
+			left = 0
+       pageLayer.moveTo( left, 0 );
+       pageLayer.hasMoved = true;
+       pageLayer.newX = left;
+       pageLayer.newY = 0;
+    }
+    fillBrowser();
+    adjustAllObjectsForFixedPosition();
+    setfixed();
+  }
+}
+
+var arVariables = [];
+
+VarTrivSelCap = new Variable( 'VarTrivSelCap', 'none', 0, 0, null, null, 'lkpd_gamifikasi', true )
+Varusername_1 = new Variable( 'Varusername_1', '', 0, 0, null, null, 'lkpd_gamifikasi', false )
+Varpassword_1 = new Variable( 'Varpassword_1', '', 0, 0, null, null, 'lkpd_gamifikasi', false )
+VarToken = new Variable( 'VarToken', '', 0, 0, null, null, 'lkpd_gamifikasi', false )
+Varip = new Variable( 'Varip', 'api.epistura.web.id', 0, 0, null, null, 'lkpd_gamifikasi', false )
+Varpoints = new Variable( 'Varpoints', '{}', 0, 0, null, null, 'lkpd_gamifikasi', false )
+VarFinalPoint = new Variable( 'VarFinalPoint', '0', 0, 0, null, null, 'lkpd_gamifikasi', false )
+VarTotalPoint = new Variable( 'VarTotalPoint', '0', 0, 0, null, null, 'lkpd_gamifikasi', false )
+Varstage = new Variable( 'Varstage', '0', 0, 0, null, 365, 'lkpd_gamifikasi', false )
+
+onload = responsiveInit
+detect();
+if( is.webkit && !is.iOSSafari )
+  onbeforeunload = finish
+else
+  onunload = finish
+
+function responsiveInit() {
+  pageLayer = new ObjLayer(GetCurrentPageID());
+  SaveStyles();
+  init();
+  adjustResponsivePage();
+  ReFlow();
+}
+
+function init() {
+  init11();
+}
+
+function init11() {
+  findWH()
+  if( is.min ){
+    trivPageTracking.InitPageTracking();
+    PreloadResources(new Array(button62345,button62351,button62357,text78166,image94045))
+    pageLayer.transData = {tOut:0,tNum:34,dur:5,fn:null,ol:0,ot:0,fl:0,ft:0,fr:0,fb:0,il:-1,eff:0, tb:0};
+    if(!isSinglePagePlayerAvail()){
+    if( !is.ie||is.v>8 ) setTimeout( 'pageLayer.doTrans( 0, 34, 5, null, 0, 0, 0, 0, 0, 0, -1, 0, 0 )' , 100 );
+    else pageLayer.show(true);
+    }
+    button62345.init()
+    button62351.init()
+    button62357.init()
+    text78166.init()
+    image94045.init()
+    button62345.activate()
+    button62351.activate()
+    button62357.activate()
+    text78166.activate()
+    image94045.activate()
+     var objToScroll = trivGetScrollObj(window.location.href) ;
+     trivScrollTo(window, objToScroll);
+    var titleManagerIndexWindow = (window && window.parent && window.parent.bIsTitleManagerIndexFile) ? window.parent : null;
+    if(titleManagerIndexWindow)  trivScrollTo(titleManagerIndexWindow, objToScroll);
+    if(!isSinglePagePlayerAvail()) postPageShowAction();
+    if( location.hash )
+    {
+      var newHash
+      if( location.hash.charAt(0) == '#' )
+        newHash = location.hash.slice( 1 )
+      else
+        newHash = location.hash
+      location.hash = newHash
+      if((typeof(bTrivRunView) != 'undefined'  && bTrivRunView) || (typeof(bTrivOffline) != 'undefined' && bTrivOffline)) window.scrollTo(0 , getTopofObj(document.getElementById(newHash)));
+    }
+    setTimeout( 'trivUpdateTOC( 1 )', 100 )
+    bPageLoaded = true;
+    ReFlow();
+    if(!isSinglePagePlayerAvail())
+       loadActions();
+  }
+  try {initGEV();} catch(e){}
+}
+  window.bLoadedVariables = true;
+function loadActions(){
+    if((window.bPageLoaded && window.bLoadedVariables && getDisplayWindow().pagePlayer &&
+	getDisplayWindow().pagePlayer.arLoadedPages && getDisplayWindow().pagePlayer.arLoadedPages.length == 1) || (window.bPageLoaded && window.bLoadedVariables && !isSinglePagePlayerAvail() )){
+       if(typeof(updateFLVPlayer) !== 'undefined') updateFLVPlayer();
+       postPageShowAction();
+    }
+    else
+      setTimeout(loadActions, 100);
+}
+function postPageShowAction(){
+  if ( trivPageTracking.GetRangeStatus(62340) == 'notstarted' ) trivPageTracking.SetRangeStatus(62340,2);
+}  
+
+var trivGoToPage = null
+var trivCompleteCnt = 1;
+var hasProcessedExitActions = false;
+var trivActFBCnt = 0;
+var currFeedbackIdx = 0;
+var trivPageExited = false;
+var trivInTest = false;
+
+function finish() {
+}
+
+function trivOnFocus() {
+    if( trivPageExited ) return
+}
+
+function checkLeavePage() {
+    if( trivPageExited ) return
+    if( trivActFBCnt == 0 )
+    {
+        currFeedbackIdx++;
+        if( currFeedbackIdx > -1)
+        {
+            trivLeavePage();
+          return;
+        }
+        else if( !checkQuestions( true ))
+          return;
+    }
+    setTimeout( 'checkLeavePage()', 100)
+}
+
+function trivExitPage( newPage, bFeedback ) {
+    if( newPage.indexOf( "ObjLayerAction" ) >= 0 || newPage.indexOf( "javascript:app." ) >= 0 || newPage.indexOf( ".action" ) >= 0 || newPage.indexOf( "history.back()" ) >= 0) trivGoToPage = newPage
+    else trivGoToPage = 'ObjLayerActionGoTo("' + newPage + '")'
+    if( !hasProcessedExitActions ) {
+        findWH()
+        hasProcessedExitActions = true
+        setTimeout( 'checkLeavePage()', 100)
+    }
+}
+
+function trivLeavePage() {
+    trivCompleteCnt--
+    if( trivCompleteCnt <= 0 ) {
+        hasProcessedExitActions = false
+        if( trivGoToPage != null )
+        {
+			eval( trivGoToPage )
+			trivGoToPage = null;
+			if( window.closed ) trivPageExited = true;
+        }
+    }
+}
+
+function trivPrevPage() {
+    trivExitPage( 'homepage_petunjuk_guru_1.html', true )
+}
+
+function trivNextPage() {
+    trivExitPage( 'homepage_petunjuk_guru_3.html', true )
+}
+
+function trivUpdateTOC( bRecurse ) {
+    var i
+}
+
+function trivUpdateEntry() {
+}
+
+function trivResetEntry(entFld) {
+}
+
+function OnDeviceRotate() {
+
+}
+
+function action62346(fn){
+    trivExitPage('homepage_homepage.html',true); 
+    if(fn && typeof(fn) == 'string' ) eval(fn);
+    else if(fn && typeof(fn) == 'function' ) fn();
+}
+
+function button62345onUp() {
+  action62346();
+}
+
+function action62352(fn){
+    trivExitPage('homepage_petunjuk_guru_3.html',true); 
+    if(fn && typeof(fn) == 'string' ) eval(fn);
+    else if(fn && typeof(fn) == 'function' ) fn();
+}
+
+function button62351onUp() {
+  action62352();
+}
+
+function action62358(fn){
+    trivExitPage('homepage_petunjuk_guru_1.html',true); 
+    if(fn && typeof(fn) == 'string' ) eval(fn);
+    else if(fn && typeof(fn) == 'function' ) fn();
+}
+
+function button62357onUp() {
+  action62358();
+}
+
+if( is.min ){
+button62345 = new ObjButton('button62345', 'Button_x',403,103,41.000000,41.000000,1,17,'div','',1,0)
+button62345.setUseSvgFile(1)
+button62345.setFillStyle(2)
+button62345.setUniqueFillID('homepage_petunjuk_guru_2_button62345')
+button62345.initRotateAngle(0,0,0,-0.000000,-0.000000,40,40)
+button62345.initHasShadow(0)
+button62345.initHasReflection(0)
+button62345.setImages('images/transbtn.gif', '', '','');
+button62345.setStateOpacity( 0.000000, 0.000000, 0.000000, 0.000000 );
+button62345.addIe8Attr(403.000000, 103.000000, 41.000000, 41.000000, 0, 0)
+button62345.addOpacity(0)
+button62345.initImageMap('0,20,0,16,2,12,3,9,6,6,9,3,12,2,16,0,20,0,24,0,28,2,31,3,34,6,37,9,38,12,40,16,40,20,40,24,38,28,37,31,34,34,31,37,28,38,24,40,20,40,16,40,12,38,9,37,6,34,3,31,2,28,0,24,0,20','M 0.000000 20.000000 L 0.437500 16.000000 L 1.562500 12.250000 L 3.437500 8.812500 L 5.875000 5.875000 L 8.812500 3.437500 L 12.250000 1.562500 L 16.000000 0.437500 L 20.000000 0.000000 L 24.062500 0.437500 L 27.812500 1.562500 L 31.187500 3.437500 L 34.125000 5.875000 L 36.562500 8.812500 L 38.437500 12.250000 L 39.625000 16.000000 L 40.000000 20.000000 L 39.625000 24.062500 L 38.437500 27.812500 L 36.562500 31.187500 L 34.125000 34.125000 L 31.187500 36.562500 L 27.812500 38.437500 L 24.062500 39.625000 L 20.000000 40.000000 L 16.000000 39.625000 L 12.250000 38.437500 L 8.812500 36.562500 L 5.875000 34.125000 L 3.437500 31.187500 L 1.562500 27.812500 L 0.437500 24.062500 L 0.000000 20.000000 z')
+button62345.setFills('                <linearGradient id="LinGrad_homepage_petunjuk_guru_2_button62345" x1="0.000000" x2="0.000000" y1="1.000000" y2="0.000000">                <stop id="Stop0" stop-color="#0064BB" offset="0.000000"/>                <stop id="Stop1" stop-color="#007CE9" offset="0.500000"/>                <stop id="Stop2" stop-color="#1994FE" offset="1.000000"/>           </linearGradient>       ','                <linearGradient id="LinGrad_homepage_petunjuk_guru_2_button62345_over" x1="0.000000" x2="0.000000" y1="1.000000" y2="0.000000">                <stop id="Stop0" stop-color="#13446F" offset="0.000000"/>                <stop id="Stop1" stop-color="#007CE9" offset="0.500000"/>                <stop id="Stop2" stop-color="#6BBAFF" offset="1.000000"/>           </linearGradient>       ','                <linearGradient id="LinGrad_homepage_petunjuk_guru_2_button62345_down" x1="0.000000" x2="0.000000" y1="0.000000" y2="1.000000">                <stop id="Stop0" stop-color="#13446F" offset="0.000000"/>                <stop id="Stop1" stop-color="#007CE9" offset="0.500000"/>                <stop id="Stop2" stop-color="#1994FE" offset="1.000000"/>           </linearGradient>       ','                <linearGradient id="LinGrad_homepage_petunjuk_guru_2_button62345_disabled" x1="0.000000" x2="0.000000" y1="1.000000" y2="0.000000">                <stop id="Stop0" stop-color="#0064BB" offset="0.000000"/>                <stop id="Stop1" stop-color="#007CE9" offset="0.500000"/>                <stop id="Stop2" stop-color="#1994FE" offset="1.000000"/>           </linearGradient>       ','fill:url(#LinGrad_homepage_petunjuk_guru_2_button62345);"','fill:url(#LinGrad_homepage_petunjuk_guru_2_button62345_over);"','stroke:#0963B1; stroke-width:2; stroke-linejoin:round;stroke-dasharray: none; fill:url(#LinGrad_homepage_petunjuk_guru_2_button62345_down);"','fill:url(#LinGrad_homepage_petunjuk_guru_2_button62345_disabled);"')
+button62345.setTextVal('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACkAAAApCAYAAACoYAD2AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAdSURBVFhH7cExAQAAAMKg9U9tB2+gAAAAAAAA4DQabQABsh9w1AAAAABJRU5ErkJggg==' , 'fill:url(#Text_homepage_petunjuk_guru_2_button62345)', 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACkAAAApCAYAAACoYAD2AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAdSURBVFhH7cExAQAAAMKg9U9tB2+gAAAAAAAA4DQabQABsh9w1AAAAABJRU5ErkJggg==', 'fill:url(#Text_homepage_petunjuk_guru_2_button62345_over)', 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACsAAAArCAYAAADhXXHAAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAeSURBVFhH7cEBDQAAAMKg909tDwcUAAAAAAAAwKUBHQ8AARruXL0AAAAASUVORK5CYII=', 'fill:url(#Text_homepage_petunjuk_guru_2_button62345_down)', 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACkAAAApCAYAAACoYAD2AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAdSURBVFhH7cExAQAAAMKg9U9tB2+gAAAAAAAA4DQabQABsh9w1AAAAABJRU5ErkJggg==', 'fill:url(#Text_homepage_petunjuk_guru_2_button62345_disabled)')
+button62345.setBase64Images( '' , '' , '' , '' )
+button62345.setImgFillVal('','','','','','','','' )
+button62345.initLineWeight('0')
+button62345.onUp = button62345onUp
+button62345.hasOnUp = true
+button62345.capture=4
+button62345.build()
+
+button62351 = new ObjButton('button62351', 'Button_next',413,689,43.000000,43.000000,1,18,'div','',1,0)
+button62351.setUseSvgFile(1)
+button62351.setFillStyle(2)
+button62351.setUniqueFillID('homepage_petunjuk_guru_2_button62351')
+button62351.initRotateAngle(0,0,0,-0.000000,-0.000000,42,42)
+button62351.initHasShadow(0)
+button62351.initHasReflection(0)
+button62351.setImages('images/transbtn.gif', '', '','');
+button62351.setStateOpacity( 0.000000, 0.000000, 0.000000, 0.000000 );
+button62351.addIe8Attr(413.000000, 689.000000, 43.000000, 43.000000, 0, 0)
+button62351.addOpacity(0)
+button62351.initImageMap('0,21,0,17,2,13,4,9,6,6,9,4,13,2,17,0,21,0,25,0,29,2,33,4,36,6,38,9,40,13,42,17,42,21,42,25,40,29,38,33,36,36,33,38,29,40,25,42,21,42,17,42,13,40,9,38,6,36,4,33,2,29,0,25,0,21','M 0.000000 21.000000 L 0.437500 16.750000 L 1.625000 12.812500 L 3.625000 9.250000 L 6.187500 6.187500 L 9.250000 3.625000 L 12.812500 1.625000 L 16.750000 0.437500 L 21.000000 0.000000 L 25.250000 0.437500 L 29.187500 1.625000 L 32.750000 3.625000 L 35.875000 6.187500 L 38.437500 9.250000 L 40.375000 12.812500 L 41.562500 16.750000 L 42.000000 21.000000 L 41.562500 25.250000 L 40.375000 29.187500 L 38.437500 32.750000 L 35.875000 35.875000 L 32.750000 38.437500 L 29.187500 40.375000 L 25.250000 41.562500 L 21.000000 42.000000 L 16.750000 41.562500 L 12.812500 40.375000 L 9.250000 38.437500 L 6.187500 35.875000 L 3.625000 32.750000 L 1.625000 29.187500 L 0.437500 25.250000 L 0.000000 21.000000 z')
+button62351.setFills('                <linearGradient id="LinGrad_homepage_petunjuk_guru_2_button62351" x1="0.000000" x2="0.000000" y1="1.000000" y2="0.000000">                <stop id="Stop0" stop-color="#0064BB" offset="0.000000"/>                <stop id="Stop1" stop-color="#007CE9" offset="0.500000"/>                <stop id="Stop2" stop-color="#1994FE" offset="1.000000"/>           </linearGradient>       ','                <linearGradient id="LinGrad_homepage_petunjuk_guru_2_button62351_over" x1="0.000000" x2="0.000000" y1="1.000000" y2="0.000000">                <stop id="Stop0" stop-color="#13446F" offset="0.000000"/>                <stop id="Stop1" stop-color="#007CE9" offset="0.500000"/>                <stop id="Stop2" stop-color="#6BBAFF" offset="1.000000"/>           </linearGradient>       ','                <linearGradient id="LinGrad_homepage_petunjuk_guru_2_button62351_down" x1="0.000000" x2="0.000000" y1="0.000000" y2="1.000000">                <stop id="Stop0" stop-color="#13446F" offset="0.000000"/>                <stop id="Stop1" stop-color="#007CE9" offset="0.500000"/>                <stop id="Stop2" stop-color="#1994FE" offset="1.000000"/>           </linearGradient>       ','                <linearGradient id="LinGrad_homepage_petunjuk_guru_2_button62351_disabled" x1="0.000000" x2="0.000000" y1="1.000000" y2="0.000000">                <stop id="Stop0" stop-color="#0064BB" offset="0.000000"/>                <stop id="Stop1" stop-color="#007CE9" offset="0.500000"/>                <stop id="Stop2" stop-color="#1994FE" offset="1.000000"/>           </linearGradient>       ','fill:url(#LinGrad_homepage_petunjuk_guru_2_button62351);"','fill:url(#LinGrad_homepage_petunjuk_guru_2_button62351_over);"','stroke:#0963B1; stroke-width:2; stroke-linejoin:round;stroke-dasharray: none; fill:url(#LinGrad_homepage_petunjuk_guru_2_button62351_down);"','fill:url(#LinGrad_homepage_petunjuk_guru_2_button62351_disabled);"')
+button62351.setTextVal('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACsAAAArCAYAAADhXXHAAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAeSURBVFhH7cEBDQAAAMKg909tDwcUAAAAAAAAwKUBHQ8AARruXL0AAAAASUVORK5CYII=' , 'fill:url(#Text_homepage_petunjuk_guru_2_button62351)', 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACsAAAArCAYAAADhXXHAAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAeSURBVFhH7cEBDQAAAMKg909tDwcUAAAAAAAAwKUBHQ8AARruXL0AAAAASUVORK5CYII=', 'fill:url(#Text_homepage_petunjuk_guru_2_button62351_over)', 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAC0AAAAtCAYAAAA6GuKaAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAfSURBVGhD7cExAQAAAMKg9U9tDQ+gAAAAAAAAAIA7Ax/RAAGoeI1KAAAAAElFTkSuQmCC', 'fill:url(#Text_homepage_petunjuk_guru_2_button62351_down)', 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACsAAAArCAYAAADhXXHAAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAeSURBVFhH7cEBDQAAAMKg909tDwcUAAAAAAAAwKUBHQ8AARruXL0AAAAASUVORK5CYII=', 'fill:url(#Text_homepage_petunjuk_guru_2_button62351_disabled)')
+button62351.setBase64Images( '' , '' , '' , '' )
+button62351.setImgFillVal('','','','','','','','' )
+button62351.initLineWeight('0')
+button62351.onUp = button62351onUp
+button62351.hasOnUp = true
+button62351.capture=4
+button62351.build()
+
+button62357 = new ObjButton('button62357', 'Button_back',26,688,43.000000,43.000000,1,19,'div','',1,0)
+button62357.setUseSvgFile(1)
+button62357.setFillStyle(2)
+button62357.setUniqueFillID('homepage_petunjuk_guru_2_button62357')
+button62357.initRotateAngle(0,0,0,-0.000000,-0.000000,42,42)
+button62357.initHasShadow(0)
+button62357.initHasReflection(0)
+button62357.setImages('images/transbtn.gif', '', '','');
+button62357.setStateOpacity( 0.000000, 0.000000, 0.000000, 0.000000 );
+button62357.addIe8Attr(26.000000, 688.000000, 43.000000, 43.000000, 0, 0)
+button62357.addOpacity(0)
+button62357.initImageMap('0,21,0,17,2,13,4,9,6,6,9,4,13,2,17,0,21,0,25,0,29,2,33,4,36,6,38,9,40,13,42,17,42,21,42,25,40,29,38,33,36,36,33,38,29,40,25,42,21,42,17,42,13,40,9,38,6,36,4,33,2,29,0,25,0,21','M 0.000000 21.000000 L 0.437500 16.750000 L 1.625000 12.812500 L 3.625000 9.250000 L 6.187500 6.187500 L 9.250000 3.625000 L 12.812500 1.625000 L 16.750000 0.437500 L 21.000000 0.000000 L 25.250000 0.437500 L 29.187500 1.625000 L 32.750000 3.625000 L 35.875000 6.187500 L 38.437500 9.250000 L 40.375000 12.812500 L 41.562500 16.750000 L 42.000000 21.000000 L 41.562500 25.250000 L 40.375000 29.187500 L 38.437500 32.750000 L 35.875000 35.875000 L 32.750000 38.437500 L 29.187500 40.375000 L 25.250000 41.562500 L 21.000000 42.000000 L 16.750000 41.562500 L 12.812500 40.375000 L 9.250000 38.437500 L 6.187500 35.875000 L 3.625000 32.750000 L 1.625000 29.187500 L 0.437500 25.250000 L 0.000000 21.000000 z')
+button62357.setFills('                <linearGradient id="LinGrad_homepage_petunjuk_guru_2_button62357" x1="0.000000" x2="0.000000" y1="1.000000" y2="0.000000">                <stop id="Stop0" stop-color="#0064BB" offset="0.000000"/>                <stop id="Stop1" stop-color="#007CE9" offset="0.500000"/>                <stop id="Stop2" stop-color="#1994FE" offset="1.000000"/>           </linearGradient>       ','                <linearGradient id="LinGrad_homepage_petunjuk_guru_2_button62357_over" x1="0.000000" x2="0.000000" y1="1.000000" y2="0.000000">                <stop id="Stop0" stop-color="#13446F" offset="0.000000"/>                <stop id="Stop1" stop-color="#007CE9" offset="0.500000"/>                <stop id="Stop2" stop-color="#6BBAFF" offset="1.000000"/>           </linearGradient>       ','                <linearGradient id="LinGrad_homepage_petunjuk_guru_2_button62357_down" x1="0.000000" x2="0.000000" y1="0.000000" y2="1.000000">                <stop id="Stop0" stop-color="#13446F" offset="0.000000"/>                <stop id="Stop1" stop-color="#007CE9" offset="0.500000"/>                <stop id="Stop2" stop-color="#1994FE" offset="1.000000"/>           </linearGradient>       ','                <linearGradient id="LinGrad_homepage_petunjuk_guru_2_button62357_disabled" x1="0.000000" x2="0.000000" y1="1.000000" y2="0.000000">                <stop id="Stop0" stop-color="#0064BB" offset="0.000000"/>                <stop id="Stop1" stop-color="#007CE9" offset="0.500000"/>                <stop id="Stop2" stop-color="#1994FE" offset="1.000000"/>           </linearGradient>       ','fill:url(#LinGrad_homepage_petunjuk_guru_2_button62357);"','fill:url(#LinGrad_homepage_petunjuk_guru_2_button62357_over);"','stroke:#0963B1; stroke-width:2; stroke-linejoin:round;stroke-dasharray: none; fill:url(#LinGrad_homepage_petunjuk_guru_2_button62357_down);"','fill:url(#LinGrad_homepage_petunjuk_guru_2_button62357_disabled);"')
+button62357.setTextVal('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACsAAAArCAYAAADhXXHAAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAeSURBVFhH7cEBDQAAAMKg909tDwcUAAAAAAAAwKUBHQ8AARruXL0AAAAASUVORK5CYII=' , 'fill:url(#Text_homepage_petunjuk_guru_2_button62357)', 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACsAAAArCAYAAADhXXHAAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAeSURBVFhH7cEBDQAAAMKg909tDwcUAAAAAAAAwKUBHQ8AARruXL0AAAAASUVORK5CYII=', 'fill:url(#Text_homepage_petunjuk_guru_2_button62357_over)', 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAC0AAAAtCAYAAAA6GuKaAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAfSURBVGhD7cExAQAAAMKg9U9tDQ+gAAAAAAAAAIA7Ax/RAAGoeI1KAAAAAElFTkSuQmCC', 'fill:url(#Text_homepage_petunjuk_guru_2_button62357_down)', 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACsAAAArCAYAAADhXXHAAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAeSURBVFhH7cEBDQAAAMKg909tDwcUAAAAAAAAwKUBHQ8AARruXL0AAAAASUVORK5CYII=', 'fill:url(#Text_homepage_petunjuk_guru_2_button62357_disabled)')
+button62357.setBase64Images( '' , '' , '' , '' )
+button62357.setImgFillVal('','','','','','','','' )
+button62357.initLineWeight('0')
+button62357.onUp = button62357onUp
+button62357.hasOnUp = true
+button62357.capture=4
+button62357.build()
+
+text78166 = new ObjText('text78166',null,200,735,245,16,1,20,null,'div',null,0 )
+text78166.initSLine(0)
+text78166.initHasBullet(0)
+text78166.initRotateAngle(0,0,0)
+text78166.initHasOuterShadow(0)
+text78166.initHasTextShadow(0)
+text78166.initHasBorder(0)
+text78166.initHasOutline(0)
+text78166.initHasMargin(0)
+text78166.addIe8Attr(200, 735, 245, 16, 0, 0)
+text78166.addHeading(0)
+text78166.addOpacity(100)
+text78166.arrCSSStyles = new Array();
+text78166.arrCSSStyles.push('span.text78166Font1 { font-size:13px; font-family:"Montserrat"; color:#ffffff; font-style:italic;}');
+text78166.addInnerText('<div id=\"text78166\" aria-hidden=\"true\" ><a id=\"text78166anc\" style=\"display:block;height:0px;width:0px;\"></a>\n<p  style=\"margin-left:0px;text-indent:0px;margin-top:0px;margin-bottom:0px;text-align:right;\" >\n<span class=\"text78166Font1\"  >pinterest.com\n</span ></p >\n</div>\n');
+text78166.build()
+
+image94045 = new ObjImage('image94045','images/guide-page6.png','guide-page6',0,0,482,766,1,6,'div',null, 0 )
+image94045.initRotateAngle(0,0,0,0,0,0,0)
+image94045.initHasShadow(0)
+image94045.initHasReflection(0)
+image94045.addIe8Attr(0, 0, 482, 766, 0, 0)
+image94045.initImageMap(1,'0,0,482,0,482,766,0,766,0,0','M 0 0 L 482 0 L 482 766 L 0 766 L 0 0 z')
+image94045.addBorder(0)
+image94045.addOpacity(100)
+image94045.build()
+
+arObjs.push(button62345);
+arObjs.push(button62351);
+arObjs.push(button62357);
+arObjs.push(text78166);
+arObjs.push(image94045);
+
+
+writeStyleSheets(arObjs);}
+// -->
+
+</script>
+</head>
+
+<body onfocus="trivOnFocus()" onResize="ReFlow()">
+
+    <DIV style="visibility:hidden;" id="pageDIV" class="pageDIV">
+   </DIV>
+<script>
+if( is.min ){
+    findWH()
+    var left = (winW > 480) ? (winW-480)/2 : 0
+    document.write('<style type="text/css">.pageDIV { position: absolute; top:0px; left: ' + left + 'px; width:480px; height:766px; clip:rect(0px 480px 766px 0px); overflow:hidden;' )
+    if(is.iOS)
+		document.write('-webkit-text-size-adjust:100%;')
+    document.write('} </style>')
+}
+</script>
+
+<script>
+if( is.min ){
+    appendElement(button62345, null, null);
+    appendElement(button62351, null, null);
+    appendElement(button62357, null, null);
+    appendElement(text78166, null, null);
+    appendElement(image94045, null, null);
+}
+</script>
+
+</body>
+</html>

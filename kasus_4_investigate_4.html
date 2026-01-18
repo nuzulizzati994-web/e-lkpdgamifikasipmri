@@ -1,0 +1,1361 @@
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link
+  href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300..700&display=swap"
+  rel="stylesheet"
+/>
+<style>
+  .no-border input {
+    font-family: "Fredoka" !important;
+    border: none;
+    outline: none;
+  }
+  .circle-paint {
+    height: 100px;
+    width: 100px;
+    border-radius: 1000px;
+    background: #000000;
+    transition: all 0.3s ease;
+  }
+</style>
+<script>
+  function safeParseMaybeString(v) {
+    if (typeof v === "string") {
+      try {
+        return JSON.parse(v);
+      } catch {
+        return v;
+      }
+    }
+    return v;
+  }
+  window.ip = function () {
+    if (typeof Varip === "undefined") return null;
+    return Varip.getValue();
+  };
+  document.addEventListener("DOMContentLoaded", async () => {
+    const api = axios.create({
+      baseURL: `https://${ip()}/api`,
+      timeout: 10000,
+    });
+    api.interceptors.request.use(
+      (config) => {
+        try {
+          if (window.VarToken?.getValue) {
+            const token = VarToken.getValue();
+            if (token) {
+              config.headers.Authorization = `Bearer ${token}`;
+            }
+          }
+        } catch (e) {
+          console.warn("Token belum siap");
+        }
+        return config;
+      },
+      (error) => Promise.reject(error)
+    );
+    window.api = api;
+    async function check() {
+      try {
+        const token = VarToken.getValue();
+        const request = await api.post("/auth/check", {
+          token,
+        });
+        if (
+          request.data.status == "failed" &&
+          !window.location.href.includes("login")
+        ) {
+          trivExitPage("splash_screen_login_page_login.html", true);
+        }
+        if (request.data.status == "success") {
+          if (window.location.href.includes("login") && !window.location.href.includes("page_splash")) {
+            trivExitPage("homepage_homepage.html", true);
+          }
+          Varpoints.set(JSON.stringify(request.data.progress.points));
+          Varstage.set(request.data.progress.stage);
+          totalPoints(request.data.progress.points);
+        }
+      } catch (error) {
+        console.error("Error:", error);
+      }
+    }
+    await check();
+    let pointsRaw =
+      typeof Varpoints !== "undefined" ? Varpoints.getValue() : "{}";
+    let points = safeParseMaybeString(pointsRaw);
+    if (!points || typeof points !== "object") points = {};
+    console.log("initial points:", points);
+    function ipLocal() {
+      return typeof Varip !== "undefined" ? Varip.getValue() : null;
+    }
+    function essay(array, answer, kasus, quest, point) {
+      let acc = 0;
+      const lowerAns = (answer || "").toLowerCase();
+      array.forEach((item) => {
+        const check = item.some((key) => {
+          if (typeof key === "object") {
+            let checker = false;
+            key.forEach((value) => {
+              if (lowerAns.includes(value)) checker = true;
+              else {
+                checker = false;
+                return;
+              }
+            });
+            return checker;
+          } else {
+            return lowerAns.includes(key);
+          }
+        });
+        if (check) acc += point;
+      });
+      setPoint(kasus, quest, acc);
+    }
+    async function setPoint(kasus, quest, pointValue) {
+      try {
+        const temp = points["case" + kasus] || {};
+        temp[quest] = pointValue;
+        points["case" + kasus] = temp;
+        if (typeof Varpoints !== "undefined") {
+          Varpoints.set(JSON.stringify(points));
+        }
+        console.log("points updated:", points);
+        const data = collectPageValues();
+        const stage = parseInt(Varstage.getValue());
+        const request = await api.post(
+          "https://" + ip() + "/api/progress/save",
+          {
+            caseId: kasus,
+            data,
+            point: points,
+            stage,
+          }
+        );
+        if (request.status == 200) {
+          console.log("Success");
+        }
+      } catch (error) {
+        console.error("Error:", error);
+      }
+    }
+    async function casePoints(kasus, minPoint) {
+      try {
+        const target = points["case" + kasus] || {};
+        const point =
+          Object.keys(target).length > 0
+            ? Object.values(target).reduce((a, b) => a + b, 0)
+            : 0;
+            let totalPoint = 0;
+        Object.values(points).forEach((point) => {
+          totalPoint += Object.values(point).reduce((a, b) => a + b, 0);
+        });
+        if (typeof VarTotalPoint !== "undefined") VarTotalPoint.set(totalPoint);
+        if (typeof VarFinalPoint !== "undefined") VarFinalPoint.set(point);
+        console.log(point, minPoint);
+        const status = point >= minPoint;
+        if (status) Varstage.set(kasus);
+        const data = collectPageValues();
+        const stage = Varstage. getValue()
+        const request = await api.post(
+          "https://" + ip() + "/api/progress/save",
+          {
+            caseId: kasus,
+            data,
+            point: points,
+            stage: stage && kasus,
+          }
+        );
+        if (request.status == 200) {
+          console.log("Success");
+        }
+        trivExitPage(
+          `kasus_${kasus}_result_${kasus}${status ? "" : "x"}.html`,
+          true
+        );
+      } catch (error) {
+        console.error("Error:", error);
+      }
+    }
+    function totalPoints(data) {
+     
+      let total = 0;
+      Object.values(data || points).forEach((k) => {
+        total += Object.values(k).reduce((a, b) => a + b, 0);
+      });
+      console.log(data)
+      console.log(total)
+      VarTotalPoint.set(total);
+    }
+    function pt(status, kasus, quest, point) {
+      const newPoint = status && point ? point : 0;
+      setPoint(kasus, quest, newPoint);
+    }
+    function dl(ratio, kasus, quest, point, ...value) {
+      const dec = ratio.reduce((a, b) => a / b);
+      const valueRatio = value.reduce((a, b) => a / b);
+      const newPoint = dec === valueRatio ? point : 0;
+      setPoint(kasus, quest, newPoint);
+    }
+    function collectPageValues() {
+      let data = {};
+      let droplist = [];
+      for (let key in window) {
+        if (key.startsWith("Var")) {
+          try {
+            let varObj = window[key];
+            if (varObj && typeof varObj.getValue === "function") {
+              let cleanName = key.replace("Var", "");
+              let arrayName = cleanName.split("_");
+              console.log(cleanName);
+              console.log("a");
+              const allow = ["q", "droplist", "e", "i", "c", "k", "f"];
+              const filter = allow.filter((v) => arrayName[2] == v);
+              if (filter.length !== 0 && arrayName.length >= 3) {
+                console.log(arrayName);
+                if (arrayName[2] == "droplist") {
+                  const refKey =
+                    "Var" + cleanName.split("_").slice(0, -1).join("_");
+                  if (!droplist.includes(refKey)) {
+                    droplist.push(refKey);
+                    const droplistValue = Object.keys(window)
+                      .filter((k) => k.startsWith(refKey))
+                      .map((k) => window[k].getValue())
+                      .join(";");
+                    data[arrayName[1]] = droplistValue;
+                  }
+                } else {
+                  data[arrayName[1]] = varObj.getValue();
+                }
+              }
+            }
+          } catch (e) {
+            console.log("skip:", key);
+          }
+        }
+      }
+      console.log("All page values:", data);
+      return data;
+    }
+    async function login() {
+      const url = "https://" + ip() + "/api/auth/login";
+      const username =  Varusername_1.getValue();
+      const password =  Varpassword_1.getValue();
+      await axios
+        .post(url, { username, password })
+        .then(async function (response) {
+          console.log("Login sukses:", response.data);
+          if (response.data && response.data.token) {
+            VarToken.set(response.data.token);
+            await check()
+            trivExitPage("homepage_homepage.html", true);
+          } else {
+            alert("Login gagal: token tidak ditemukan.");
+          }
+        })
+        .catch(function (error) {
+          console.error("Error:", error);
+          if (error.response) {
+            alert("Login gagal: " + error.response.data.message);
+          } else {
+            alert("Tidak bisa terhubung ke server!");
+          }
+        });
+    }
+    async function signup() {
+      const url = "https://" + ip() + "/api/auth/signup";
+      const username = Varusername_1.getValue();
+      const password = Varpassword_1.getValue();
+      axios
+        .post(url, { username, password })
+        .then(function (response) {
+          console.log("Login sukses:", response.data);
+          if (response.data && response.data.token) {
+            VarToken.set(response.data.token);
+            trivExitPage("homepage_homepage.html", true);
+          } else {
+            alert("Login gagal: token tidak ditemukan.");
+          }
+        })
+        .catch(function (error) {
+          console.error("Error:", error);
+          if (error.response) {
+            alert("Login gagal: " + error.response.data.message);
+          } else {
+            alert("Tidak bisa terhubung ke server!");
+          }
+        });
+    }
+    window.collectPageValues = collectPageValues;
+    window.ip = ipLocal;
+    window.pt = pt;
+    window.essay = essay;
+    window.dl = dl;
+    window.casePoints = casePoints;
+    window.login = login;
+    window.signup = signup;
+    window.totalPoint = totalPoints;
+  });
+</script>
+<!DOCTYPE html>
+<html lang="en">
+<!--GENERATED BY:  Lectora Inspire v.18.2.3(11897) (http://www.trivantis.com) -->
+<!--TITLE: C:\Users\Nuzul Izzati\OneDrive\Documents\My Titles -->
+
+
+<head>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta charset="utf-8" />
+<meta name="viewport" content=" minimum-scale = 1.0 , initial-scale= 1" />
+<meta http-equiv="Page-Enter" content="revealTrans(Transition=34,Duration=4.0)">
+<title>Investigate_4</title>
+
+<link rel="stylesheet" href="trivantis.css" type="text/css" />
+<style type="text/css">
+</style>
+
+<!--[if lt IE 7]>
+<style type="text/css">
+    #image142182 img { filter:progid:DXImageTransform.Microsoft.Alpha(opacity=0); }
+    #image142182 { filter:progid:DXImageTransform.Microsoft.AlphaImageLoader(src='images/invstgt_4.png',sizingMethod='scale'); }
+</style>
+<![endif]-->
+
+<!--[if lte IE 9]>
+<script>
+document.namespaces.add('v', 'urn:schemas-microsoft-com:vml', "#default#VML")
+</script>
+<![endif]-->
+
+<script src="trivantis.js"></script>
+<script src="trivantis-timedate.js"></script>
+<script src="es6-promise-2.0.0.min.js"></script>
+<script src="jquery-3.4.1.min.js"></script>
+<script src="trivantis-cookie.js"></script>
+<script src="trivantis-button.js"></script>
+<script src="trivantis-image.js"></script>
+<script src="trivantis-inline.js"></script>
+<script src="trivantis-text.js"></script>
+<script src="trivantis-trans.js"></script>
+<script src="trivantis-pagetracking.js"></script>
+<script src="device_desktop/kasus_4_investigate_4.js"></script>
+<script src="device_tablet/kasus_4_investigate_4.js"></script>
+<script src="device_phone/kasus_4_investigate_4.js"></script>
+<script src="trivantis-strings.js"></script>
+<script src="hammer.js"></script>
+<script>
+
+<!-- 
+
+var hmr = null;
+function initGEV(){
+   hmr = new Hammer(getDisplayDocument().getElementById(GetCurrentPageID()));
+}
+
+var trivPageScope = {};
+var pgID = 'page32473';
+trivWeb20Popups = true;
+var trivPlayer = null;
+var bPageLoaded = false;
+var pageScale = 1;
+var bDisableBrowserResize = false;
+var bScaleToWindow = false;
+var bFitToWidth = false;
+var bFitToMobile = false;
+var pageHeight = 2788;
+var bLoadedVariables = false;
+
+var arObjs = [];
+
+if(bDisableBrowserResize && !is.isMobile.any()){
+	var bTrivResponsive = false;
+	saveResponsiveData("Desktop",eval("DesktopResponsive"));
+}
+else{
+	var bTrivResponsive = true;
+	saveResponsiveData("Desktop",eval("DesktopResponsive"));
+	saveResponsiveData("Tablet",eval("TabletResponsive"));
+	saveResponsiveData("Phone",eval("PhoneResponsive"));
+}
+	var viewOverrideMap = {};
+	viewOverrideMap["PhoneLandscape"] = "TabletLandscape";
+ 	viewOverrideMap["TabletPortrait"] = "Desktop";
+ 	viewOverrideMap["TabletLandscape"] = "Desktop";
+ if( !is.min )
+  document.write( 'Your browser does not support dynamic html. Please download a current version of either <a href="http://www.microsoft.com/ie/">Microsoft Internet Explorer</a> or <a href="http://www.mozilla.com/en-US/firefox/">Mozilla Firefox </a> and try visiting our site again.  Thank You.<br /><br />' )
+
+var pageLayer = null
+var winW = getDisplayWindow().screen.width
+var winH = getDisplayWindow().screen.height
+var transformScale = 1
+
+function findWH(){	//echo LD-769
+	if (is.ie9) {
+	var vScrollAdj =  (is.ns ? 16 : 20);
+	winW = (is.ns) ? window.innerWidth - vScrollAdj : document.body.offsetWidth;
+	winH = (is.ns) ? window.innerHeight : document.body.offsetHeight;
+	}
+	else if (is.ie) {
+   winW = Math.max(Math.max(getDisplayDocument().body.scrollWidth, getDisplayDocument().documentElement.scrollWidth)-16,
+					  Math.max(getDisplayDocument().body.offsetWidth, getDisplayDocument().documentElement.offsetWidth)-16,
+					  Math.max(getDisplayDocument().body.clientWidth, getDisplayDocument().documentElement.clientWidth)-16 );
+   winH = Math.max(Math.max(getDisplayDocument().body.scrollHeight, getDisplayDocument().documentElement.scrollHeight)-16,
+					  Math.max(getDisplayDocument().body.offsetHeight, getDisplayDocument().documentElement.offsetHeight)-16,
+					  Math.max(getDisplayDocument().body.clientHeight, getDisplayDocument().documentElement.clientHeight)-16 );
+	}
+	else
+	{
+   winW =  getDisplayDocument().documentElement.clientWidth ? getDisplayDocument().documentElement.clientWidth : getDisplayDocument().body.clientWidth;
+   if(is.iOS && (navigator.userAgent.indexOf('CellCast-iPad') != -1 || navigator.userAgent.indexOf('CellCast-iPhone') != -1) )
+		 winW =  getScreenWidth();
+   winH =  getDisplayDocument().documentElement.clientHeight ? getDisplayDocument().documentElement.clientHeight : getDisplayDocument().body.clientHeight;
+	}
+}
+
+trivSetupPage();
+
+ if( isSppCapable() && window.trivPlayer === null ) setTimeout( function() { var objScrollTo =  trivGetScrollObj(window.location.href); window.location.replace("index.html?jmptopg=kasus_4_investigate_4.html#" + objScrollTo);}, 100)
+ function ReFlow() {
+  findWH()
+  var pageEleWidth = pageLayer.ele.clientWidth;
+  if (  (is.ieAny || is.edge )  && pageLayer.ele.clientWidth == 0 && isSinglePagePlayerAvail()) pageEleWidth = parseFloat(GetPageWidth()) ;
+  if (pageLayer)
+  {
+     if(bTrivResponsive){
+    var left = (winW > pageEleWidth) ? (winW-pageEleWidth)/2 : 0
+    bReviewLink = window.myTop.document.getElementById('vBodyFrame');
+    transformScale = (winW > pageEleWidth) ? 1 : (winW/pageEleWidth) 
+    if(is.isMobile.any() || bReviewLink && typeof(getDisplayWindow().myTop)!='undefined' && getDisplayWindow().myTop._respView != 'Desktop')
+			left = 0
+    if(is.iOS && isInIframe( getDisplayWindow() , 0))
+			transformScale = (getScreenWidth() > pageEleWidth) ? 1 : (getScreenWidth()/pageEleWidth) 
+    var transSty = calculateScale();
+    pageLayer.moveTo( left, 0 );
+    pageLayer.hasMoved = true;
+    pageLayer.newX = left;
+    pageLayer.newY = 0;
+    if(CanScale()){
+       pageLayer.styObj.transform =  transSty;
+       pageLayer.styObj.webkitTransform =  transSty;
+    }else
+       transformScale = 1;
+    pageLayer.styObj.transformOrigin =  '0 0';
+     }
+    if(bDisableBrowserResize && !is.isMobile.any()){
+       var left = (winW > pageEleWidth) ? (winW-pageEleWidth)/2 : 0
+       bReviewLink = window.myTop.document.getElementById('vBodyFrame');
+       if(is.isMobile.any() || bReviewLink && typeof(getDisplayWindow().myTop)!='undefined' && getDisplayWindow().myTop._respView != 'Desktop')
+			left = 0
+       pageLayer.moveTo( left, 0 );
+       pageLayer.hasMoved = true;
+       pageLayer.newX = left;
+       pageLayer.newY = 0;
+    }
+    fillBrowser();
+    adjustAllObjectsForFixedPosition();
+    setfixed();
+  }
+  Offset_qu32587()
+  Offset_qu32612()
+}
+
+var arVariables = [];
+
+VarTrivSelCap = new Variable( 'VarTrivSelCap', 'none', 0, 0, null, null, 'lkpd_gamifikasi', true )
+Varusername_1 = new Variable( 'Varusername_1', '', 0, 0, null, null, 'lkpd_gamifikasi', false )
+Varpassword_1 = new Variable( 'Varpassword_1', '', 0, 0, null, null, 'lkpd_gamifikasi', false )
+VarToken = new Variable( 'VarToken', '', 0, 0, null, null, 'lkpd_gamifikasi', false )
+Varip = new Variable( 'Varip', 'api.epistura.web.id', 0, 0, null, null, 'lkpd_gamifikasi', false )
+Var4_1_q = new Variable( 'Var4_1_q', '', 0, 0, null, 365, 'lkpd_gamifikasi', false )
+Var4_3_q = new Variable( 'Var4_3_q', '', 0, 0, null, 365, 'lkpd_gamifikasi', false )
+Var4_5_droplist_1_3 = new Variable( 'Var4_5_droplist_1_3', '', 0, 0, null, 365, 'lkpd_gamifikasi', false )
+Var4_5_droplist_1_4 = new Variable( 'Var4_5_droplist_1_4', '', 0, 0, null, 365, 'lkpd_gamifikasi', false )
+Var4_2_e = new Variable( 'Var4_2_e', '', 0, 0, null, 365, 'lkpd_gamifikasi', false )
+Var4_4_e = new Variable( 'Var4_4_e', '', 0, 0, null, 365, 'lkpd_gamifikasi', false )
+Varpoints = new Variable( 'Varpoints', '{}', 0, 0, null, null, 'lkpd_gamifikasi', false )
+VarFinalPoint = new Variable( 'VarFinalPoint', '0', 0, 0, null, null, 'lkpd_gamifikasi', false )
+VarTotalPoint = new Variable( 'VarTotalPoint', '0', 0, 0, null, null, 'lkpd_gamifikasi', false )
+Varstage = new Variable( 'Varstage', '0', 0, 0, null, 365, 'lkpd_gamifikasi', false )
+
+onload = responsiveInit
+detect();
+if( is.webkit && !is.iOSSafari )
+  onbeforeunload = finish
+else
+  onunload = finish
+
+function responsiveInit() {
+  pageLayer = new ObjLayer(GetCurrentPageID());
+  SaveStyles();
+  init();
+  adjustResponsivePage();
+  ReFlow();
+}
+
+function init() {
+  init11();
+}
+
+function init11() {
+  findWH()
+  if( is.min ){
+    trivPageTracking.InitPageTracking();
+    PreloadResources(new Array(text80024,text68848,entry32903,entry32903,entry32903,entry32903,entry32916,entry32916,entry32916,entry32916,combo32643,combo32643,combo32643,combo32643,combo32643,combo32643,combo32643,combo32643,combo32643,combo32643,combo32643,combo32643,combo32643,combo32641,combo32641,combo32641,combo32641,combo32641,combo32641,combo32641,combo32641,combo32641,combo32641,combo32641,combo32641,combo32641,text32588,text32589,radio32590,radio32590,radio32590,text32591,radio32592,radio32592,radio32592,text32613,text32614,radio32615,radio32615,radio32615,text32616,radio32617,radio32617,radio32617,button37746,image142182,qu32587,qu32587,qu32612,qu32612))
+    pageLayer.transData = {tOut:0,tNum:34,dur:4,fn:null,ol:0,ot:0,fl:0,ft:0,fr:0,fb:0,il:-1,eff:0, tb:0};
+    if(!isSinglePagePlayerAvail()){
+    if( !is.ie||is.v>8 ) setTimeout( 'pageLayer.doTrans( 0, 34, 4, null, 0, 0, 0, 0, 0, 0, -1, 0, 0 )' , 100 );
+    else pageLayer.show(true);
+    }
+    text80024.init()
+    text68848.init()
+    entry32903.init()
+    entry32903.init()
+    entry32903.init()
+    entry32903.init()
+    entry32916.init()
+    entry32916.init()
+    entry32916.init()
+    entry32916.init()
+    combo32643.init()
+    combo32643.init()
+    combo32643.init()
+    combo32643.init()
+    combo32643.init()
+    combo32643.init()
+    combo32643.init()
+    combo32643.init()
+    combo32643.init()
+    combo32643.init()
+    combo32643.init()
+    combo32643.init()
+    combo32643.init()
+    combo32641.init()
+    combo32641.init()
+    combo32641.init()
+    combo32641.init()
+    combo32641.init()
+    combo32641.init()
+    combo32641.init()
+    combo32641.init()
+    combo32641.init()
+    combo32641.init()
+    combo32641.init()
+    combo32641.init()
+    combo32641.init()
+    text32588.init()
+    text32589.init()
+    radio32590.init()
+    radio32590.init()
+    radio32590.init()
+    text32591.init()
+    radio32592.init()
+    radio32592.init()
+    radio32592.init()
+    text32613.init()
+    text32614.init()
+    radio32615.init()
+    radio32615.init()
+    radio32615.init()
+    text32616.init()
+    radio32617.init()
+    radio32617.init()
+    radio32617.init()
+    button37746.init()
+    image142182.init()
+    qu32587.init()
+    qu32587.init()
+    qu32612.init()
+    qu32612.init()
+    text80024.activate()
+    text68848.activate()
+    entry32903.activate()
+    entry32903.activate()
+    entry32903.activate()
+    entry32903.activate()
+    entry32916.activate()
+    entry32916.activate()
+    entry32916.activate()
+    entry32916.activate()
+    combo32643.activate()
+    combo32643.activate()
+    combo32643.activate()
+    combo32643.activate()
+    combo32643.activate()
+    combo32643.activate()
+    combo32643.activate()
+    combo32643.activate()
+    combo32643.activate()
+    combo32643.activate()
+    combo32643.activate()
+    combo32643.activate()
+    combo32643.activate()
+    combo32641.activate()
+    combo32641.activate()
+    combo32641.activate()
+    combo32641.activate()
+    combo32641.activate()
+    combo32641.activate()
+    combo32641.activate()
+    combo32641.activate()
+    combo32641.activate()
+    combo32641.activate()
+    combo32641.activate()
+    combo32641.activate()
+    combo32641.activate()
+    text32588.activate()
+    text32589.activate()
+    radio32590.activate()
+    radio32590.activate()
+    radio32590.activate()
+    text32591.activate()
+    radio32592.activate()
+    radio32592.activate()
+    radio32592.activate()
+    text32613.activate()
+    text32614.activate()
+    radio32615.activate()
+    radio32615.activate()
+    radio32615.activate()
+    text32616.activate()
+    radio32617.activate()
+    radio32617.activate()
+    radio32617.activate()
+    button37746.activate()
+    image142182.activate()
+    qu32587.activate()
+    qu32587.activate()
+    qu32612.activate()
+    qu32612.activate()
+     var objToScroll = trivGetScrollObj(window.location.href) ;
+     trivScrollTo(window, objToScroll);
+    var titleManagerIndexWindow = (window && window.parent && window.parent.bIsTitleManagerIndexFile) ? window.parent : null;
+    if(titleManagerIndexWindow)  trivScrollTo(titleManagerIndexWindow, objToScroll);
+    if(!isSinglePagePlayerAvail()) postPageShowAction();
+    if( location.hash )
+    {
+      var newHash
+      if( location.hash.charAt(0) == '#' )
+        newHash = location.hash.slice( 1 )
+      else
+        newHash = location.hash
+      location.hash = newHash
+      if((typeof(bTrivRunView) != 'undefined'  && bTrivRunView) || (typeof(bTrivOffline) != 'undefined' && bTrivOffline)) window.scrollTo(0 , getTopofObj(document.getElementById(newHash)));
+    }
+    setTimeout( 'trivUpdateTOC( 1 )', 100 )
+    bPageLoaded = true;
+    ReFlow();
+    if(!isSinglePagePlayerAvail())
+       loadActions();
+  }
+  try {initGEV();} catch(e){}
+}
+  window.bLoadedVariables = true;
+function loadActions(){
+    if((window.bPageLoaded && window.bLoadedVariables && getDisplayWindow().pagePlayer &&
+	getDisplayWindow().pagePlayer.arLoadedPages && getDisplayWindow().pagePlayer.arLoadedPages.length == 1) || (window.bPageLoaded && window.bLoadedVariables && !isSinglePagePlayerAvail() )){
+      var valVar4_2_e = Var4_2_e.getValue()
+      if(valVar4_2_e!='~~~null~~~')entry32903.objLyr.doc.forms["entry32903form"]["Isian1_4"].value=valVar4_2_e
+      var valVar4_4_e = Var4_4_e.getValue()
+      if(valVar4_4_e!='~~~null~~~')entry32916.objLyr.doc.forms["entry32916form"]["Isian2_4"].value=valVar4_4_e
+      Update_combo32643()
+      Update_combo32641()
+      Update_qu32587()
+      Update_qu32612()
+
+       if(typeof(updateFLVPlayer) !== 'undefined') updateFLVPlayer();
+       postPageShowAction();
+    }
+    else
+      setTimeout(loadActions, 100);
+}
+function postPageShowAction(){
+  if ( trivPageTracking.GetRangeStatus(32473) == 'notstarted' ) trivPageTracking.SetRangeStatus(32473,2);
+}  
+
+var trivGoToPage = null
+var trivCompleteCnt = 1;
+var hasProcessedExitActions = false;
+var trivActFBCnt = 0;
+var currFeedbackIdx = 0;
+var trivPageExited = false;
+var trivInTest = false;
+
+function finish() {
+}
+
+function trivOnFocus() {
+    if( trivPageExited ) return
+}
+
+function checkLeavePage() {
+    if( trivPageExited ) return
+    if( trivActFBCnt == 0 )
+    {
+        currFeedbackIdx++;
+        if( currFeedbackIdx > 1)
+        {
+            trivLeavePage();
+          return;
+        }
+        else if( !checkQuestions( true ))
+          return;
+    }
+    setTimeout( 'checkLeavePage()', 100)
+}
+
+function trivExitPage( newPage, bFeedback ) {
+    if( newPage.indexOf( "ObjLayerAction" ) >= 0 || newPage.indexOf( "javascript:app." ) >= 0 || newPage.indexOf( ".action" ) >= 0 || newPage.indexOf( "history.back()" ) >= 0) trivGoToPage = newPage
+    else trivGoToPage = 'ObjLayerActionGoTo("' + newPage + '")'
+    if( !hasProcessedExitActions ) {
+        findWH()
+        if( !checkQuestions( bFeedback ))
+          return
+        hasProcessedExitActions = true
+        setTimeout( 'checkLeavePage()', 100)
+    }
+}
+
+function trivLeavePage() {
+    trivCompleteCnt--
+    if( trivCompleteCnt <= 0 ) {
+        hasProcessedExitActions = false
+        if( trivGoToPage != null )
+        {
+			eval( trivGoToPage )
+			trivGoToPage = null;
+			if( window.closed ) trivPageExited = true;
+        }
+    }
+}
+
+function trivPrevPage() {
+    trivExitPage( 'kasus_4_observe_the_case_4.html', true )
+}
+
+function trivNextPage() {
+    trivExitPage( 'kasus_4_investigate_4_2.html', true )
+}
+
+function trivUpdateTOC( bRecurse ) {
+    var i
+}
+
+function trivUpdateEntry() {
+  entry32903.objLyr.doc.forms["entry32903form"]["Isian1_4"].blur();
+  entry32916.objLyr.doc.forms["entry32916form"]["Isian2_4"].blur();
+}
+
+function trivResetEntry(entFld) {
+  if ( entFld == null || entFld == entry32903 ) entry32903.objLyr.doc.forms["entry32903form"]["Isian1_4"].value='';
+  if ( entFld == null || entFld == entry32916 ) entry32916.objLyr.doc.forms["entry32916form"]["Isian2_4"].value='';
+}
+
+function checkQuestions( bFeedback, bForce, bNotLeavingPage ) {
+  var onAfterFBAction = ( bNotLeavingPage ? (function(){trivActFBCnt--;}) : (function(){trivActFBCnt--;window.checkLeavePage();}) );
+  if( !bFeedback ) currFeedbackIdx = 2;
+
+  return 1
+}
+
+function doImmFeedback( objId ) {
+  var onAfterFBAction = function(){trivActFBCnt--;};
+
+  if(objId=='qu32587') {
+  var ans_Var4_1_q = Var4_1_q.getValue()
+  if(!qu32587.hasBeenProcessed) {
+    if( ans_Var4_1_q == '\u0059\u0061\u002C\u0020\u0073\u0061\u006D\u0061' ) 
+    { //1 
+        trivActFBCnt++; action32587_7(onAfterFBAction);  return 0;
+  } //1
+
+    else if( ans_Var4_1_q != '\u0059\u0061\u002C\u0020\u0073\u0061\u006D\u0061' && ans_Var4_1_q != '~~~null~~~' ) 
+    { //2 
+trivActFBCnt++; action32587_8(onAfterFBAction);return 0;  } //2 
+
+    }
+  }
+  if(objId=='qu32612') {
+  var ans_Var4_3_q = Var4_3_q.getValue()
+  if(!qu32612.hasBeenProcessed) {
+    if( ans_Var4_3_q != '\u0054\u0069\u0064\u0061\u006B\u0020\u0073\u0061\u006D\u0061' && ans_Var4_3_q != '~~~null~~~' ) 
+    { //2 
+trivActFBCnt++; action32612_7(onAfterFBAction);return 0;  } //2 
+
+    else if( ans_Var4_3_q == '\u0054\u0069\u0064\u0061\u006B\u0020\u0073\u0061\u006D\u0061' ) 
+    { //1 
+        trivActFBCnt++; action32612_8(onAfterFBAction);  return 0;
+  } //1
+
+    }
+  }
+  return 1
+}
+
+function OnDeviceRotate() {
+
+}
+
+function action53967(fn){
+    try{
+     essay([
+  ["banding", "perbandingan", "rasio", "proporsi", "takaran", "resep"],
+  ["sama", "sebanding", "setara", "mirip", "seimbang", "persis"],
+  ["beda", "berbeda", "tidak sama", "lain", "lainnya", "selisih"],
+  ["kelipatan", "dikali", "dua kali", "2 kali", "2x", "lipatnya"],
+  ["kedua penjual", "dua penjual", "penjual a dan b", "penjual a dan penjual b"],
+  ["jumlah", "banyak", "banyaknya", "kuantitas", "angka", "total", "nilai", "lebih banyak", "lebih sedikit"],
+  ["jeruk", "buah jeruk", ["penjual", "tukang jus", ["a 2", "b 4"]]],
+  ["sendok gula", "gula", ["penjual", "tukang jus", ["a 1", "b 2"]]],
+  ["air", ["penjual", "tukang jus", ["a 250", "b 500"]]]
+], Var4_2_e.getValue(), 4, 2, 25); 
+     } catch (e) {
+     alert('[OnSelectChangeRunJS] ' + e);
+     }
+    if(fn && typeof(fn) == 'string' ) eval(fn);
+    else if(fn && typeof(fn) == 'function' ) fn();
+}
+
+function entry32903onSelChg() {
+  action53967();
+}
+
+function action53982(fn){
+    try{
+     essay([
+  ["banding", "perbandingan", "rasio", "proporsi", "takaran", "resep"],
+  ["beda", "berbeda", "tidak sama", "lain", "lainnya", "selisih"],
+  ["kedua penjual", "dua penjual", "penjual a", " penjual c", "penjual a dan c", "penjual a dan penjual c"],
+  ["jumlah", "banyak", "banyaknya", "kuantitas", "angka", "total", "nilai", "lebih banyak", "lebih sedikit"],
+  ["jeruk", "buah jeruk", ["penjual", "tukang jus", ["a 2", "c 2"]]],
+  ["sendok gula", "gula", ["penjual", "tukang jus", ["a 1", "c 2"]]],
+  ["air", ["penjual", "tukang jus", ["a 250", "b 400"]]]
+], Var4_4_e.getValue(), 4, 4, 25); 
+     } catch (e) {
+     alert('[OnSelectChangeRunJS] ' + e);
+     }
+    if(fn && typeof(fn) == 'string' ) eval(fn);
+    else if(fn && typeof(fn) == 'function' ) fn();
+}
+
+function entry32916onSelChg() {
+  action53982();
+}
+
+function action57929(fn){
+    try{
+     const dl3 = Var4_5_droplist_1_3.getValue();
+const dl4 = Var4_5_droplist_1_4.getValue();
+dl([3,2], 4, 5, 25, dl3, dl4); 
+     } catch (e) {
+     alert('[OnSelectChangeRunJS] ' + e);
+     }
+    if(fn && typeof(fn) == 'string' ) eval(fn);
+    else if(fn && typeof(fn) == 'function' ) fn();
+}
+
+function combo32643onSelChg() {
+  action57929();
+}
+
+function Update_combo32643() {
+  var test = ',' + Var4_5_droplist_1_3.getValue() + ','
+  combo32643.objLyr.doc.forms["combo32643form"]["Drop_List_3"].selectedIndex=-1
+  combo32643.objLyr.doc.forms["combo32643form"]["Drop_List_3"].options[0].selected=(test.indexOf(',2,')>=0)
+  combo32643.objLyr.doc.forms["combo32643form"]["Drop_List_3"].options[1].selected=(test.indexOf(',3,')>=0)
+  combo32643.objLyr.doc.forms["combo32643form"]["Drop_List_3"].options[2].selected=(test.indexOf(',4,')>=0)
+  combo32643.objLyr.doc.forms["combo32643form"]["Drop_List_3"].options[3].selected=(test.indexOf(',5,')>=0)
+  combo32643.objLyr.doc.forms["combo32643form"]["Drop_List_3"].options[4].selected=(test.indexOf(',6,')>=0)
+  combo32643.objLyr.doc.forms["combo32643form"]["Drop_List_3"].options[5].selected=(test.indexOf(',7,')>=0)
+  combo32643.objLyr.doc.forms["combo32643form"]["Drop_List_3"].options[6].selected=(test.indexOf(',8,')>=0)
+  combo32643.objLyr.doc.forms["combo32643form"]["Drop_List_3"].options[7].selected=(test.indexOf(',9,')>=0)
+  combo32643.objLyr.doc.forms["combo32643form"]["Drop_List_3"].options[8].selected=(test.indexOf(',10,')>=0)
+}
+
+function action57943(fn){
+    try{
+     const dl3 = Var4_5_droplist_1_3.getValue();
+const dl4 = Var4_5_droplist_1_4.getValue();
+dl([3,2], 4, 5, 25, dl3, dl4); 
+     } catch (e) {
+     alert('[OnSelectChangeRunJS] ' + e);
+     }
+    if(fn && typeof(fn) == 'string' ) eval(fn);
+    else if(fn && typeof(fn) == 'function' ) fn();
+}
+
+function combo32641onSelChg() {
+  action57943();
+}
+
+function Update_combo32641() {
+  var test = ',' + Var4_5_droplist_1_4.getValue() + ','
+  combo32641.objLyr.doc.forms["combo32641form"]["Drop_List_4"].selectedIndex=-1
+  combo32641.objLyr.doc.forms["combo32641form"]["Drop_List_4"].options[0].selected=(test.indexOf(',2,')>=0)
+  combo32641.objLyr.doc.forms["combo32641form"]["Drop_List_4"].options[1].selected=(test.indexOf(',3,')>=0)
+  combo32641.objLyr.doc.forms["combo32641form"]["Drop_List_4"].options[2].selected=(test.indexOf(',4,')>=0)
+  combo32641.objLyr.doc.forms["combo32641form"]["Drop_List_4"].options[3].selected=(test.indexOf(',5,')>=0)
+  combo32641.objLyr.doc.forms["combo32641form"]["Drop_List_4"].options[4].selected=(test.indexOf(',6,')>=0)
+  combo32641.objLyr.doc.forms["combo32641form"]["Drop_List_4"].options[5].selected=(test.indexOf(',7,')>=0)
+  combo32641.objLyr.doc.forms["combo32641form"]["Drop_List_4"].options[6].selected=(test.indexOf(',8,')>=0)
+  combo32641.objLyr.doc.forms["combo32641form"]["Drop_List_4"].options[7].selected=(test.indexOf(',9,')>=0)
+  combo32641.objLyr.doc.forms["combo32641form"]["Drop_List_4"].options[8].selected=(test.indexOf(',10,')>=0)
+}
+
+function action37747else(fn){
+    
+    if(fn && typeof(fn) == 'string' ) eval(fn);
+    else if(fn && typeof(fn) == 'function' ) fn();
+}
+
+function action37747(fn){
+    if(!Var4_2_e.equals('~~~null~~~')&&!Var4_4_e.equals('~~~null~~~')&&!Var4_1_q.equals('~~~null~~~')&&!Var4_3_q.equals('~~~null~~~')&&!Var4_5_droplist_1_3.equals('~~~null~~~')&&!Var4_5_droplist_1_4.equals('~~~null~~~'))
+    {trivExitPage('kasus_4_investigate_4_2.html',true); 
+    }else{ action37747else();}
+    if(fn && typeof(fn) == 'string' ) eval(fn);
+    else if(fn && typeof(fn) == 'function' ) fn();
+}
+
+function button37746onUp() {
+  action37747();
+}
+
+function Offset_qu32587(bDevRotate) {
+}
+
+function Update_qu32587(value) {
+ if(typeof(value) !== "undefined")  Var4_1_q.set(value)
+  var val = Var4_1_q.getValue()
+  radio32590.objLyr.doc.getElementById("radio32590id").checked=(val=='Ya, sama')
+  radio32592.objLyr.doc.getElementById("radio32592id").checked=(val=='Tidak sama')
+   qu32587Object.hasBeenProcessed=false;
+}
+
+function action32587_7(fn){
+    try{
+     pt(1,4,1,50); 
+     } catch (e) {
+     alert('[] ' + e);
+     }
+    if(fn && typeof(fn) == 'string' ) eval(fn);
+    else if(fn && typeof(fn) == 'function' ) fn();
+}
+
+function action32587_8(fn){
+    try{
+     pt(0,4,1,50); 
+     } catch (e) {
+     alert('[] ' + e);
+     }
+    if(fn && typeof(fn) == 'string' ) eval(fn);
+    else if(fn && typeof(fn) == 'function' ) fn();
+}
+
+function Offset_qu32612(bDevRotate) {
+}
+
+function Update_qu32612(value) {
+ if(typeof(value) !== "undefined")  Var4_3_q.set(value)
+  var val = Var4_3_q.getValue()
+  radio32615.objLyr.doc.getElementById("radio32615id").checked=(val=='Ya, sama')
+  radio32617.objLyr.doc.getElementById("radio32617id").checked=(val=='Tidak sama')
+   qu32612Object.hasBeenProcessed=false;
+}
+
+function action32612_7(fn){
+    try{
+     pt(0,4,3,50); 
+     } catch (e) {
+     alert('[] ' + e);
+     }
+    if(fn && typeof(fn) == 'string' ) eval(fn);
+    else if(fn && typeof(fn) == 'function' ) fn();
+}
+
+function action32612_8(fn){
+    try{
+     pt(1,4,3,50); 
+     } catch (e) {
+     alert('[] ' + e);
+     }
+    if(fn && typeof(fn) == 'string' ) eval(fn);
+    else if(fn && typeof(fn) == 'function' ) fn();
+}
+
+if( is.min ){
+text80024 = new ObjText('text80024',null,359,2731,402,23,1,32,null,'div',null,0 )
+text80024.initSLine(0)
+text80024.initHasBullet(0)
+text80024.initRotateAngle(0,0,0)
+text80024.initHasOuterShadow(0)
+text80024.initHasTextShadow(0)
+text80024.initHasBorder(0)
+text80024.initHasOutline(0)
+text80024.initHasMargin(0)
+text80024.addIe8Attr(359, 2731, 402, 23, 0, 0)
+text80024.addHeading(0)
+text80024.addOpacity(100)
+text80024.arrCSSStyles = new Array();
+text80024.arrCSSStyles.push('span.text80024Font1 { font-size:13px; font-family:"Montserrat"; color:#ffffff; font-style:italic;}');
+text80024.addInnerText('<div id=\"text80024\" aria-hidden=\"true\" ><a id=\"text80024anc\" style=\"display:block;height:0px;width:0px;\"></a>\n<p  style=\"margin-left:0px;text-indent:0px;margin-top:0px;margin-bottom:0px;text-align:right;\" >\n<span class=\"text80024Font1\"  >Generated by dreamina.capcut.com\n</span ></p >\n</div>\n');
+text80024.build()
+
+text68848 = new ObjText('text68848',null,509,604,192,22,1,33,null,'div',null,0 )
+text68848.initSLine(1)
+text68848.initHasBullet(0)
+text68848.initRotateAngle(0,0,0)
+text68848.initHasOuterShadow(0)
+text68848.initHasTextShadow(0)
+text68848.initHasBorder(0)
+text68848.initHasOutline(0)
+text68848.initHasMargin(0)
+text68848.addIe8Attr(509, 604, 192, 22, 0, 0)
+text68848.addHeading(0)
+text68848.addOpacity(100)
+text68848.arrCSSStyles = new Array();
+text68848.arrCSSStyles.push('span.text68848Font1 { font-size:12px; font-family:"Montserrat"; color:#ffffff; font-style:italic;}');
+text68848.arrCSSStyles.push('span.text68848Font2 { font-size:12px; font-family:"Arial", sans-serif; color:#ffffff;}');
+text68848.addInnerText('<div id=\"text68848\" aria-hidden=\"true\" ><a id=\"text68848anc\" style=\"display:block;height:0px;width:0px;\"></a>\n<p  style=\"margin-left:0px;text-indent:0px;margin-top:0px;margin-bottom:0px;text-align:left;\" >\n<span class=\"text68848Font1\"  >Generated by Canva AI</span ><span class=\"text68848Font2\" style=\"background-color:transparent\" >\n</span ></p >\n</div>\n');
+text68848.build()
+
+entry32903 = new ObjInline('entry32903',null,(is.ie?88:88),(is.ie?1732:1731),null,null,1,34, 0, null, null, 0)
+entry32903.onSelChg = entry32903onSelChg
+entry32903.arrCSSStyles = new Array();
+entry32903.arrCSSStyles.push('input.entry32903 { font-size:16px; font-family:"Arial", sans-serif; color:#000000; width:608px; height:118px; -webkit-appearance:none; background-color:#ffffff; }');
+entry32903.build()
+
+entry32916 = new ObjInline('entry32916',null,(is.ie?88:88),(is.ie?2068:2067),null,null,1,35, 0, null, null, 0)
+entry32916.onSelChg = entry32916onSelChg
+entry32916.arrCSSStyles = new Array();
+entry32916.arrCSSStyles.push('input.entry32916 { font-size:16px; font-family:"Arial", sans-serif; color:#000000; width:608px; height:118px; -webkit-appearance:none; background-color:#ffffff; }');
+entry32916.build()
+
+combo32643 = new ObjInline('combo32643',null,(is.ie?501:500),(is.ie?2376:2375),null,null,1,36, 0, null, null, 0)
+combo32643.onSelChg = combo32643onSelChg
+combo32643.arrCSSStyles = new Array();
+combo32643.arrCSSStyles.push('select.combo32643 { font-size:16px; font-family:"Arial", sans-serif; color:#000000; width:38px; height:20px; background-color:#ffffff; }');
+combo32643.build()
+
+combo32641 = new ObjInline('combo32641',null,(is.ie?558:557),(is.ie?2376:2375),null,null,1,37, 0, null, null, 0)
+combo32641.onSelChg = combo32641onSelChg
+combo32641.arrCSSStyles = new Array();
+combo32641.arrCSSStyles.push('select.combo32641 { font-size:16px; font-family:"Arial", sans-serif; color:#000000; width:38px; height:20px; background-color:#ffffff; }');
+combo32641.build()
+
+text32588 = new ObjText('text32588',null,80,1529,634,76,1,38,null,'div',null,0 )
+text32588.initSLine(1)
+text32588.initHasBullet(0)
+text32588.initRotateAngle(0,0,0)
+text32588.initHasOuterShadow(0)
+text32588.initHasTextShadow(0)
+text32588.initHasBorder(0)
+text32588.initHasOutline(0)
+text32588.initHasMargin(0)
+text32588.addIe8Attr(80, 1529, 634, 76, 0, 0)
+text32588.addHeading(0)
+text32588.addOpacity(100)
+text32588.arrCSSStyles = new Array();
+text32588.arrCSSStyles.push('span.text32588Font1 { font-size:16px; font-family:"Arial", sans-serif; color:#010101;}');
+text32588.addInnerText('<legend><div id=\"text32588\" aria-hidden=\"true\" ><a id=\"text32588anc\" style=\"display:block;height:0px;width:0px;\"></a>\n<p  style=\"margin-left:0px;text-indent:0px;margin-top:0px;margin-bottom:0px;text-align:left;\" >\n<span class=\"text32588Font1\"  >&nbsp;\n</span ></p >\n</div>\n</legend>\n');
+text32588.build()
+
+text32589 = new ObjText('text32589',null,107,1610,117,35,1,39,null,'div',null,0 )
+text32589.initSLine(1)
+text32589.initHasBullet(0)
+text32589.initRotateAngle(0,0,0)
+text32589.initHasOuterShadow(0)
+text32589.initHasTextShadow(0)
+text32589.initHasBorder(0)
+text32589.initHasOutline(0)
+text32589.initHasMargin(0)
+text32589.addIe8Attr(107, 1610, 117, 35, 0, 0)
+text32589.addHeading(0)
+text32589.addOpacity(100)
+text32589.arrCSSStyles = new Array();
+text32589.arrCSSStyles.push('span.text32589Font1 { font-size:13px; font-family:"Montserrat"; color:#000000;}');
+text32589.arrCSSStyles.push('span.text32589Font2 { font-size:13px; font-family:"Montserrat"; color:#000000;}');
+text32589.addInnerText('<div id=\"text32589\" aria-hidden=\"true\" ><a id=\"text32589anc\" style=\"display:block;height:0px;width:0px;\"></a>\n<label id=\"label32590id\" for=\"radio32590id\" ><p  style=\"margin-left:0px;text-indent:0px;margin-top:0px;margin-bottom:0px;text-align:left;\" >\n<span class=\"text32589Font1\"  >Ya</span ><span class=\"text32589Font2\"  >, sama</span ><span class=\"text32589Font1\" style=\"background-color:transparent\" >\n</span ></p >\n</label></div>\n');
+text32589.build()
+
+radio32590 = new ObjInline('radio32590',null,(is.ie?81:80),(is.ie?1613:1612),null,null,1,40, 0, null, null, 0)
+radio32590.arrCSSStyles = new Array();
+radio32590.arrCSSStyles.push('');
+radio32590.build()
+
+text32591 = new ObjText('text32591',null,107,1655,157,37,1,41,null,'div',null,0 )
+text32591.initSLine(1)
+text32591.initHasBullet(0)
+text32591.initRotateAngle(0,0,0)
+text32591.initHasOuterShadow(0)
+text32591.initHasTextShadow(0)
+text32591.initHasBorder(0)
+text32591.initHasOutline(0)
+text32591.initHasMargin(0)
+text32591.addIe8Attr(107, 1655, 157, 37, 0, 0)
+text32591.addHeading(0)
+text32591.addOpacity(100)
+text32591.arrCSSStyles = new Array();
+text32591.arrCSSStyles.push('span.text32591Font1 { font-size:13px; font-family:"Montserrat"; color:#000000;}');
+text32591.arrCSSStyles.push('span.text32591Font2 { font-size:13px; font-family:"Montserrat"; color:#000000;}');
+text32591.addInnerText('<div id=\"text32591\" aria-hidden=\"true\" ><a id=\"text32591anc\" style=\"display:block;height:0px;width:0px;\"></a>\n<label id=\"label32592id\" for=\"radio32592id\" ><p  style=\"margin-left:0px;text-indent:0px;margin-top:0px;margin-bottom:0px;text-align:left;\" >\n<span class=\"text32591Font1\"  >Tidak</span ><span class=\"text32591Font2\"  > sama</span ><span class=\"text32591Font1\" style=\"background-color:transparent\" >\n</span ></p >\n</label></div>\n');
+text32591.build()
+
+radio32592 = new ObjInline('radio32592',null,(is.ie?81:80),(is.ie?1659:1658),null,null,1,42, 0, null, null, 0)
+radio32592.arrCSSStyles = new Array();
+radio32592.arrCSSStyles.push('');
+radio32592.build()
+
+text32613 = new ObjText('text32613',null,80,1867,634,76,1,43,null,'div',null,0 )
+text32613.initSLine(0)
+text32613.initHasBullet(0)
+text32613.initRotateAngle(0,0,0)
+text32613.initHasOuterShadow(0)
+text32613.initHasTextShadow(0)
+text32613.initHasBorder(0)
+text32613.initHasOutline(0)
+text32613.initHasMargin(0)
+text32613.addIe8Attr(80, 1867, 634, 76, 0, 0)
+text32613.addHeading(0)
+text32613.addOpacity(100)
+text32613.arrCSSStyles = new Array();
+text32613.arrCSSStyles.push('span.text32613Font1 { font-size:16px; font-family:"Arial", sans-serif; color:#010101;}');
+text32613.addInnerText('<legend><div id=\"text32613\" aria-hidden=\"true\" ><a id=\"text32613anc\" style=\"display:block;height:0px;width:0px;\"></a>\n<p  style=\"margin-left:0px;text-indent:0px;margin-top:0px;margin-bottom:0px;text-align:left;\" >\n<span class=\"text32613Font1\"  >&nbsp;\n</span ></p >\n</div>\n</legend>\n');
+text32613.build()
+
+text32614 = new ObjText('text32614',null,107,1948,117,35,1,44,null,'div',null,0 )
+text32614.initSLine(1)
+text32614.initHasBullet(0)
+text32614.initRotateAngle(0,0,0)
+text32614.initHasOuterShadow(0)
+text32614.initHasTextShadow(0)
+text32614.initHasBorder(0)
+text32614.initHasOutline(0)
+text32614.initHasMargin(0)
+text32614.addIe8Attr(107, 1948, 117, 35, 0, 0)
+text32614.addHeading(0)
+text32614.addOpacity(100)
+text32614.arrCSSStyles = new Array();
+text32614.arrCSSStyles.push('span.text32614Font1 { font-size:13px; font-family:"Montserrat"; color:#000000;}');
+text32614.arrCSSStyles.push('span.text32614Font2 { font-size:13px; font-family:"Montserrat"; color:#000000;}');
+text32614.addInnerText('<div id=\"text32614\" aria-hidden=\"true\" ><a id=\"text32614anc\" style=\"display:block;height:0px;width:0px;\"></a>\n<label id=\"label32615id\" for=\"radio32615id\" ><p  style=\"margin-left:0px;text-indent:0px;margin-top:0px;margin-bottom:0px;text-align:left;\" >\n<span class=\"text32614Font1\"  >Ya</span ><span class=\"text32614Font2\"  >, sama</span ><span class=\"text32614Font1\" style=\"background-color:transparent\" >\n</span ></p >\n</label></div>\n');
+text32614.build()
+
+radio32615 = new ObjInline('radio32615',null,(is.ie?81:80),(is.ie?1951:1950),null,null,1,45, 0, null, null, 0)
+radio32615.arrCSSStyles = new Array();
+radio32615.arrCSSStyles.push('');
+radio32615.build()
+
+text32616 = new ObjText('text32616',null,107,1993,157,37,1,46,null,'div',null,0 )
+text32616.initSLine(1)
+text32616.initHasBullet(0)
+text32616.initRotateAngle(0,0,0)
+text32616.initHasOuterShadow(0)
+text32616.initHasTextShadow(0)
+text32616.initHasBorder(0)
+text32616.initHasOutline(0)
+text32616.initHasMargin(0)
+text32616.addIe8Attr(107, 1993, 157, 37, 0, 0)
+text32616.addHeading(0)
+text32616.addOpacity(100)
+text32616.arrCSSStyles = new Array();
+text32616.arrCSSStyles.push('span.text32616Font1 { font-size:13px; font-family:"Montserrat"; color:#000000;}');
+text32616.arrCSSStyles.push('span.text32616Font2 { font-size:13px; font-family:"Montserrat"; color:#000000;}');
+text32616.addInnerText('<div id=\"text32616\" aria-hidden=\"true\" ><a id=\"text32616anc\" style=\"display:block;height:0px;width:0px;\"></a>\n<label id=\"label32617id\" for=\"radio32617id\" ><p  style=\"margin-left:0px;text-indent:0px;margin-top:0px;margin-bottom:0px;text-align:left;\" >\n<span class=\"text32616Font1\"  >Tidak</span ><span class=\"text32616Font2\"  > sama</span ><span class=\"text32616Font1\" style=\"background-color:transparent\" >\n</span ></p >\n</label></div>\n');
+text32616.build()
+
+radio32617 = new ObjInline('radio32617',null,(is.ie?81:80),(is.ie?1997:1996),null,null,1,47, 0, null, null, 0)
+radio32617.arrCSSStyles = new Array();
+radio32617.arrCSSStyles.push('');
+radio32617.build()
+
+button37746 = new ObjButton('button37746', 'Button_Lanjut41',490,2557,217.000000,71.000000,1,48,'div','',1,0)
+button37746.setFillStyle(2)
+button37746.setUniqueFillID('kasus_4_investigate_4_button37746')
+button37746.initRotateAngle(0,0,0,-0.000000,-0.000000,216,70)
+button37746.initHasShadow(0)
+button37746.initHasReflection(0)
+button37746.setImages('images/transbtn.gif', '', '','');
+button37746.setStateOpacity( 0.000000, 0.000000, 0.000000, 0.000000 );
+button37746.addIe8Attr(490.000000, 2557.000000, 217.000000, 71.000000, 0, 0)
+button37746.addOpacity(0)
+button37746.initImageMap('35,0,181,0,188,1,195,3,201,6,206,10,210,15,213,21,215,28,216,35,216,35,215,42,213,49,210,55,206,60,201,64,195,67,188,69,181,70,35,70,28,69,22,67,16,64,10,60,6,54,3,48,1,42,0,35,0,35,1,28,3,21,6,15,10,10,15,6,21,3,28,1,35,0','M 35.000000 0.000000 L 181.000000 0.000000 L 188.062500 0.687500 L 194.625000 2.750000 L 200.562500 6.000000 L 205.750000 10.250000 L 210.062500 15.437500 L 213.250000 21.375000 L 215.312500 27.937500 L 216.000000 35.000000 L 216.000000 35.000000 L 215.312500 42.062500 L 213.250000 48.625000 L 210.062500 54.562500 L 205.750000 59.750000 L 200.562500 64.062500 L 194.625000 67.250000 L 188.062500 69.312500 L 181.000000 70.000000 L 35.000000 70.000000 L 28.187500 69.312500 L 21.625000 67.312500 L 15.625000 64.125000 L 10.250000 59.750000 L 5.875000 54.437500 L 2.687500 48.437500 L 0.687500 41.875000 L 0.000000 35.000000 L 0.000000 35.000000 L 0.687500 27.937500 L 2.750000 21.375000 L 6.000000 15.437500 L 10.250000 10.250000 L 15.437500 6.000000 L 21.375000 2.750000 L 27.937500 0.687500 L 35.000000 0.000000 z')
+button37746.setFills('                <pattern id="Picture_kasus_4_investigate_4_button37746" x="0" y="0" width="217.000000" height="71.000000" patternUnits="userSpaceOnUse">                <image xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAANkAAABHCAYAAACK0uJFAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAABTSURBVHhe7cGBAAAAAMOg+VNf4QBVAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAhwHxAwABqiV1FwAAAABJRU5ErkJggg==" x="0" y="0" width="217.000000" height="71.000000"  preserveAspectRatio="none"/>           </pattern>       ','                <pattern id="Picture_kasus_4_investigate_4_button37746_over" x="0" y="0" width="217.000000" height="71.000000" patternUnits="userSpaceOnUse">                <image xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAANkAAABHCAYAAACK0uJFAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAABTSURBVHhe7cGBAAAAAMOg+VNf4QBVAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAhwHxAwABqiV1FwAAAABJRU5ErkJggg==" x="0" y="0" width="217.000000" height="71.000000"  preserveAspectRatio="none"/>           </pattern>       ','                <pattern id="Picture_kasus_4_investigate_4_button37746_down" x="0" y="0" width="219.000000" height="73.000000" patternUnits="userSpaceOnUse">                <image xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAANsAAABJCAYAAAC0LVMIAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAABVSURBVHhe7cGBAAAAAMOg+VNf4QBVAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAcBvoVAAF8dXRdAAAAAElFTkSuQmCC" x="0" y="0" width="219.000000" height="73.000000"  preserveAspectRatio="none"/>           </pattern>       ','                <pattern id="Picture_kasus_4_investigate_4_button37746_disabled" x="0" y="0" width="217.000000" height="71.000000" patternUnits="userSpaceOnUse">                <image xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAANkAAABHCAYAAACK0uJFAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAABTSURBVHhe7cGBAAAAAMOg+VNf4QBVAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAhwHxAwABqiV1FwAAAABJRU5ErkJggg==" x="0" y="0" width="217.000000" height="71.000000"  preserveAspectRatio="none"/>           </pattern>       ','fill:url(#Picture_kasus_4_investigate_4_button37746);"','fill:url(#Picture_kasus_4_investigate_4_button37746_over);"','stroke:#0963B1; stroke-width:2; stroke-linejoin:round;stroke-dasharray: none; fill:url(#Picture_kasus_4_investigate_4_button37746_down);"','fill:url(#Picture_kasus_4_investigate_4_button37746_disabled);"')
+button37746.setTextVal('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAANkAAABHCAYAAACK0uJFAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAABTSURBVHhe7cGBAAAAAMOg+VNf4QBVAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAhwHxAwABqiV1FwAAAABJRU5ErkJggg==' , 'fill:url(#Text_kasus_4_investigate_4_button37746)', 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAANkAAABHCAYAAACK0uJFAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAABTSURBVHhe7cGBAAAAAMOg+VNf4QBVAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAhwHxAwABqiV1FwAAAABJRU5ErkJggg==', 'fill:url(#Text_kasus_4_investigate_4_button37746_over)', 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAANsAAABJCAYAAAC0LVMIAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAABVSURBVHhe7cGBAAAAAMOg+VNf4QBVAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAcBvoVAAF8dXRdAAAAAElFTkSuQmCC', 'fill:url(#Text_kasus_4_investigate_4_button37746_down)', 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAANkAAABHCAYAAACK0uJFAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAABTSURBVHhe7cGBAAAAAMOg+VNf4QBVAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAhwHxAwABqiV1FwAAAABJRU5ErkJggg==', 'fill:url(#Text_kasus_4_investigate_4_button37746_disabled)')
+button37746.setBase64Images( 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAANkAAABHCAYAAACK0uJFAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAABTSURBVHhe7cGBAAAAAMOg+VNf4QBVAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAhwHxAwABqiV1FwAAAABJRU5ErkJggg==' , 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAANkAAABHCAYAAACK0uJFAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAABTSURBVHhe7cGBAAAAAMOg+VNf4QBVAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAhwHxAwABqiV1FwAAAABJRU5ErkJggg==' , 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAANsAAABJCAYAAAC0LVMIAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAABVSURBVHhe7cGBAAAAAMOg+VNf4QBVAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAcBvoVAAF8dXRdAAAAAElFTkSuQmCC' , 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAANkAAABHCAYAAACK0uJFAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAABTSURBVHhe7cGBAAAAAMOg+VNf4QBVAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAhwHxAwABqiV1FwAAAABJRU5ErkJggg==' )
+button37746.setImgFillVal('fill:url(#Picture_kasus_4_investigate_4_button37746)','data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAANkAAABHCAYAAACK0uJFAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAABTSURBVHhe7cGBAAAAAMOg+VNf4QBVAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAhwHxAwABqiV1FwAAAABJRU5ErkJggg==','fill:url(#Picture_kasus_4_investigate_4_button37746_over)','data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAANkAAABHCAYAAACK0uJFAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAABTSURBVHhe7cGBAAAAAMOg+VNf4QBVAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAhwHxAwABqiV1FwAAAABJRU5ErkJggg==','fill:url(#Picture_kasus_4_investigate_4_button37746_down)','data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAANsAAABJCAYAAAC0LVMIAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAABVSURBVHhe7cGBAAAAAMOg+VNf4QBVAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAcBvoVAAF8dXRdAAAAAElFTkSuQmCC','fill:url(#Picture_kasus_4_investigate_4_button37746_disabled)','data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAANkAAABHCAYAAACK0uJFAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAABTSURBVHhe7cGBAAAAAMOg+VNf4QBVAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAhwHxAwABqiV1FwAAAABJRU5ErkJggg==' )
+button37746.initLineWeight('0')
+button37746.onUp = button37746onUp
+button37746.hasOnUp = true
+button37746.capture=4
+button37746.build()
+
+image142182 = new ObjImage('image142182','images/invstgt_4.png','invstgt_4',24,-717,720,1950,1,19,'div',null, 0 )
+image142182.initRotateAngle(0,0,0,0,0,0,0)
+image142182.initHasShadow(0)
+image142182.initHasReflection(0)
+image142182.addIe8Attr(24, -717, 720, 1950, 0, 0)
+image142182.initImageMap(1,'0,0,720,0,720,1950,0,1950,0,0','M 0 0 L 720 0 L 720 1950 L 0 1950 L 0 0 z')
+image142182.addBorder(0)
+image142182.addOpacity(100)
+image142182.build()
+
+qu32587 = new ObjInline('qu32587',null,40,698,427,67,1,0)
+qu32587.isGrp = true
+qu32587.addChild('text32588')
+qu32587.addChild('text32589')
+qu32587.addChild('radio32590')
+qu32587.addChild('text32591')
+qu32587.addChild('radio32592')
+qu32587.ansVar=Var4_1_q;
+qu32587.build()
+
+qu32612 = new ObjInline('qu32612',null,40,851,436,90,1,0)
+qu32612.isGrp = true
+qu32612.addChild('text32613')
+qu32612.addChild('text32614')
+qu32612.addChild('radio32615')
+qu32612.addChild('text32616')
+qu32612.addChild('radio32617')
+qu32612.ansVar=Var4_3_q;
+qu32612.build()
+
+var trivQuestionArray=[qu32587,qu32612];
+arObjs.push(text80024);
+arObjs.push(text68848);
+arObjs.push(entry32903);
+arObjs.push(entry32903);
+arObjs.push(entry32903);
+arObjs.push(entry32903);
+arObjs.push(entry32916);
+arObjs.push(entry32916);
+arObjs.push(entry32916);
+arObjs.push(entry32916);
+arObjs.push(combo32643);
+arObjs.push(combo32643);
+arObjs.push(combo32643);
+arObjs.push(combo32643);
+arObjs.push(combo32643);
+arObjs.push(combo32643);
+arObjs.push(combo32643);
+arObjs.push(combo32643);
+arObjs.push(combo32643);
+arObjs.push(combo32643);
+arObjs.push(combo32643);
+arObjs.push(combo32643);
+arObjs.push(combo32643);
+arObjs.push(combo32641);
+arObjs.push(combo32641);
+arObjs.push(combo32641);
+arObjs.push(combo32641);
+arObjs.push(combo32641);
+arObjs.push(combo32641);
+arObjs.push(combo32641);
+arObjs.push(combo32641);
+arObjs.push(combo32641);
+arObjs.push(combo32641);
+arObjs.push(combo32641);
+arObjs.push(combo32641);
+arObjs.push(combo32641);
+arObjs.push(text32588);
+arObjs.push(text32589);
+arObjs.push(radio32590);
+arObjs.push(radio32590);
+arObjs.push(radio32590);
+arObjs.push(text32591);
+arObjs.push(radio32592);
+arObjs.push(radio32592);
+arObjs.push(radio32592);
+arObjs.push(text32613);
+arObjs.push(text32614);
+arObjs.push(radio32615);
+arObjs.push(radio32615);
+arObjs.push(radio32615);
+arObjs.push(text32616);
+arObjs.push(radio32617);
+arObjs.push(radio32617);
+arObjs.push(radio32617);
+arObjs.push(button37746);
+arObjs.push(image142182);
+arObjs.push(qu32587);
+arObjs.push(qu32587);
+arObjs.push(qu32612);
+arObjs.push(qu32612);
+
+
+writeStyleSheets(arObjs);}
+// -->
+
+</script>
+</head>
+
+<body onfocus="trivOnFocus()" onResize="ReFlow()">
+
+    <DIV style="visibility:hidden;" id="pageDIV" class="pageDIV">
+   </DIV>
+<script>
+if( is.min ){
+    findWH()
+    var left = (winW > 786) ? (winW-786)/2 : 0
+    document.write('<style type="text/css">.pageDIV { position: absolute; top:0px; left: ' + left + 'px; width:786px; height:2788px; clip:rect(0px 786px 2788px 0px); overflow:hidden;' )
+    if(is.iOS)
+		document.write('-webkit-text-size-adjust:100%;')
+    document.write('} </style>')
+}
+</script>
+
+<script>
+if( is.min ){
+    appendElement(text80024, null, null);
+    appendElement(text68848, null, null);
+    appendElement(null, null, '<div id="entry32903"><a id="entry32903anc"></a></div>');
+    appendElement(null, '<div id="entry32903"><a id="entry32903anc"></a></div>', '<form id="entry32903form"  name="entry32903form" onSubmit="return false;"></form>');
+    appendElement(null, '<form id="entry32903form"  name="entry32903form" onSubmit="return false;"></form>', '<input class="entry32903" type="text" name="Isian1_4" title="Isian1_4" id="entry32903id" size="47" maxlength="500" onPropertyChange="if( !Var4_2_e.equals(this.value) ) { Var4_2_e.set(this.value);entry32903Object.onSelChg(); }" onChange="if( !Var4_2_e.equals(this.value) ) { Var4_2_e.set(this.value);entry32903Object.onSelChg(); }" onKeyUp="Var4_2_e.set(this.value);entry32903Object.onSelChg();;" onBlur="" >');
+    appendElement(null, null, '<div id="entry32916"><a id="entry32916anc"></a></div>');
+    appendElement(null, '<div id="entry32916"><a id="entry32916anc"></a></div>', '<form id="entry32916form"  name="entry32916form" onSubmit="return false;"></form>');
+    appendElement(null, '<form id="entry32916form"  name="entry32916form" onSubmit="return false;"></form>', '<input class="entry32916" type="text" name="Isian2_4" title="Isian2_4" id="entry32916id" size="47" maxlength="500" onPropertyChange="if( !Var4_4_e.equals(this.value) ) { Var4_4_e.set(this.value);entry32916Object.onSelChg(); }" onChange="if( !Var4_4_e.equals(this.value) ) { Var4_4_e.set(this.value);entry32916Object.onSelChg(); }" onKeyUp="Var4_4_e.set(this.value);entry32916Object.onSelChg();;" onBlur="" >');
+    appendElement(null, null, '<div id="combo32643"><a id="combo32643anc"></a></div>');
+    appendElement(null, '<div id="combo32643"><a id="combo32643anc"></a></div>', '<form id="combo32643form" name="combo32643form" onSubmit="return false;"> </form>');
+    appendElement(null, '<form id="combo32643form" name="combo32643form" onSubmit="return false;"> </form>', '<select class="combo32643"   name="Drop_List_3" id="combo32643id" title="" onChange="var idx,val=\'\';for(idx=this.selectedIndex;idx<9;idx++){if(this.options[idx].selected)val=val+this.options[idx].value+\',\'}val=val.substr(0,val.length-1);Var4_5_droplist_1_3.set(val);combo32643Object.onSelChg();"  ></select>');
+    appendElement(null, '<select class="combo32643"   name="Drop_List_3" id="combo32643id" title="" onChange="var idx,val=\'\';for(idx=this.selectedIndex;idx<9;idx++){if(this.options[idx].selected)val=val+this.options[idx].value+\',\'}val=val.substr(0,val.length-1);Var4_5_droplist_1_3.set(val);combo32643Object.onSelChg();"  ></select>', '<option value="2">2');
+    appendElement(null, '<select class="combo32643"   name="Drop_List_3" id="combo32643id" title="" onChange="var idx,val=\'\';for(idx=this.selectedIndex;idx<9;idx++){if(this.options[idx].selected)val=val+this.options[idx].value+\',\'}val=val.substr(0,val.length-1);Var4_5_droplist_1_3.set(val);combo32643Object.onSelChg();"  ></select>', '<option value="3">3');
+    appendElement(null, '<select class="combo32643"   name="Drop_List_3" id="combo32643id" title="" onChange="var idx,val=\'\';for(idx=this.selectedIndex;idx<9;idx++){if(this.options[idx].selected)val=val+this.options[idx].value+\',\'}val=val.substr(0,val.length-1);Var4_5_droplist_1_3.set(val);combo32643Object.onSelChg();"  ></select>', '<option value="4">4');
+    appendElement(null, '<select class="combo32643"   name="Drop_List_3" id="combo32643id" title="" onChange="var idx,val=\'\';for(idx=this.selectedIndex;idx<9;idx++){if(this.options[idx].selected)val=val+this.options[idx].value+\',\'}val=val.substr(0,val.length-1);Var4_5_droplist_1_3.set(val);combo32643Object.onSelChg();"  ></select>', '<option value="5">5');
+    appendElement(null, '<select class="combo32643"   name="Drop_List_3" id="combo32643id" title="" onChange="var idx,val=\'\';for(idx=this.selectedIndex;idx<9;idx++){if(this.options[idx].selected)val=val+this.options[idx].value+\',\'}val=val.substr(0,val.length-1);Var4_5_droplist_1_3.set(val);combo32643Object.onSelChg();"  ></select>', '<option value="6">6');
+    appendElement(null, '<select class="combo32643"   name="Drop_List_3" id="combo32643id" title="" onChange="var idx,val=\'\';for(idx=this.selectedIndex;idx<9;idx++){if(this.options[idx].selected)val=val+this.options[idx].value+\',\'}val=val.substr(0,val.length-1);Var4_5_droplist_1_3.set(val);combo32643Object.onSelChg();"  ></select>', '<option value="7">7');
+    appendElement(null, '<select class="combo32643"   name="Drop_List_3" id="combo32643id" title="" onChange="var idx,val=\'\';for(idx=this.selectedIndex;idx<9;idx++){if(this.options[idx].selected)val=val+this.options[idx].value+\',\'}val=val.substr(0,val.length-1);Var4_5_droplist_1_3.set(val);combo32643Object.onSelChg();"  ></select>', '<option value="8">8');
+    appendElement(null, '<select class="combo32643"   name="Drop_List_3" id="combo32643id" title="" onChange="var idx,val=\'\';for(idx=this.selectedIndex;idx<9;idx++){if(this.options[idx].selected)val=val+this.options[idx].value+\',\'}val=val.substr(0,val.length-1);Var4_5_droplist_1_3.set(val);combo32643Object.onSelChg();"  ></select>', '<option value="9">9');
+    appendElement(null, '<select class="combo32643"   name="Drop_List_3" id="combo32643id" title="" onChange="var idx,val=\'\';for(idx=this.selectedIndex;idx<9;idx++){if(this.options[idx].selected)val=val+this.options[idx].value+\',\'}val=val.substr(0,val.length-1);Var4_5_droplist_1_3.set(val);combo32643Object.onSelChg();"  ></select>', '<option value="10">10');
+    appendElement(null, null, '<div id="combo32641"><a id="combo32641anc"></a></div>');
+    appendElement(null, '<div id="combo32641"><a id="combo32641anc"></a></div>', '<form id="combo32641form" name="combo32641form" onSubmit="return false;"> </form>');
+    appendElement(null, '<form id="combo32641form" name="combo32641form" onSubmit="return false;"> </form>', '<select class="combo32641"   name="Drop_List_4" id="combo32641id" title="" onChange="var idx,val=\'\';for(idx=this.selectedIndex;idx<9;idx++){if(this.options[idx].selected)val=val+this.options[idx].value+\',\'}val=val.substr(0,val.length-1);Var4_5_droplist_1_4.set(val);combo32641Object.onSelChg();"  ></select>');
+    appendElement(null, '<select class="combo32641"   name="Drop_List_4" id="combo32641id" title="" onChange="var idx,val=\'\';for(idx=this.selectedIndex;idx<9;idx++){if(this.options[idx].selected)val=val+this.options[idx].value+\',\'}val=val.substr(0,val.length-1);Var4_5_droplist_1_4.set(val);combo32641Object.onSelChg();"  ></select>', '<option value="2">2');
+    appendElement(null, '<select class="combo32641"   name="Drop_List_4" id="combo32641id" title="" onChange="var idx,val=\'\';for(idx=this.selectedIndex;idx<9;idx++){if(this.options[idx].selected)val=val+this.options[idx].value+\',\'}val=val.substr(0,val.length-1);Var4_5_droplist_1_4.set(val);combo32641Object.onSelChg();"  ></select>', '<option value="3">3');
+    appendElement(null, '<select class="combo32641"   name="Drop_List_4" id="combo32641id" title="" onChange="var idx,val=\'\';for(idx=this.selectedIndex;idx<9;idx++){if(this.options[idx].selected)val=val+this.options[idx].value+\',\'}val=val.substr(0,val.length-1);Var4_5_droplist_1_4.set(val);combo32641Object.onSelChg();"  ></select>', '<option value="4">4');
+    appendElement(null, '<select class="combo32641"   name="Drop_List_4" id="combo32641id" title="" onChange="var idx,val=\'\';for(idx=this.selectedIndex;idx<9;idx++){if(this.options[idx].selected)val=val+this.options[idx].value+\',\'}val=val.substr(0,val.length-1);Var4_5_droplist_1_4.set(val);combo32641Object.onSelChg();"  ></select>', '<option value="5">5');
+    appendElement(null, '<select class="combo32641"   name="Drop_List_4" id="combo32641id" title="" onChange="var idx,val=\'\';for(idx=this.selectedIndex;idx<9;idx++){if(this.options[idx].selected)val=val+this.options[idx].value+\',\'}val=val.substr(0,val.length-1);Var4_5_droplist_1_4.set(val);combo32641Object.onSelChg();"  ></select>', '<option value="6">6');
+    appendElement(null, '<select class="combo32641"   name="Drop_List_4" id="combo32641id" title="" onChange="var idx,val=\'\';for(idx=this.selectedIndex;idx<9;idx++){if(this.options[idx].selected)val=val+this.options[idx].value+\',\'}val=val.substr(0,val.length-1);Var4_5_droplist_1_4.set(val);combo32641Object.onSelChg();"  ></select>', '<option value="7">7');
+    appendElement(null, '<select class="combo32641"   name="Drop_List_4" id="combo32641id" title="" onChange="var idx,val=\'\';for(idx=this.selectedIndex;idx<9;idx++){if(this.options[idx].selected)val=val+this.options[idx].value+\',\'}val=val.substr(0,val.length-1);Var4_5_droplist_1_4.set(val);combo32641Object.onSelChg();"  ></select>', '<option value="8">8');
+    appendElement(null, '<select class="combo32641"   name="Drop_List_4" id="combo32641id" title="" onChange="var idx,val=\'\';for(idx=this.selectedIndex;idx<9;idx++){if(this.options[idx].selected)val=val+this.options[idx].value+\',\'}val=val.substr(0,val.length-1);Var4_5_droplist_1_4.set(val);combo32641Object.onSelChg();"  ></select>', '<option value="9">9');
+    appendElement(null, '<select class="combo32641"   name="Drop_List_4" id="combo32641id" title="" onChange="var idx,val=\'\';for(idx=this.selectedIndex;idx<9;idx++){if(this.options[idx].selected)val=val+this.options[idx].value+\',\'}val=val.substr(0,val.length-1);Var4_5_droplist_1_4.set(val);combo32641Object.onSelChg();"  ></select>', '<option value="10">10');
+    appendElement(text32588, '<fieldset id="qu32587_fieldset" style="border:0;"></fieldset>', null);
+    appendElement(text32589, '<fieldset id="qu32587_fieldset" style="border:0;"></fieldset>', null);
+    appendElement(null, '<fieldset id="qu32587_fieldset" style="border:0;"></fieldset>', '<div id="radio32590"><a id="radio32590anc"></a></div>');
+    appendElement(null, radio32590.div, '<input type="radio" name="qu32587" id="radio32590id" value="Ya, sama" onClick="Update_qu32587(this.value);doImmFeedback(\'qu32587\');" >');
+    appendElement(text32591, '<fieldset id="qu32587_fieldset" style="border:0;"></fieldset>', null);
+    appendElement(null, '<fieldset id="qu32587_fieldset" style="border:0;"></fieldset>', '<div id="radio32592"><a id="radio32592anc"></a></div>');
+    appendElement(null, radio32592.div, '<input type="radio" name="qu32587" id="radio32592id" value="Tidak sama" onClick="Update_qu32587(this.value);doImmFeedback(\'qu32587\');" >');
+    appendElement(text32613, '<fieldset id="qu32612_fieldset" style="border:0;"></fieldset>', null);
+    appendElement(text32614, '<fieldset id="qu32612_fieldset" style="border:0;"></fieldset>', null);
+    appendElement(null, '<fieldset id="qu32612_fieldset" style="border:0;"></fieldset>', '<div id="radio32615"><a id="radio32615anc"></a></div>');
+    appendElement(null, radio32615.div, '<input type="radio" name="qu32612" id="radio32615id" value="Ya, sama" onClick="Update_qu32612(this.value);doImmFeedback(\'qu32612\');" >');
+    appendElement(text32616, '<fieldset id="qu32612_fieldset" style="border:0;"></fieldset>', null);
+    appendElement(null, '<fieldset id="qu32612_fieldset" style="border:0;"></fieldset>', '<div id="radio32617"><a id="radio32617anc"></a></div>');
+    appendElement(null, radio32617.div, '<input type="radio" name="qu32612" id="radio32617id" value="Tidak sama" onClick="Update_qu32612(this.value);doImmFeedback(\'qu32612\');" >');
+    appendElement(button37746, null, null);
+    appendElement(image142182, null, null);
+    appendElement( qu32587, '<fieldset id="qu32587_fieldset" style="border:0;"></fieldset>', '<div id="qu32587"><a id="qu32587anc"></a></div>');
+    appendElement( qu32612, '<fieldset id="qu32612_fieldset" style="border:0;"></fieldset>', '<div id="qu32612"><a id="qu32612anc"></a></div>');
+}
+</script>
+
+</body>
+</html>
