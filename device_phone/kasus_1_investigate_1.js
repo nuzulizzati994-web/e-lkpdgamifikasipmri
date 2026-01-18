@@ -200,5 +200,5 @@ try{if(window.dragMgr)window.dragMgr.clearDropZones();}catch(e){if(e&&e.message)
 }
 ,
 "RCDResultResize":function(){}
-,"preload":['images/_e-lkpd_.png']
+,"preload":[]
 }}
