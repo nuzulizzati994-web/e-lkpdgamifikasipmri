@@ -469,7 +469,7 @@ VarToken = new Variable( 'VarToken', '', 0, 0, null, null, 'lkpd_gamifikasi', fa
 Varip = new Variable( 'Varip', 'api.epistura.web.id', 0, 0, null, null, 'lkpd_gamifikasi', false )
 Var1_10_q = new Variable( 'Var1_10_q', '', 0, 0, null, 365, 'lkpd_gamifikasi', false )
 Var1_11_q = new Variable( 'Var1_11_q', '', 0, 0, null, 365, 'lkpd_gamifikasi', false )
-Var1_15_e = new Variable( 'Var1_15_e', '', 0, 0, null, null, 'lkpd_gamifikasi', false )
+Var1_12_e = new Variable( 'Var1_12_e', '', 0, 0, null, null, 'lkpd_gamifikasi', false )
 Var1_14_e = new Variable( 'Var1_14_e', '', 0, 0, null, null, 'lkpd_gamifikasi', false )
 Var1_13_q = new Variable( 'Var1_13_q', '', 0, 0, null, 365, 'lkpd_gamifikasi', false )
 Varpoints = new Variable( 'Varpoints', '{}', 0, 0, null, null, 'lkpd_gamifikasi', false )
@@ -639,8 +639,8 @@ function init11() {
 function loadActions(){
     if((window.bPageLoaded && window.bLoadedVariables && getDisplayWindow().pagePlayer &&
 	getDisplayWindow().pagePlayer.arLoadedPages && getDisplayWindow().pagePlayer.arLoadedPages.length == 1) || (window.bPageLoaded && window.bLoadedVariables && !isSinglePagePlayerAvail() )){
-      var valVar1_15_e = Var1_15_e.getValue()
-      if(valVar1_15_e!='~~~null~~~')entry34265.objLyr.doc.forms["entry34265form"]["Isian4_1"].value=valVar1_15_e
+      var valVar1_12_e = Var1_12_e.getValue()
+      if(valVar1_12_e!='~~~null~~~')entry34265.objLyr.doc.forms["entry34265form"]["Isian4_1"].value=valVar1_12_e
       var valVar1_14_e = Var1_14_e.getValue()
       if(valVar1_14_e!='~~~null~~~')entry34287.objLyr.doc.forms["entry34287form"]["Isian5_1"].value=valVar1_14_e
       Update_qu34040( 0 )
@@ -755,12 +755,12 @@ function doImmFeedback( objId ) {
     if(!qu34040.hasBeenProcessed && qu34040Cked >= 2) {
     if( ans_Var1_10_q == '\u0042\u0075\u006B\u0074\u0069\u0020\u0031\u002C\u0042\u0075\u006B\u0074\u0069\u0020\u0032' ) 
     { //1 
-        trivActFBCnt++; action34040_5(onAfterFBAction);  return 0;
+        trivActFBCnt++; action34040_7(onAfterFBAction);  return 0;
   } //1
 
     else if( ans_Var1_10_q != '\u0042\u0075\u006B\u0074\u0069\u0020\u0031\u002C\u0042\u0075\u006B\u0074\u0069\u0020\u0032' && ans_Var1_10_q != '~~~null~~~' ) 
     { //2 
-trivActFBCnt++; action34040_6(onAfterFBAction);return 0;  } //2 
+trivActFBCnt++; action34040_8(onAfterFBAction);return 0;  } //2 
 
     }
   }
@@ -769,11 +769,11 @@ trivActFBCnt++; action34040_6(onAfterFBAction);return 0;  } //2
   if(!qu34213.hasBeenProcessed) {
     if( ans_Var1_11_q != '\u0042\u0075\u006B\u0074\u0069\u0020\u0033' && ans_Var1_11_q != '~~~null~~~' ) 
     { //2 
-trivActFBCnt++; action34213_5(onAfterFBAction);return 0;  } //2 
+trivActFBCnt++; action34213_7(onAfterFBAction);return 0;  } //2 
 
     else if( ans_Var1_11_q == '\u0042\u0075\u006B\u0074\u0069\u0020\u0033' ) 
     { //1 
-        trivActFBCnt++; action34213_6(onAfterFBAction);  return 0;
+        trivActFBCnt++; action34213_8(onAfterFBAction);  return 0;
   } //1
 
     }
@@ -783,11 +783,11 @@ trivActFBCnt++; action34213_5(onAfterFBAction);return 0;  } //2
   if(!qu34304.hasBeenProcessed) {
     if( ans_Var1_13_q != '\u004B\u0075\u006E\u0069\u006E\u0067' && ans_Var1_13_q != '~~~null~~~' ) 
     { //2 
-trivActFBCnt++; action34304_5(onAfterFBAction);return 0;  } //2 
+trivActFBCnt++; action34304_7(onAfterFBAction);return 0;  } //2 
 
     else if( ans_Var1_13_q == '\u004B\u0075\u006E\u0069\u006E\u0067' ) 
     { //1 
-        trivActFBCnt++; action34304_6(onAfterFBAction);  return 0;
+        trivActFBCnt++; action34304_8(onAfterFBAction);  return 0;
   } //1
 
     }
@@ -806,7 +806,7 @@ function action34400else(fn){
 }
 
 function action34400(fn){
-    if(!Var1_10_q.equals('~~~null~~~')&&!Var1_11_q.equals('~~~null~~~')&&!Var1_13_q.equals('~~~null~~~')&&!Var1_15_e.equals('~~~null~~~')&&!Var1_14_e.equals('~~~null~~~'))
+    if(!Var1_10_q.equals('~~~null~~~')&&!Var1_11_q.equals('~~~null~~~')&&!Var1_13_q.equals('~~~null~~~')&&!Var1_12_e.equals('~~~null~~~')&&!Var1_14_e.equals('~~~null~~~'))
     {trivExitPage('kasus_1_irctc_1.html',true); 
     }else{ action34400else();}
     if(fn && typeof(fn) == 'string' ) eval(fn);
@@ -898,7 +898,7 @@ function Update_qu34040( upd ) {
     qu34040Object.hasBeenProcessed=false;
 }
 
-function action34040_5(fn){
+function action34040_7(fn){
     try{
      pt(1,1,10,50); 
      } catch (e) {
@@ -908,7 +908,7 @@ function action34040_5(fn){
     else if(fn && typeof(fn) == 'function' ) fn();
 }
 
-function action34040_6(fn){
+function action34040_8(fn){
     try{
      pt(0,1,10,50); 
      } catch (e) {
@@ -929,7 +929,7 @@ function Update_qu34213(value) {
    qu34213Object.hasBeenProcessed=false;
 }
 
-function action34213_5(fn){
+function action34213_7(fn){
     try{
      pt(0,1,11,50); 
      } catch (e) {
@@ -939,7 +939,7 @@ function action34213_5(fn){
     else if(fn && typeof(fn) == 'function' ) fn();
 }
 
-function action34213_6(fn){
+function action34213_8(fn){
     try{
      pt(1,1,11,50); 
      } catch (e) {
@@ -960,7 +960,7 @@ function Update_qu34304(value) {
    qu34304Object.hasBeenProcessed=false;
 }
 
-function action34304_5(fn){
+function action34304_7(fn){
     try{
      pt(0,1,13,50); 
      } catch (e) {
@@ -970,7 +970,7 @@ function action34304_5(fn){
     else if(fn && typeof(fn) == 'function' ) fn();
 }
 
-function action34304_6(fn){
+function action34304_8(fn){
     try{
      pt(1,1,13,50); 
      } catch (e) {
@@ -1409,7 +1409,7 @@ if( is.min ){
     appendElement(button34648, null, null);
     appendElement(null, null, '<div id="entry34265"><a id="entry34265anc"></a></div>');
     appendElement(null, '<div id="entry34265"><a id="entry34265anc"></a></div>', '<form id="entry34265form"  name="entry34265form" onSubmit="return false;"></form>');
-    appendElement(null, '<form id="entry34265form"  name="entry34265form" onSubmit="return false;"></form>', '<input class="entry34265" type="text" name="Isian4_1" title="Isian4_1" id="entry34265id" size="47" maxlength="500" onPropertyChange="if( !Var1_15_e.equals(this.value) ) { Var1_15_e.set(this.value);entry34265Object.onSelChg(); }" onChange="if( !Var1_15_e.equals(this.value) ) { Var1_15_e.set(this.value);entry34265Object.onSelChg(); }" onKeyUp="Var1_15_e.set(this.value);entry34265Object.onSelChg();;" onBlur="" >');
+    appendElement(null, '<form id="entry34265form"  name="entry34265form" onSubmit="return false;"></form>', '<input class="entry34265" type="text" name="Isian4_1" title="Isian4_1" id="entry34265id" size="47" maxlength="500" onPropertyChange="if( !Var1_12_e.equals(this.value) ) { Var1_12_e.set(this.value);entry34265Object.onSelChg(); }" onChange="if( !Var1_12_e.equals(this.value) ) { Var1_12_e.set(this.value);entry34265Object.onSelChg(); }" onKeyUp="Var1_12_e.set(this.value);entry34265Object.onSelChg();;" onBlur="" >');
     appendElement(null, null, '<div id="entry34287"><a id="entry34287anc"></a></div>');
     appendElement(null, '<div id="entry34287"><a id="entry34287anc"></a></div>', '<form id="entry34287form"  name="entry34287form" onSubmit="return false;"></form>');
     appendElement(null, '<form id="entry34287form"  name="entry34287form" onSubmit="return false;"></form>', '<input class="entry34287" type="text" name="Isian5_1" title="Isian5_1" id="entry34287id" size="47" maxlength="500" onPropertyChange="if( !Var1_14_e.equals(this.value) ) { Var1_14_e.set(this.value);entry34287Object.onSelChg(); }" onChange="if( !Var1_14_e.equals(this.value) ) { Var1_14_e.set(this.value);entry34287Object.onSelChg(); }" onKeyUp="Var1_14_e.set(this.value);entry34287Object.onSelChg();;" onBlur="" >');
