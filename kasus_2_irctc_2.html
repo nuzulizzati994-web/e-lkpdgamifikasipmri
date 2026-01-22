@@ -154,9 +154,9 @@
         if (typeof VarFinalPoint !== "undefined") VarFinalPoint.set(point);
         console.log(point, minPoint);
         const status = point >= minPoint;
-        if (status) Varstage.set(kasus);
+        if (status && kasus > Varstage.getValue()) Varstage.set(kasus);
         const data = collectPageValues();
-        const stage = Varstage. getValue()
+        const stage = Varstage.getValue()
         const request = await api.post(
           "https://" + ip() + "/api/progress/save",
           {
