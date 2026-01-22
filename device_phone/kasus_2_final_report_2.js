@@ -1,5 +1,5 @@
 PhoneResponsive={"785":{
-"pageLayer":{"w":785,"h":2316,"bgColor":"#ffffff"}
+"pageLayer":{"w":785,"h":2166,"bgColor":"#ffffff"}
 ,
 "text79602":{"x":359,"y":2143,"w":402,"h":23,"txtscale":100,"bOffBottom":0}
 ,
@@ -65,7 +65,7 @@ PhoneResponsive={"785":{
 ,
 "radio44309":{"x":97,"y":1154,"fsize":16,"bOffBottom":0}
 ,
-"text44394":{"x":790,"y":2233,"w":633,"h":83,"txtscale":100,"bOffBottom":0}
+"text44394":{"x":790,"y":1707,"w":633,"h":83,"txtscale":100,"bOffBottom":0}
 ,
 "text44395":{"x":128,"y":1406,"w":478,"h":46,"txtscale":100,"bOffBottom":0}
 ,
