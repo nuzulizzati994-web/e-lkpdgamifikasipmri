@@ -113,11 +113,11 @@ try{if(window.dragMgr)window.dragMgr.clearDropZones();}catch(e){if(e&&e.message)
 "785":{
 "pageLayer":{"w":785,"h":3035,"bgColor":"#ffffff"}
 ,
-"text80120":{"x":359,"y":3012,"w":402,"h":23,"txtscale":100,"bOffBottom":0}
+"text80120":{"x":359,"y":3012,"w":401,"h":23,"txtscale":100,"bOffBottom":0}
 ,
 "text68974":{"x":508,"y":609,"w":192,"h":22,"txtscale":100,"bOffBottom":0}
 ,
-"text35755":{"x":80,"y":989,"w":629,"h":113,"txtscale":100,"bOffBottom":0}
+"text35755":{"x":80,"y":989,"w":628,"h":113,"txtscale":100,"bOffBottom":0}
 ,
 "text35756":{"x":107,"y":1108,"w":329,"h":27,"txtscale":100,"bOffBottom":0}
 ,
@@ -127,11 +127,11 @@ try{if(window.dragMgr)window.dragMgr.clearDropZones();}catch(e){if(e&&e.message)
 ,
 "radio35759":{"x":80,"y":1148,"fsize":16,"bOffBottom":0}
 ,
-"text35776":{"x":107,"y":1183,"w":536,"h":37,"txtscale":100,"bOffBottom":0}
+"text35776":{"x":107,"y":1183,"w":535,"h":37,"txtscale":100,"bOffBottom":0}
 ,
 "radio35777":{"x":80,"y":1185,"fsize":16,"bOffBottom":0}
 ,
-"text35813":{"x":82,"y":1219,"w":629,"h":75,"txtscale":100,"bOffBottom":0}
+"text35813":{"x":82,"y":1219,"w":628,"h":75,"txtscale":100,"bOffBottom":0}
 ,
 "text35814":{"x":107,"y":1299,"w":329,"h":27,"txtscale":100,"bOffBottom":0}
 ,
@@ -141,11 +141,11 @@ try{if(window.dragMgr)window.dragMgr.clearDropZones();}catch(e){if(e&&e.message)
 ,
 "radio35817":{"x":80,"y":1339,"fsize":16,"bOffBottom":0}
 ,
-"text35818":{"x":107,"y":1374,"w":536,"h":37,"txtscale":100,"bOffBottom":0}
+"text35818":{"x":107,"y":1374,"w":535,"h":37,"txtscale":100,"bOffBottom":0}
 ,
 "radio35819":{"x":80,"y":1376,"fsize":16,"bOffBottom":0}
 ,
-"text35934":{"x":81,"y":1571,"w":629,"h":107,"txtscale":100,"bOffBottom":0}
+"text35934":{"x":81,"y":1571,"w":628,"h":107,"txtscale":100,"bOffBottom":0}
 ,
 "text35935":{"x":108,"y":1688,"w":329,"h":27,"txtscale":100,"bOffBottom":0}
 ,
@@ -155,7 +155,7 @@ try{if(window.dragMgr)window.dragMgr.clearDropZones();}catch(e){if(e&&e.message)
 ,
 "radio35938":{"x":81,"y":1733,"fsize":16,"bOffBottom":0}
 ,
-"text35968":{"x":80,"y":1771,"w":629,"h":112,"txtscale":100,"bOffBottom":0}
+"text35968":{"x":80,"y":1771,"w":628,"h":112,"txtscale":100,"bOffBottom":0}
 ,
 "text35969":{"x":107,"y":1892,"w":329,"h":27,"txtscale":100,"bOffBottom":0}
 ,
@@ -173,7 +173,7 @@ try{if(window.dragMgr)window.dragMgr.clearDropZones();}catch(e){if(e&&e.message)
 ,
 "radio35976":{"x":80,"y":2015,"fsize":16,"bOffBottom":0}
 ,
-"text36069":{"x":80,"y":2049,"w":629,"h":112,"txtscale":100,"bOffBottom":0}
+"text36069":{"x":80,"y":2049,"w":628,"h":112,"txtscale":100,"bOffBottom":0}
 ,
 "text36070":{"x":107,"y":2170,"w":329,"h":27,"txtscale":100,"bOffBottom":0}
 ,
@@ -191,7 +191,7 @@ try{if(window.dragMgr)window.dragMgr.clearDropZones();}catch(e){if(e&&e.message)
 ,
 "radio36077":{"x":80,"y":2293,"fsize":16,"bOffBottom":0}
 ,
-"text36123":{"x":80,"y":2330,"w":629,"h":75,"txtscale":100,"bOffBottom":0}
+"text36123":{"x":80,"y":2330,"w":628,"h":75,"txtscale":100,"bOffBottom":0}
 ,
 "text36124":{"x":107,"y":2415,"w":329,"h":27,"txtscale":100,"bOffBottom":0}
 ,
@@ -211,7 +211,7 @@ try{if(window.dragMgr)window.dragMgr.clearDropZones();}catch(e){if(e&&e.message)
 ,
 "image144768":{"x":-40,"y":-845,"w":719,"h":2027,"bOffBottom":0,"i":"images/invstgt_4.3.png"}
 ,
-"text35888":{"x":80,"y":1409,"w":506,"h":68,"txtscale":100,"bOffBottom":0}
+"text35888":{"x":80,"y":1409,"w":505,"h":68,"txtscale":100,"bOffBottom":0}
 ,
 "entry35889":{"x":89,"y":1484,"w":608,"h":72,"fsize":16,"bOffBottom":0}
 ,
