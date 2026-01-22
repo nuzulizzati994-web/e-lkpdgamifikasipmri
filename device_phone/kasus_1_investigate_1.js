@@ -93,8 +93,6 @@ PhoneResponsive={"785":{
 ,
 "image148119":{"x":24,"y":-1837,"w":719,"h":2343,"bOffBottom":0,"i":"images/invstgt_1_revisi.png"}
 ,
-"":{"x":235,"y":256,"w":300,"h":200,"bOffBottom":0}
-,
 "RCDResetQuestion":function(){
 try{if(window.dragMgr)window.dragMgr.clearDropZones();}catch(e){if(e&&e.message)console.log(e.message);}
 
@@ -198,8 +196,6 @@ Init_qu148587(false, true);
 "":{"x":75,"y":71,"w":183,"h":122,"bOffBottom":0}
 ,
 "image148119":{"x":0,"y":0,"w":480,"h":1564,"bOffBottom":0,"i":"images/invstgt_1_revisi.png"}
-,
-"":{"x":144,"y":256,"w":183,"h":122,"bOffBottom":0}
 ,
 "RCDResetQuestion":function(){
 try{if(window.dragMgr)window.dragMgr.clearDropZones();}catch(e){if(e&&e.message)console.log(e.message);}

@@ -488,15 +488,11 @@ Var1_7_q = new Variable( 'Var1_7_q', '', 0, 0, null, 365, 'lkpd_gamifikasi', fal
 Var1_3_e = new Variable( 'Var1_3_e', '', 0, 0, null, 365, 'lkpd_gamifikasi', false )
 Var1_6_e = new Variable( 'Var1_6_e', '', 0, 0, null, 365, 'lkpd_gamifikasi', false )
 Var1_8_e = new Variable( 'Var1_8_e', '', 0, 0, null, 365, 'lkpd_gamifikasi', false )
-Varcolor_1 = new Variable( 'Varcolor_1', '0', 0, 0, null, null, 'lkpd_gamifikasi', false )
-Varcolor_2 = new Variable( 'Varcolor_2', '0', 0, 0, null, null, 'lkpd_gamifikasi', false )
-Varcolors = new Variable( 'Varcolors', 'ff0000;ffff00', 0, 0, null, null, 'lkpd_gamifikasi', false )
 Varip = new Variable( 'Varip', 'api.epistura.web.id', 0, 0, null, null, 'lkpd_gamifikasi', false )
 Varpoints = new Variable( 'Varpoints', '{}', 0, 0, null, null, 'lkpd_gamifikasi', false )
 VarFinalPoint = new Variable( 'VarFinalPoint', '0', 0, 0, null, null, 'lkpd_gamifikasi', false )
 VarTotalPoint = new Variable( 'VarTotalPoint', '0', 0, 0, null, null, 'lkpd_gamifikasi', false )
 Varstage = new Variable( 'Varstage', '0', 0, 0, null, 365, 'lkpd_gamifikasi', false )
-VarmixColor = new Variable( 'VarmixColor', '', 0, 0, null, null, 'lkpd_gamifikasi', false )
 Var1_1_c = new Variable( 'Var1_1_c', '', 0, 0, null, null, 'lkpd_gamifikasi', false )
 
 onload = responsiveInit
@@ -895,9 +891,9 @@ function doImmFeedback( objId ) {
         if( offset < 0 ) wrong = true
         else offset = offset + arrAns[idx].length
       }
-    if( !wrong ) {        trivActFBCnt++; action148587_3(onAfterFBAction); return 0;  } //1
+    if( !wrong ) {        trivActFBCnt++; action148587_5(onAfterFBAction); return 0;  } //1
 
-    if( wrong ) {trivActFBCnt++; action148587_4(onAfterFBAction); return 0;  } //2 
+    if( wrong ) {trivActFBCnt++; action148587_6(onAfterFBAction); return 0;  } //2 
 
     }
   }
@@ -906,12 +902,12 @@ function doImmFeedback( objId ) {
   if(!qu23964.hasBeenProcessed) {
     if( ans_Var1_2_q == '\u0059\u0061\u002C\u0020\u0073\u0061\u006D\u0061' ) 
     { //1 
-        trivActFBCnt++; action23964_3(onAfterFBAction);  return 0;
+        trivActFBCnt++; action23964_5(onAfterFBAction);  return 0;
   } //1
 
     else if( ans_Var1_2_q != '\u0059\u0061\u002C\u0020\u0073\u0061\u006D\u0061' && ans_Var1_2_q != '~~~null~~~' ) 
     { //2 
-trivActFBCnt++; action23964_4(onAfterFBAction);return 0;  } //2 
+trivActFBCnt++; action23964_6(onAfterFBAction);return 0;  } //2 
 
     }
   }
@@ -920,11 +916,11 @@ trivActFBCnt++; action23964_4(onAfterFBAction);return 0;  } //2
   if(!qu24247.hasBeenProcessed) {
     if( ans_Var1_4_q != '\u0054\u0069\u0064\u0061\u006B\u0020\u0073\u0061\u006D\u0061' && ans_Var1_4_q != '~~~null~~~' ) 
     { //2 
-trivActFBCnt++; action24247_3(onAfterFBAction);return 0;  } //2 
+trivActFBCnt++; action24247_5(onAfterFBAction);return 0;  } //2 
 
     else if( ans_Var1_4_q == '\u0054\u0069\u0064\u0061\u006B\u0020\u0073\u0061\u006D\u0061' ) 
     { //1 
-        trivActFBCnt++; action24247_4(onAfterFBAction);  return 0;
+        trivActFBCnt++; action24247_6(onAfterFBAction);  return 0;
   } //1
 
     }
@@ -934,12 +930,12 @@ trivActFBCnt++; action24247_3(onAfterFBAction);return 0;  } //2
   if(!qu24315.hasBeenProcessed) {
     if( ans_Var1_5_q == '\u004C\u0065\u0062\u0069\u0068\u0020\u0074\u0065\u0072\u0061\u006E\u0067' ) 
     { //1 
-        trivActFBCnt++; action24315_3(onAfterFBAction);  return 0;
+        trivActFBCnt++; action24315_5(onAfterFBAction);  return 0;
   } //1
 
     else if( ans_Var1_5_q != '\u004C\u0065\u0062\u0069\u0068\u0020\u0074\u0065\u0072\u0061\u006E\u0067' && ans_Var1_5_q != '~~~null~~~' ) 
     { //2 
-trivActFBCnt++; action24315_4(onAfterFBAction);return 0;  } //2 
+trivActFBCnt++; action24315_6(onAfterFBAction);return 0;  } //2 
 
     }
   }
@@ -948,11 +944,11 @@ trivActFBCnt++; action24315_4(onAfterFBAction);return 0;  } //2
   if(!qu24370.hasBeenProcessed) {
     if( ans_Var1_7_q != '\u0054\u0069\u0064\u0061\u006B\u0020\u0073\u0061\u006D\u0061' && ans_Var1_7_q != '~~~null~~~' ) 
     { //2 
-trivActFBCnt++; action24370_3(onAfterFBAction);return 0;  } //2 
+trivActFBCnt++; action24370_5(onAfterFBAction);return 0;  } //2 
 
     else if( ans_Var1_7_q == '\u0054\u0069\u0064\u0061\u006B\u0020\u0073\u0061\u006D\u0061' ) 
     { //1 
-        trivActFBCnt++; action24370_4(onAfterFBAction);  return 0;
+        trivActFBCnt++; action24370_6(onAfterFBAction);  return 0;
   } //1
 
     }
@@ -1196,7 +1192,7 @@ function Update_qu148587() {
   doImmFeedback('qu148587');
 }
 
-function action148587_3(fn){
+function action148587_5(fn){
     try{
      pt(1,1,1,50); 
      } catch (e) {
@@ -1206,7 +1202,7 @@ function action148587_3(fn){
     else if(fn && typeof(fn) == 'function' ) fn();
 }
 
-function action148587_4(fn){
+function action148587_6(fn){
     try{
      pt(0,0,1,50); 
      } catch (e) {
@@ -1227,7 +1223,7 @@ function Update_qu23964(value) {
    qu23964Object.hasBeenProcessed=false;
 }
 
-function action23964_3(fn){
+function action23964_5(fn){
     try{
      pt(1,1,2,50); 
      } catch (e) {
@@ -1237,7 +1233,7 @@ function action23964_3(fn){
     else if(fn && typeof(fn) == 'function' ) fn();
 }
 
-function action23964_4(fn){
+function action23964_6(fn){
     try{
      pt(0, 1, 2, 50); 
      } catch (e) {
@@ -1258,7 +1254,7 @@ function Update_qu24247(value) {
    qu24247Object.hasBeenProcessed=false;
 }
 
-function action24247_3(fn){
+function action24247_5(fn){
     try{
      pt(0, 1, 4, 50); 
      } catch (e) {
@@ -1268,7 +1264,7 @@ function action24247_3(fn){
     else if(fn && typeof(fn) == 'function' ) fn();
 }
 
-function action24247_4(fn){
+function action24247_6(fn){
     try{
      pt(1,1,4,50); 
      } catch (e) {
@@ -1289,7 +1285,7 @@ function Update_qu24315(value) {
    qu24315Object.hasBeenProcessed=false;
 }
 
-function action24315_3(fn){
+function action24315_5(fn){
     try{
      pt(1,1,5,50); 
      } catch (e) {
@@ -1299,7 +1295,7 @@ function action24315_3(fn){
     else if(fn && typeof(fn) == 'function' ) fn();
 }
 
-function action24315_4(fn){
+function action24315_6(fn){
     try{
      pt(0,1,5,50); 
      } catch (e) {
@@ -1320,7 +1316,7 @@ function Update_qu24370(value) {
    qu24370Object.hasBeenProcessed=false;
 }
 
-function action24370_3(fn){
+function action24370_5(fn){
     try{
      pt(0,1,7,50); 
      } catch (e) {
@@ -1330,7 +1326,7 @@ function action24370_3(fn){
     else if(fn && typeof(fn) == 'function' ) fn();
 }
 
-function action24370_4(fn){
+function action24370_6(fn){
     try{
      pt(1,1,7,50); 
      } catch (e) {
@@ -1341,7 +1337,7 @@ function action24370_4(fn){
 }
 
 if( is.min ){
-text149958 = new ObjText('text149958',null,208,-1666,200,80,1,63,null,'div',null,0 )
+text149958 = new ObjText('text149958',null,208,-1666,200,80,1,62,null,'div',null,0 )
 text149958.initSLine(1)
 text149958.initHasBullet(0)
 text149958.initRotateAngle(0,0,0)
@@ -1358,7 +1354,7 @@ text149958.arrCSSStyles.push('span.text149958Font1 { font-size:16px; font-family
 text149958.addInnerText('<div id=\"text149958\" aria-hidden=\"true\" ><a id=\"text149958anc\" style=\"display:block;height:0px;width:0px;\"></a>\n<p  style=\"margin-left:0px;text-indent:0px;margin-top:0px;margin-bottom:0px;text-align:left;\" >\n<span class=\"text149958Font1\"  >Tim B\n</span ></p >\n</div>\n');
 text149958.build()
 
-text150055 = new ObjText('text150055',null,208,-1666,200,80,1,64,null,'div',null,0 )
+text150055 = new ObjText('text150055',null,208,-1666,200,80,1,63,null,'div',null,0 )
 text150055.initSLine(1)
 text150055.initHasBullet(0)
 text150055.initRotateAngle(0,0,0)
@@ -1375,7 +1371,7 @@ text150055.arrCSSStyles.push('span.text150055Font1 { font-size:16px; font-family
 text150055.addInnerText('<div id=\"text150055\" aria-hidden=\"true\" ><a id=\"text150055anc\" style=\"display:block;height:0px;width:0px;\"></a>\n<p  style=\"margin-left:0px;text-indent:0px;margin-top:0px;margin-bottom:0px;text-align:left;\" >\n<span class=\"text150055Font1\"  >Tim C\n</span ></p >\n</div>\n');
 text150055.build()
 
-text150088 = new ObjText('text150088',null,208,-1666,200,80,1,65,null,'div',null,0 )
+text150088 = new ObjText('text150088',null,208,-1666,200,80,1,64,null,'div',null,0 )
 text150088.initSLine(1)
 text150088.initHasBullet(0)
 text150088.initRotateAngle(0,0,0)
@@ -1392,7 +1388,7 @@ text150088.arrCSSStyles.push('span.text150088Font1 { font-size:16px; font-family
 text150088.addInnerText('<div id=\"text150088\" aria-hidden=\"true\" ><a id=\"text150088anc\" style=\"display:block;height:0px;width:0px;\"></a>\n<p  style=\"margin-left:0px;text-indent:0px;margin-top:0px;margin-bottom:0px;text-align:left;\" >\n<span class=\"text150088Font1\"  >Tim D\n</span ></p >\n</div>\n');
 text150088.build()
 
-text150134 = new ObjText('text150134',null,208,-1666,200,80,1,66,null,'div',null,0 )
+text150134 = new ObjText('text150134',null,208,-1666,200,80,1,65,null,'div',null,0 )
 text150134.initSLine(1)
 text150134.initHasBullet(0)
 text150134.initRotateAngle(0,0,0)
@@ -1409,7 +1405,7 @@ text150134.arrCSSStyles.push('span.text150134Font1 { font-size:16px; font-family
 text150134.addInnerText('<div id=\"text150134\" aria-hidden=\"true\" ><a id=\"text150134anc\" style=\"display:block;height:0px;width:0px;\"></a>\n<p  style=\"margin-left:0px;text-indent:0px;margin-top:0px;margin-bottom:0px;text-align:left;\" >\n<span class=\"text150134Font1\"  >Tim E\n</span ></p >\n</div>\n');
 text150134.build()
 
-text149802 = new ObjText('text149802',null,284,-1583,200,80,1,67,null,'div',null,0 )
+text149802 = new ObjText('text149802',null,284,-1583,200,80,1,66,null,'div',null,0 )
 text149802.initSLine(1)
 text149802.initHasBullet(0)
 text149802.initRotateAngle(0,0,0)
@@ -1426,7 +1422,7 @@ text149802.arrCSSStyles.push('span.text149802Font1 { font-size:16px; font-family
 text149802.addInnerText('<div id=\"text149802\" aria-hidden=\"true\" ><a id=\"text149802anc\" style=\"display:block;height:0px;width:0px;\"></a>\n<p  style=\"margin-left:0px;text-indent:0px;margin-top:0px;margin-bottom:0px;text-align:left;\" >\n<span class=\"text149802Font1\"  >Tim A\n</span ></p >\n</div>\n');
 text149802.build()
 
-text148589 = new ObjText('text148589',null,140,200,506,37,1,68,null,'div',null,0 )
+text148589 = new ObjText('text148589',null,140,200,506,37,1,67,null,'div',null,0 )
 text148589.initSLine(0)
 text148589.initHasBullet(0)
 text148589.initRotateAngle(0,0,0)
@@ -1443,7 +1439,7 @@ text148589.arrCSSStyles.push('span.text148589Font1 { font-size:16px; font-family
 text148589.addInnerText('<legend><div id=\"text148589\" aria-hidden=\"true\" ><a id=\"text148589anc\" style=\"display:block;height:0px;width:0px;\"></a>\n<p  style=\"margin-left:0px;text-indent:0px;margin-top:0px;margin-bottom:0px;text-align:left;\" >\n<span class=\"text148589Font1\"  >&nbsp;\n</span ></p >\n</div>\n</legend>\n');
 text148589.build()
 
-text148590 = new ObjText('text148590',null,140,245,80,19,1,69,null,'div',null,0 )
+text148590 = new ObjText('text148590',null,140,245,80,19,1,68,null,'div',null,0 )
 text148590.initSLine(0)
 text148590.initHasBullet(0)
 text148590.initRotateAngle(0,0,0)
@@ -1455,14 +1451,14 @@ text148590.initHasMargin(0)
 text148590.addIe8Attr(140, 245, 80, 19, 0, 0)
 text148590.addHeading(0)
 text148590.addOpacity(100)
-text148590.setupMatch( true, '1L', Update_qu148587, 69, 'cf2a27', 3)
+text148590.setupMatch( true, '1L', Update_qu148587, 68, 'cf2a27', 3)
 text148590.isChoice = true
 text148590.arrCSSStyles = new Array();
 text148590.arrCSSStyles.push('span.text148590Font1 { font-size:16px; font-family:"Segoe UI Black", sans-serif; color:#000000;}');
 text148590.addInnerText('<div id=\"text148590\" aria-hidden=\"true\" ><a id=\"text148590anc\" style=\"display:block;height:0px;width:0px;\"></a>\n<div style=\"cursor:pointer\">\n<p  style=\"margin-left:0px;text-indent:0px;margin-top:0px;margin-bottom:0px;text-align:center;\" >\n<span class=\"text148590Font1\"  >2 : 1\n</span ></p >\n</div></div>\n');
 text148590.build()
 
-text148592 = new ObjText('text148592',null,140,272,80,19,1,70,null,'div',null,0 )
+text148592 = new ObjText('text148592',null,140,272,80,19,1,69,null,'div',null,0 )
 text148592.initSLine(0)
 text148592.initHasBullet(0)
 text148592.initRotateAngle(0,0,0)
@@ -1474,14 +1470,14 @@ text148592.initHasMargin(0)
 text148592.addIe8Attr(140, 272, 80, 19, 0, 0)
 text148592.addHeading(0)
 text148592.addOpacity(100)
-text148592.setupMatch( true, '2L', Update_qu148587, 69, 'cf2a27', 3)
+text148592.setupMatch( true, '2L', Update_qu148587, 68, 'cf2a27', 3)
 text148592.isChoice = true
 text148592.arrCSSStyles = new Array();
 text148592.arrCSSStyles.push('span.text148592Font1 { font-size:16px; font-family:"Segoe UI Black", sans-serif; color:#000000;}');
 text148592.addInnerText('<div id=\"text148592\" aria-hidden=\"true\" ><a id=\"text148592anc\" style=\"display:block;height:0px;width:0px;\"></a>\n<div style=\"cursor:pointer\">\n<p  style=\"margin-left:0px;text-indent:0px;margin-top:0px;margin-bottom:0px;text-align:center;\" >\n<span class=\"text148592Font1\"  >4 : 2\n</span ></p >\n</div></div>\n');
 text148592.build()
 
-text148603 = new ObjText('text148603',null,140,307,40,19,1,71,null,'div',null,0 )
+text148603 = new ObjText('text148603',null,140,307,40,19,1,70,null,'div',null,0 )
 text148603.initSLine(0)
 text148603.initHasBullet(0)
 text148603.initRotateAngle(0,0,0)
@@ -1493,14 +1489,14 @@ text148603.initHasMargin(0)
 text148603.addIe8Attr(140, 307, 40, 19, 0, 0)
 text148603.addHeading(0)
 text148603.addOpacity(100)
-text148603.setupMatch( true, '3L', Update_qu148587, 69, 'cf2a27', 3)
+text148603.setupMatch( true, '3L', Update_qu148587, 68, 'cf2a27', 3)
 text148603.isChoice = true
 text148603.arrCSSStyles = new Array();
 text148603.arrCSSStyles.push('span.text148603Font1 { font-size:16px; font-family:"Segoe UI Black", sans-serif; color:#000000;}');
 text148603.addInnerText('<div id=\"text148603\" aria-hidden=\"true\" ><a id=\"text148603anc\" style=\"display:block;height:0px;width:0px;\"></a>\n<div style=\"cursor:pointer\">\n<p  style=\"margin-left:0px;text-indent:0px;margin-top:0px;margin-bottom:0px;text-align:center;\" >\n<span class=\"text148603Font1\"  >2 : 2\n</span ></p >\n</div></div>\n');
 text148603.build()
 
-text148605 = new ObjText('text148605',null,140,334,40,19,1,72,null,'div',null,0 )
+text148605 = new ObjText('text148605',null,140,334,40,19,1,71,null,'div',null,0 )
 text148605.initSLine(0)
 text148605.initHasBullet(0)
 text148605.initRotateAngle(0,0,0)
@@ -1512,14 +1508,14 @@ text148605.initHasMargin(0)
 text148605.addIe8Attr(140, 334, 40, 19, 0, 0)
 text148605.addHeading(0)
 text148605.addOpacity(100)
-text148605.setupMatch( true, '4L', Update_qu148587, 69, 'cf2a27', 3)
+text148605.setupMatch( true, '4L', Update_qu148587, 68, 'cf2a27', 3)
 text148605.isChoice = true
 text148605.arrCSSStyles = new Array();
 text148605.arrCSSStyles.push('span.text148605Font1 { font-size:16px; font-family:"Segoe UI Black", sans-serif; color:#000000;}');
 text148605.addInnerText('<div id=\"text148605\" aria-hidden=\"true\" ><a id=\"text148605anc\" style=\"display:block;height:0px;width:0px;\"></a>\n<div style=\"cursor:pointer\">\n<p  style=\"margin-left:0px;text-indent:0px;margin-top:0px;margin-bottom:0px;text-align:center;\" >\n<span class=\"text148605Font1\"  >2 : 3\n</span ></p >\n</div></div>\n');
 text148605.build()
 
-text148607 = new ObjText('text148607',null,140,361,40,19,1,73,null,'div',null,0 )
+text148607 = new ObjText('text148607',null,140,361,40,19,1,72,null,'div',null,0 )
 text148607.initSLine(0)
 text148607.initHasBullet(0)
 text148607.initRotateAngle(0,0,0)
@@ -1531,14 +1527,14 @@ text148607.initHasMargin(0)
 text148607.addIe8Attr(140, 361, 40, 19, 0, 0)
 text148607.addHeading(0)
 text148607.addOpacity(100)
-text148607.setupMatch( true, '5L', Update_qu148587, 69, 'cf2a27', 3)
+text148607.setupMatch( true, '5L', Update_qu148587, 68, 'cf2a27', 3)
 text148607.isChoice = true
 text148607.arrCSSStyles = new Array();
 text148607.arrCSSStyles.push('span.text148607Font1 { font-size:16px; font-family:"Segoe UI Black", sans-serif; color:#000000;}');
 text148607.addInnerText('<div id=\"text148607\" aria-hidden=\"true\" ><a id=\"text148607anc\" style=\"display:block;height:0px;width:0px;\"></a>\n<div style=\"cursor:pointer\">\n<p  style=\"margin-left:0px;text-indent:0px;margin-top:0px;margin-bottom:0px;text-align:center;\" >\n<span class=\"text148607Font1\"  >1 : 2\n</span ></p >\n</div></div>\n');
 text148607.build()
 
-image148700 = new ObjImage('image148700','images/2.1.png','2.1',-9,-1939,786,793,1,74,'div',null, 0 )
+image148700 = new ObjImage('image148700','images/2.1.png','2.1',-9,-1939,786,793,1,73,'div',null, 0 )
 image148700.initRotateAngle(0,0,0,0,0,0,0)
 image148700.initHasShadow(0)
 image148700.initHasReflection(0)
@@ -1546,11 +1542,11 @@ image148700.addIe8Attr(-9, -1939, 786, 793, 0, 0)
 image148700.initImageMap(1,'0,0,786,0,786,793,0,793,0,0','M 0 0 L 786 0 L 786 793 L 0 793 L 0 0 z')
 image148700.addBorder(0)
 image148700.addOpacity(100)
-image148700.setupMatch( false, '1R', Update_qu148587, 69, 'cf2a27', 3)
+image148700.setupMatch( false, '1R', Update_qu148587, 68, 'cf2a27', 3)
 image148700.isChoice = true
 image148700.build()
 
-image148702 = new ObjImage('image148702','images/2.1.png','4.2',-9,-1939,786,793,1,75,'div',null, 0 )
+image148702 = new ObjImage('image148702','images/2.1.png','4.2',-9,-1939,786,793,1,74,'div',null, 0 )
 image148702.initRotateAngle(0,0,0,0,0,0,0)
 image148702.initHasShadow(0)
 image148702.initHasReflection(0)
@@ -1558,11 +1554,11 @@ image148702.addIe8Attr(-9, -1939, 786, 793, 0, 0)
 image148702.initImageMap(1,'0,0,786,0,786,793,0,793,0,0','M 0 0 L 786 0 L 786 793 L 0 793 L 0 0 z')
 image148702.addBorder(0)
 image148702.addOpacity(100)
-image148702.setupMatch( false, '2R', Update_qu148587, 69, 'cf2a27', 3)
+image148702.setupMatch( false, '2R', Update_qu148587, 68, 'cf2a27', 3)
 image148702.isChoice = true
 image148702.build()
 
-image148704 = new ObjImage('image148704','images/2.2.png','2.3',-9,-1955,786,825,1,76,'div',null, 0 )
+image148704 = new ObjImage('image148704','images/2.2.png','2.3',-9,-1955,786,825,1,75,'div',null, 0 )
 image148704.initRotateAngle(0,0,0,0,0,0,0)
 image148704.initHasShadow(0)
 image148704.initHasReflection(0)
@@ -1570,11 +1566,11 @@ image148704.addIe8Attr(-9, -1955, 786, 825, 0, 0)
 image148704.initImageMap(1,'0,0,786,0,786,825,0,825,0,0','M 0 0 L 786 0 L 786 825 L 0 825 L 0 0 z')
 image148704.addBorder(0)
 image148704.addOpacity(100)
-image148704.setupMatch( false, '3R', Update_qu148587, 69, 'cf2a27', 3)
+image148704.setupMatch( false, '3R', Update_qu148587, 68, 'cf2a27', 3)
 image148704.isChoice = true
 image148704.build()
 
-image148706 = new ObjImage('image148706','images/2.3.png','2.2',-9,-1960,113,113,1,77,'div',null, 0 )
+image148706 = new ObjImage('image148706','images/2.3.png','2.2',-9,-1960,113,113,1,76,'div',null, 0 )
 image148706.initRotateAngle(0,0,0,0,0,0,0)
 image148706.initHasShadow(0)
 image148706.initHasReflection(0)
@@ -1582,11 +1578,11 @@ image148706.addIe8Attr(-9, -1960, 113, 113, 0, 0)
 image148706.initImageMap(1,'0,0,113,0,113,113,0,113,0,0','M 0 0 L 113 0 L 113 113 L 0 113 L 0 0 z')
 image148706.addBorder(0)
 image148706.addOpacity(100)
-image148706.setupMatch( false, '4R', Update_qu148587, 69, 'cf2a27', 3)
+image148706.setupMatch( false, '4R', Update_qu148587, 68, 'cf2a27', 3)
 image148706.isChoice = true
 image148706.build()
 
-image148781 = new ObjImage('image148781','images/1.2.png','1.2',-9,-2020,786,834,1,78,'div',null, 0 )
+image148781 = new ObjImage('image148781','images/1.2.png','1.2',-9,-2020,786,834,1,77,'div',null, 0 )
 image148781.initRotateAngle(0,0,0,0,0,0,0)
 image148781.initHasShadow(0)
 image148781.initHasReflection(0)
@@ -1594,11 +1590,11 @@ image148781.addIe8Attr(-9, -2020, 786, 834, 0, 0)
 image148781.initImageMap(1,'0,0,786,0,786,834,0,834,0,0','M 0 0 L 786 0 L 786 834 L 0 834 L 0 0 z')
 image148781.addBorder(0)
 image148781.addOpacity(100)
-image148781.setupMatch( false, '5R', Update_qu148587, 69, 'cf2a27', 3)
+image148781.setupMatch( false, '5R', Update_qu148587, 68, 'cf2a27', 3)
 image148781.isChoice = true
 image148781.build()
 
-button148348 = new ObjButton('button148348', 'Button_Mergecolor',81,205,319.000000,36.000000,1,79,'div','',1,0)
+button148348 = new ObjButton('button148348', 'Button_Mergecolor',81,205,319.000000,36.000000,1,78,'div','',1,0)
 button148348.setFillStyle(2)
 button148348.setUniqueFillID('kasus_1_investigate_1_button148348')
 button148348.initRotateAngle(0,0,0,-0.000000,-0.000000,318,35)
@@ -1619,7 +1615,7 @@ button148348.hasOnUp = true
 button148348.capture=4
 button148348.build()
 
-text78402 = new ObjText('text78402',null,357,3222,402,23,1,80,null,'div',null,0 )
+text78402 = new ObjText('text78402',null,357,3222,402,23,1,79,null,'div',null,0 )
 text78402.initSLine(0)
 text78402.initHasBullet(0)
 text78402.initRotateAngle(0,0,0)
@@ -1636,13 +1632,13 @@ text78402.arrCSSStyles.push('span.text78402Font1 { font-size:13px; font-family:"
 text78402.addInnerText('<div id=\"text78402\" aria-hidden=\"true\" ><a id=\"text78402anc\" style=\"display:block;height:0px;width:0px;\"></a>\n<p  style=\"margin-left:0px;text-indent:0px;margin-top:0px;margin-bottom:0px;text-align:right;\" >\n<span class=\"text78402Font1\"  >Generated by dreamina.capcut.com\n</span ></p >\n</div>\n');
 text78402.build()
 
-entry26471 = new ObjInline('entry26471',null,(is.ie?88:88),(is.ie?1687:1686),null,null,1,81, 0, null, null, 0)
+entry26471 = new ObjInline('entry26471',null,(is.ie?88:88),(is.ie?1687:1686),null,null,1,80, 0, null, null, 0)
 entry26471.onSelChg = entry26471onSelChg
 entry26471.arrCSSStyles = new Array();
 entry26471.arrCSSStyles.push('input.entry26471 { font-size:16px; font-family:"Arial", sans-serif; color:#000000; width:608px; height:118px; -webkit-appearance:none; background-color:#ffffff; }');
 entry26471.build()
 
-text23966 = new ObjText('text23966',null,80,1520,621,37,1,82,null,'div',null,0 )
+text23966 = new ObjText('text23966',null,80,1520,621,37,1,81,null,'div',null,0 )
 text23966.initSLine(1)
 text23966.initHasBullet(0)
 text23966.initRotateAngle(0,0,0)
@@ -1659,7 +1655,7 @@ text23966.arrCSSStyles.push('span.text23966Font1 { font-size:16px; font-family:"
 text23966.addInnerText('<legend><div id=\"text23966\" aria-hidden=\"true\" ><a id=\"text23966anc\" style=\"display:block;height:0px;width:0px;\"></a>\n<p  style=\"margin-left:0px;text-indent:0px;margin-top:0px;margin-bottom:0px;text-align:left;\" >\n<span class=\"text23966Font1\"  >&nbsp;\n</span ></p >\n</div>\n</legend>\n');
 text23966.build()
 
-text23967 = new ObjText('text23967',null,107,1565,117,35,1,83,null,'div',null,0 )
+text23967 = new ObjText('text23967',null,107,1565,117,35,1,82,null,'div',null,0 )
 text23967.initSLine(1)
 text23967.initHasBullet(0)
 text23967.initRotateAngle(0,0,0)
@@ -1677,12 +1673,12 @@ text23967.arrCSSStyles.push('span.text23967Font2 { font-size:13px; font-family:"
 text23967.addInnerText('<div id=\"text23967\" aria-hidden=\"true\" ><a id=\"text23967anc\" style=\"display:block;height:0px;width:0px;\"></a>\n<label id=\"label23968id\" for=\"radio23968id\" ><p  style=\"margin-left:0px;text-indent:0px;margin-top:0px;margin-bottom:0px;text-align:left;\" >\n<span class=\"text23967Font1\"  >Ya</span ><span class=\"text23967Font2\"  >, sama</span ><span class=\"text23967Font1\" style=\"background-color:transparent\" >\n</span ></p >\n</label></div>\n');
 text23967.build()
 
-radio23968 = new ObjInline('radio23968',null,(is.ie?81:80),(is.ie?1568:1567),null,null,1,84, 0, null, null, 0)
+radio23968 = new ObjInline('radio23968',null,(is.ie?81:80),(is.ie?1568:1567),null,null,1,83, 0, null, null, 0)
 radio23968.arrCSSStyles = new Array();
 radio23968.arrCSSStyles.push('');
 radio23968.build()
 
-text23969 = new ObjText('text23969',null,107,1610,157,37,1,85,null,'div',null,0 )
+text23969 = new ObjText('text23969',null,107,1610,157,37,1,84,null,'div',null,0 )
 text23969.initSLine(1)
 text23969.initHasBullet(0)
 text23969.initRotateAngle(0,0,0)
@@ -1700,12 +1696,12 @@ text23969.arrCSSStyles.push('span.text23969Font2 { font-size:13px; font-family:"
 text23969.addInnerText('<div id=\"text23969\" aria-hidden=\"true\" ><a id=\"text23969anc\" style=\"display:block;height:0px;width:0px;\"></a>\n<label id=\"label23970id\" for=\"radio23970id\" ><p  style=\"margin-left:0px;text-indent:0px;margin-top:0px;margin-bottom:0px;text-align:left;\" >\n<span class=\"text23969Font1\"  >Tidak</span ><span class=\"text23969Font2\"  > sama</span ><span class=\"text23969Font1\" style=\"background-color:transparent\" >\n</span ></p >\n</label></div>\n');
 text23969.build()
 
-radio23970 = new ObjInline('radio23970',null,(is.ie?81:80),(is.ie?1614:1613),null,null,1,86, 0, null, null, 0)
+radio23970 = new ObjInline('radio23970',null,(is.ie?81:80),(is.ie?1614:1613),null,null,1,85, 0, null, null, 0)
 radio23970.arrCSSStyles = new Array();
 radio23970.arrCSSStyles.push('');
 radio23970.build()
 
-text24248 = new ObjText('text24248',null,80,1823,629,70,1,87,null,'div',null,0 )
+text24248 = new ObjText('text24248',null,80,1823,629,70,1,86,null,'div',null,0 )
 text24248.initSLine(1)
 text24248.initHasBullet(0)
 text24248.initRotateAngle(0,0,0)
@@ -1722,7 +1718,7 @@ text24248.arrCSSStyles.push('span.text24248Font1 { font-size:16px; font-family:"
 text24248.addInnerText('<legend><div id=\"text24248\" aria-hidden=\"true\" ><a id=\"text24248anc\" style=\"display:block;height:0px;width:0px;\"></a>\n<p  style=\"margin-left:0px;text-indent:0px;margin-top:0px;margin-bottom:0px;text-align:left;\" >\n<span class=\"text24248Font1\"  >&nbsp;\n</span ></p >\n</div>\n</legend>\n');
 text24248.build()
 
-text24249 = new ObjText('text24249',null,107,1907,107,29,1,88,null,'div',null,0 )
+text24249 = new ObjText('text24249',null,107,1907,107,29,1,87,null,'div',null,0 )
 text24249.initSLine(1)
 text24249.initHasBullet(0)
 text24249.initRotateAngle(0,0,0)
@@ -1740,12 +1736,12 @@ text24249.arrCSSStyles.push('span.text24249Font2 { font-size:13px; font-family:"
 text24249.addInnerText('<div id=\"text24249\" aria-hidden=\"true\" ><a id=\"text24249anc\" style=\"display:block;height:0px;width:0px;\"></a>\n<label id=\"label24250id\" for=\"radio24250id\" ><p  style=\"margin-left:0px;text-indent:0px;margin-top:0px;margin-bottom:0px;text-align:left;\" >\n<span class=\"text24249Font1\"  >Ya</span ><span class=\"text24249Font2\"  >, sama</span ><span class=\"text24249Font1\" style=\"background-color:transparent\" >\n</span ></p >\n</label></div>\n');
 text24249.build()
 
-radio24250 = new ObjInline('radio24250',null,(is.ie?81:80),(is.ie?1910:1909),null,null,1,89, 0, null, null, 0)
+radio24250 = new ObjInline('radio24250',null,(is.ie?81:80),(is.ie?1910:1909),null,null,1,88, 0, null, null, 0)
 radio24250.arrCSSStyles = new Array();
 radio24250.arrCSSStyles.push('');
 radio24250.build()
 
-text24251 = new ObjText('text24251',null,107,1952,157,37,1,90,null,'div',null,0 )
+text24251 = new ObjText('text24251',null,107,1952,157,37,1,89,null,'div',null,0 )
 text24251.initSLine(1)
 text24251.initHasBullet(0)
 text24251.initRotateAngle(0,0,0)
@@ -1763,12 +1759,12 @@ text24251.arrCSSStyles.push('span.text24251Font2 { font-size:13px; font-family:"
 text24251.addInnerText('<div id=\"text24251\" aria-hidden=\"true\" ><a id=\"text24251anc\" style=\"display:block;height:0px;width:0px;\"></a>\n<label id=\"label24252id\" for=\"radio24252id\" ><p  style=\"margin-left:0px;text-indent:0px;margin-top:0px;margin-bottom:0px;text-align:left;\" >\n<span class=\"text24251Font1\"  >Tidak</span ><span class=\"text24251Font2\"  > sama</span ><span class=\"text24251Font1\" style=\"background-color:transparent\" >\n</span ></p >\n</label></div>\n');
 text24251.build()
 
-radio24252 = new ObjInline('radio24252',null,(is.ie?81:80),(is.ie?1956:1955),null,null,1,91, 0, null, null, 0)
+radio24252 = new ObjInline('radio24252',null,(is.ie?81:80),(is.ie?1956:1955),null,null,1,90, 0, null, null, 0)
 radio24252.arrCSSStyles = new Array();
 radio24252.arrCSSStyles.push('');
 radio24252.build()
 
-text24316 = new ObjText('text24316',null,80,1996,629,70,1,92,null,'div',null,0 )
+text24316 = new ObjText('text24316',null,80,1996,629,70,1,91,null,'div',null,0 )
 text24316.initSLine(0)
 text24316.initHasBullet(0)
 text24316.initRotateAngle(0,0,0)
@@ -1785,7 +1781,7 @@ text24316.arrCSSStyles.push('span.text24316Font1 { font-size:16px; font-family:"
 text24316.addInnerText('<legend><div id=\"text24316\" aria-hidden=\"true\" ><a id=\"text24316anc\" style=\"display:block;height:0px;width:0px;\"></a>\n<p  style=\"margin-left:0px;text-indent:0px;margin-top:0px;margin-bottom:0px;text-align:left;\" >\n<span class=\"text24316Font1\"  >&nbsp;\n</span ></p >\n</div>\n</legend>\n');
 text24316.build()
 
-text24317 = new ObjText('text24317',null,107,2080,159,38,1,93,null,'div',null,0 )
+text24317 = new ObjText('text24317',null,107,2080,159,38,1,92,null,'div',null,0 )
 text24317.initSLine(1)
 text24317.initHasBullet(0)
 text24317.initRotateAngle(0,0,0)
@@ -1802,12 +1798,12 @@ text24317.arrCSSStyles.push('span.text24317Font1 { font-size:13px; font-family:"
 text24317.addInnerText('<div id=\"text24317\" aria-hidden=\"true\" ><a id=\"text24317anc\" style=\"display:block;height:0px;width:0px;\"></a>\n<label id=\"label24318id\" for=\"radio24318id\" ><p  style=\"margin-left:0px;text-indent:0px;margin-top:0px;margin-bottom:0px;text-align:left;\" >\n<span class=\"text24317Font1\"  >Lebih terang\n</span ></p >\n</label></div>\n');
 text24317.build()
 
-radio24318 = new ObjInline('radio24318',null,(is.ie?81:80),(is.ie?2083:2082),null,null,1,94, 0, null, null, 0)
+radio24318 = new ObjInline('radio24318',null,(is.ie?81:80),(is.ie?2083:2082),null,null,1,93, 0, null, null, 0)
 radio24318.arrCSSStyles = new Array();
 radio24318.arrCSSStyles.push('');
 radio24318.build()
 
-text24319 = new ObjText('text24319',null,107,2125,157,37,1,95,null,'div',null,0 )
+text24319 = new ObjText('text24319',null,107,2125,157,37,1,94,null,'div',null,0 )
 text24319.initSLine(1)
 text24319.initHasBullet(0)
 text24319.initRotateAngle(0,0,0)
@@ -1824,12 +1820,12 @@ text24319.arrCSSStyles.push('span.text24319Font1 { font-size:13px; font-family:"
 text24319.addInnerText('<div id=\"text24319\" aria-hidden=\"true\" ><a id=\"text24319anc\" style=\"display:block;height:0px;width:0px;\"></a>\n<label id=\"label24320id\" for=\"radio24320id\" ><p  style=\"margin-left:0px;text-indent:0px;margin-top:0px;margin-bottom:0px;text-align:left;\" >\n<span class=\"text24319Font1\"  >Lebih gelap\n</span ></p >\n</label></div>\n');
 text24319.build()
 
-radio24320 = new ObjInline('radio24320',null,(is.ie?81:80),(is.ie?2129:2128),null,null,1,96, 0, null, null, 0)
+radio24320 = new ObjInline('radio24320',null,(is.ie?81:80),(is.ie?2129:2128),null,null,1,95, 0, null, null, 0)
 radio24320.arrCSSStyles = new Array();
 radio24320.arrCSSStyles.push('');
 radio24320.build()
 
-text24371 = new ObjText('text24371',null,80,2338,629,70,1,97,null,'div',null,0 )
+text24371 = new ObjText('text24371',null,80,2338,629,70,1,96,null,'div',null,0 )
 text24371.initSLine(1)
 text24371.initHasBullet(0)
 text24371.initRotateAngle(0,0,0)
@@ -1846,7 +1842,7 @@ text24371.arrCSSStyles.push('span.text24371Font1 { font-size:16px; font-family:"
 text24371.addInnerText('<legend><div id=\"text24371\" aria-hidden=\"true\" ><a id=\"text24371anc\" style=\"display:block;height:0px;width:0px;\"></a>\n<p  style=\"margin-left:0px;text-indent:0px;margin-top:0px;margin-bottom:0px;text-align:left;\" >\n<span class=\"text24371Font1\"  >&nbsp;\n</span ></p >\n</div>\n</legend>\n');
 text24371.build()
 
-text24372 = new ObjText('text24372',null,107,2422,159,38,1,98,null,'div',null,0 )
+text24372 = new ObjText('text24372',null,107,2422,159,38,1,97,null,'div',null,0 )
 text24372.initSLine(1)
 text24372.initHasBullet(0)
 text24372.initRotateAngle(0,0,0)
@@ -1863,12 +1859,12 @@ text24372.arrCSSStyles.push('span.text24372Font1 { font-size:13px; font-family:"
 text24372.addInnerText('<div id=\"text24372\" aria-hidden=\"true\" ><a id=\"text24372anc\" style=\"display:block;height:0px;width:0px;\"></a>\n<label id=\"label24373id\" for=\"radio24373id\" ><p  style=\"margin-left:0px;text-indent:0px;margin-top:0px;margin-bottom:0px;text-align:left;\" >\n<span class=\"text24372Font1\"  >Ya, sama\n</span ></p >\n</label></div>\n');
 text24372.build()
 
-radio24373 = new ObjInline('radio24373',null,(is.ie?81:80),(is.ie?2425:2424),null,null,1,99, 0, null, null, 0)
+radio24373 = new ObjInline('radio24373',null,(is.ie?81:80),(is.ie?2425:2424),null,null,1,98, 0, null, null, 0)
 radio24373.arrCSSStyles = new Array();
 radio24373.arrCSSStyles.push('');
 radio24373.build()
 
-text24374 = new ObjText('text24374',null,107,2467,157,51,1,100,null,'div',null,0 )
+text24374 = new ObjText('text24374',null,107,2467,157,51,1,99,null,'div',null,0 )
 text24374.initSLine(1)
 text24374.initHasBullet(0)
 text24374.initRotateAngle(0,0,0)
@@ -1885,12 +1881,12 @@ text24374.arrCSSStyles.push('span.text24374Font1 { font-size:13px; font-family:"
 text24374.addInnerText('<div id=\"text24374\" aria-hidden=\"true\" ><a id=\"text24374anc\" style=\"display:block;height:0px;width:0px;\"></a>\n<label id=\"label24375id\" for=\"radio24375id\" ><p  style=\"margin-left:0px;text-indent:0px;margin-top:0px;margin-bottom:0px;text-align:left;\" >\n<span class=\"text24374Font1\"  >Tidak sama\n</span ></p >\n</label></div>\n');
 text24374.build()
 
-radio24375 = new ObjInline('radio24375',null,(is.ie?81:80),(is.ie?2471:2470),null,null,1,101, 0, null, null, 0)
+radio24375 = new ObjInline('radio24375',null,(is.ie?81:80),(is.ie?2471:2470),null,null,1,100, 0, null, null, 0)
 radio24375.arrCSSStyles = new Array();
 radio24375.arrCSSStyles.push('');
 radio24375.build()
 
-button23644 = new ObjButton('button23644', 'Button_Lanjut11',489,3039,217.000000,66.000000,1,102,'div','',1,0)
+button23644 = new ObjButton('button23644', 'Button_Lanjut11',489,3039,217.000000,66.000000,1,101,'div','',1,0)
 button23644.setFillStyle(2)
 button23644.setUniqueFillID('kasus_1_investigate_1_button23644')
 button23644.initRotateAngle(0,0,0,-0.000000,-0.000000,216,65)
@@ -1911,25 +1907,25 @@ button23644.hasOnUp = true
 button23644.capture=4
 button23644.build()
 
-combo24154 = new ObjInline('combo24154',null,(is.ie?548:547),(is.ie?2860:2859),null,null,1,103, 0, null, null, 0)
+combo24154 = new ObjInline('combo24154',null,(is.ie?548:547),(is.ie?2860:2859),null,null,1,102, 0, null, null, 0)
 combo24154.onSelChg = combo24154onSelChg
 combo24154.arrCSSStyles = new Array();
 combo24154.arrCSSStyles.push('select.combo24154 { font-size:16px; font-family:"Arial", sans-serif; color:#000000; width:38px; height:20px; background-color:#ffffff; }');
 combo24154.build()
 
-combo24188 = new ObjInline('combo24188',null,(is.ie?606:605),(is.ie?2860:2859),null,null,1,104, 0, null, null, 0)
+combo24188 = new ObjInline('combo24188',null,(is.ie?606:605),(is.ie?2860:2859),null,null,1,103, 0, null, null, 0)
 combo24188.onSelChg = combo24188onSelChg
 combo24188.arrCSSStyles = new Array();
 combo24188.arrCSSStyles.push('select.combo24188 { font-size:16px; font-family:"Arial", sans-serif; color:#000000; width:38px; height:20px; background-color:#ffffff; }');
 combo24188.build()
 
-entry26507 = new ObjInline('entry26507',null,(is.ie?87:87),(is.ie?2252:2251),null,null,1,105, 0, null, null, 0)
+entry26507 = new ObjInline('entry26507',null,(is.ie?87:87),(is.ie?2252:2251),null,null,1,104, 0, null, null, 0)
 entry26507.onSelChg = entry26507onSelChg
 entry26507.arrCSSStyles = new Array();
 entry26507.arrCSSStyles.push('input.entry26507 { font-size:16px; font-family:"Arial", sans-serif; color:#000000; width:608px; height:70px; -webkit-appearance:none; background-color:#ffffff; }');
 entry26507.build()
 
-entry26527 = new ObjInline('entry26527',null,(is.ie?88:88),(is.ie?2555:2554),null,null,1,106, 0, null, null, 0)
+entry26527 = new ObjInline('entry26527',null,(is.ie?88:88),(is.ie?2555:2554),null,null,1,105, 0, null, null, 0)
 entry26527.onSelChg = entry26527onSelChg
 entry26527.arrCSSStyles = new Array();
 entry26527.arrCSSStyles.push('input.entry26527 { font-size:16px; font-family:"Arial", sans-serif; color:#000000; width:608px; height:118px; -webkit-appearance:none; background-color:#ffffff; }');
@@ -2222,69 +2218,3 @@ if( is.min ){
 
 </body>
 </html>
-<script defer>
-  (function () {
-    function waitForLectora(cb) {
-      const interval = setInterval(() => {
-        if (
-          typeof Varcolor_1 !== "undefined" &&
-          typeof Varcolor_2 !== "undefined" &&
-          typeof Varcolors !== "undefined" &&
-          typeof VarmixColor !== "undefined"
-        ) {
-          clearInterval(interval);
-          cb();
-        }
-      }, 50);
-    }
-    window.mixingColor = function () {
-      waitForLectora(() => {
-        const q1 = Number(Varcolor_1.getValue());
-        const q2 = Number(Varcolor_2.getValue());
-        const colors = Varcolors.getValue().split(";");
-        const color1 = colors[0];
-        const color2 = colors[1];
-        const ratio = q2 / (q1 + q2 || 1);
-        const c1 = parseInt(color1, 16);
-        const c2 = parseInt(color2, 16);
-        const r1 = (c1 >> 16) & 255,
-          g1 = (c1 >> 8) & 255,
-          b1 = c1 & 255;
-        const r2 = (c2 >> 16) & 255,
-          g2 = (c2 >> 8) & 255,
-          b2 = c2 & 255;
-        const r = Math.round(r1 * (1 - ratio) + r2 * ratio);
-        const g = Math.round(g1 * (1 - ratio) + g2 * ratio);
-        const b = Math.round(b1 * (1 - ratio) + b2 * ratio);
-        const hexCode = (
-          (r << 16) | (g << 8) | b
-        ).toString(16).padStart(6, "0").toUpperCase();
-        VarmixColor.set(hexCode);
-        const colorMixCode = document.querySelector("div.colorMixCode span");
-        if (colorMixCode) colorMixCode.innerText = hexCode;
-        const colorMix = document.querySelector("#colormix");
-        if (colorMix) colorMix.style.background = "#" + hexCode;
-      });
-    };
-    window.inputCode = function (id) {
-      return new Promise((resolve) => {
-        const Var = window["Var1_" + id + "_c"];
-        if (!Var) {
-          resolve(null);
-          return;
-        }
-        const color = Var.getValue();
-        const observer = new MutationObserver(() => {
-          const mix = document.getElementById("colormix" + id);
-console.log(mix)
-          if (mix) {
-            mix.style.background = "#" + color;
-            observer.disconnect();
-            resolve(color);
-          }
-        });
-        observer.observe(document.body, { childList: true, subtree: true });
-      });
-    };
-  })();
-</script>
