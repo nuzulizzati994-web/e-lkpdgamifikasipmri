@@ -1,11 +1,11 @@
 PhoneResponsive={"785":{
 "pageLayer":{"w":785,"h":3099,"bgColor":"#ffffff"}
 ,
-"text79921":{"x":359,"y":3076,"w":401,"h":23,"txtscale":100,"bOffBottom":0}
+"text79921":{"x":359,"y":3076,"w":402,"h":23,"txtscale":100,"bOffBottom":0}
 ,
 "text68812":{"x":446,"y":502,"w":121,"h":23,"txtscale":100,"bOffBottom":0}
 ,
-"text34918":{"x":80,"y":657,"w":628,"h":82,"txtscale":100,"bOffBottom":0}
+"text34918":{"x":80,"y":657,"w":629,"h":82,"txtscale":100,"bOffBottom":0}
 ,
 "text34919":{"x":107,"y":743,"w":329,"h":27,"txtscale":100,"bOffBottom":0}
 ,
@@ -23,7 +23,7 @@ PhoneResponsive={"785":{
 ,
 "radio34926":{"x":80,"y":863,"fsize":16,"bOffBottom":0}
 ,
-"text35007":{"x":82,"y":904,"w":628,"h":108,"txtscale":100,"bOffBottom":0}
+"text35007":{"x":82,"y":904,"w":629,"h":108,"txtscale":100,"bOffBottom":0}
 ,
 "text35008":{"x":109,"y":1022,"w":329,"h":27,"txtscale":100,"bOffBottom":0}
 ,
@@ -41,7 +41,7 @@ PhoneResponsive={"785":{
 ,
 "radio35015":{"x":82,"y":1142,"fsize":16,"bOffBottom":0}
 ,
-"text35041":{"x":80,"y":1178,"w":628,"h":152,"txtscale":100,"bOffBottom":0}
+"text35041":{"x":80,"y":1178,"w":629,"h":152,"txtscale":100,"bOffBottom":0}
 ,
 "text35042":{"x":107,"y":1341,"w":329,"h":27,"txtscale":100,"bOffBottom":0}
 ,
@@ -79,7 +79,7 @@ PhoneResponsive={"785":{
 ,
 "entry35077":{"x":504,"y":1907,"w":194,"h":46,"fsize":16,"bOffBottom":0}
 ,
-"text35171":{"x":80,"y":1979,"w":628,"h":75,"txtscale":100,"bOffBottom":0}
+"text35171":{"x":80,"y":1979,"w":629,"h":75,"txtscale":100,"bOffBottom":0}
 ,
 "text35172":{"x":107,"y":2064,"w":329,"h":27,"txtscale":100,"bOffBottom":0}
 ,
@@ -89,7 +89,7 @@ PhoneResponsive={"785":{
 ,
 "radio35175":{"x":80,"y":2109,"fsize":16,"bOffBottom":0}
 ,
-"text35221":{"x":80,"y":2147,"w":628,"h":105,"txtscale":100,"bOffBottom":0}
+"text35221":{"x":80,"y":2147,"w":629,"h":105,"txtscale":100,"bOffBottom":0}
 ,
 "text35222":{"x":107,"y":2265,"w":329,"h":27,"txtscale":100,"bOffBottom":0}
 ,
@@ -99,7 +99,7 @@ PhoneResponsive={"785":{
 ,
 "radio35225":{"x":80,"y":2310,"fsize":16,"bOffBottom":0}
 ,
-"text35300":{"x":80,"y":2538,"w":628,"h":190,"txtscale":100,"bOffBottom":0}
+"text35300":{"x":80,"y":2538,"w":629,"h":190,"txtscale":100,"bOffBottom":0}
 ,
 "text35301":{"x":107,"y":2743,"w":329,"h":27,"txtscale":100,"bOffBottom":0}
 ,

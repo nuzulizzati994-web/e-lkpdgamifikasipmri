@@ -1,5 +1,5 @@
 PhoneResponsive={"785":{
-"pageLayer":{"w":480,"h":766,"bgColor":"#ffffff"}
+"pageLayer":{"w":480,"h":765,"bgColor":"#ffffff"}
 ,
 "text84183":{"x":167,"y":325,"w":140,"h":45,"txtscale":100,"bOffBottom":0}
 ,
