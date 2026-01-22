@@ -502,7 +502,7 @@ function init11() {
   findWH()
   if( is.min ){
     trivPageTracking.InitPageTracking();
-    PreloadResources(new Array(text80151,button48493,button48487,image130175,qu48108,qu48108,text48109,text48110,radio48111,radio48111,radio48111,text48112,radio48113,radio48113,radio48113,text48114,radio48115,radio48115,radio48115,text48116,radio48117,radio48117,radio48117,qu48178,qu48178,text48179,text48180,radio48181,radio48181,radio48181,text48182,radio48183,radio48183,radio48183,text48184,radio48185,radio48185,radio48185,text48186,radio48187,radio48187,radio48187,qu48259,qu48259,text48260,text48261,radio48262,radio48262,radio48262,text48263,radio48264,radio48264,radio48264,text48265,radio48266,radio48266,radio48266,text48267,radio48268,radio48268,radio48268,qu48297,qu48297,text48298,text48299,radio48300,radio48300,radio48300,text48301,radio48302,radio48302,radio48302,text48303,radio48304,radio48304,radio48304,text48305,radio48306,radio48306,radio48306,qu48362,qu48362,text48363,text48364,radio48365,radio48365,radio48365,text48366,radio48367,radio48367,radio48367,text48368,radio48369,radio48369,radio48369,text48370,radio48371,radio48371,radio48371))
+    PreloadResources(new Array(text80151,button48493,button48487,text48298,text48299,radio48300,radio48300,radio48300,text48301,radio48302,radio48302,radio48302,text48303,radio48304,radio48304,radio48304,text48305,radio48306,radio48306,radio48306,image130175,qu48108,qu48108,text48109,text48110,radio48111,radio48111,radio48111,text48112,radio48113,radio48113,radio48113,text48114,radio48115,radio48115,radio48115,text48116,radio48117,radio48117,radio48117,qu48178,qu48178,text48179,text48180,radio48181,radio48181,radio48181,text48182,radio48183,radio48183,radio48183,text48184,radio48185,radio48185,radio48185,text48186,radio48187,radio48187,radio48187,qu48259,qu48259,text48260,text48261,radio48262,radio48262,radio48262,text48263,radio48264,radio48264,radio48264,text48265,radio48266,radio48266,radio48266,text48267,radio48268,radio48268,radio48268,qu48297,qu48297,qu48362,qu48362,text48363,text48364,radio48365,radio48365,radio48365,text48366,radio48367,radio48367,radio48367,text48368,radio48369,radio48369,radio48369,text48370,radio48371,radio48371,radio48371))
     pageLayer.transData = {tOut:0,tNum:34,dur:4,fn:null,ol:0,ot:0,fl:0,ft:0,fr:0,fb:0,il:-1,eff:0, tb:0};
     if(!isSinglePagePlayerAvail()){
     if( !is.ie||is.v>8 ) setTimeout( 'pageLayer.doTrans( 0, 34, 4, null, 0, 0, 0, 0, 0, 0, -1, 0, 0 )' , 100 );
@@ -511,6 +511,23 @@ function init11() {
     text80151.init()
     button48493.init()
     button48487.init()
+    text48298.init()
+    text48299.init()
+    radio48300.init()
+    radio48300.init()
+    radio48300.init()
+    text48301.init()
+    radio48302.init()
+    radio48302.init()
+    radio48302.init()
+    text48303.init()
+    radio48304.init()
+    radio48304.init()
+    radio48304.init()
+    text48305.init()
+    radio48306.init()
+    radio48306.init()
+    radio48306.init()
     image130175.init()
     qu48108.init()
     qu48108.init()
@@ -571,23 +588,6 @@ function init11() {
     radio48268.init()
     qu48297.init()
     qu48297.init()
-    text48298.init()
-    text48299.init()
-    radio48300.init()
-    radio48300.init()
-    radio48300.init()
-    text48301.init()
-    radio48302.init()
-    radio48302.init()
-    radio48302.init()
-    text48303.init()
-    radio48304.init()
-    radio48304.init()
-    radio48304.init()
-    text48305.init()
-    radio48306.init()
-    radio48306.init()
-    radio48306.init()
     qu48362.init()
     qu48362.init()
     text48363.init()
@@ -610,6 +610,23 @@ function init11() {
     text80151.activate()
     button48493.activate()
     button48487.activate()
+    text48298.activate()
+    text48299.activate()
+    radio48300.activate()
+    radio48300.activate()
+    radio48300.activate()
+    text48301.activate()
+    radio48302.activate()
+    radio48302.activate()
+    radio48302.activate()
+    text48303.activate()
+    radio48304.activate()
+    radio48304.activate()
+    radio48304.activate()
+    text48305.activate()
+    radio48306.activate()
+    radio48306.activate()
+    radio48306.activate()
     image130175.activate()
     qu48108.activate()
     qu48108.activate()
@@ -670,23 +687,6 @@ function init11() {
     radio48268.activate()
     qu48297.activate()
     qu48297.activate()
-    text48298.activate()
-    text48299.activate()
-    radio48300.activate()
-    radio48300.activate()
-    radio48300.activate()
-    text48301.activate()
-    radio48302.activate()
-    radio48302.activate()
-    radio48302.activate()
-    text48303.activate()
-    radio48304.activate()
-    radio48304.activate()
-    radio48304.activate()
-    text48305.activate()
-    radio48306.activate()
-    radio48306.activate()
-    radio48306.activate()
     qu48362.activate()
     qu48362.activate()
     text48363.activate()
@@ -838,20 +838,20 @@ function doImmFeedback( objId ) {
   if(!qu48108.hasBeenProcessed) {
     if( ans_Var4_25_f != '\u0028\u0069\u0029\u0020\u0064\u0061\u006E\u0020\u0028\u0069\u0069\u0029' && ans_Var4_25_f != '~~~null~~~' ) 
     { //2 
-trivActFBCnt++; action48108_37(onAfterFBAction);return 0;  } //2 
+trivActFBCnt++; action48108_41(onAfterFBAction);return 0;  } //2 
 
     else if( ans_Var4_25_f != '\u0028\u0069\u0029\u0020\u0064\u0061\u006E\u0020\u0028\u0069\u0069\u0029' && ans_Var4_25_f != '~~~null~~~' ) 
     { //2 
-trivActFBCnt++; action48108_38(onAfterFBAction);return 0;  } //2 
+trivActFBCnt++; action48108_42(onAfterFBAction);return 0;  } //2 
 
     else if( ans_Var4_25_f == '\u0028\u0069\u0029\u0020\u0064\u0061\u006E\u0020\u0028\u0069\u0069\u0029' ) 
     { //1 
-        trivActFBCnt++; action48108_39(onAfterFBAction);  return 0;
+        trivActFBCnt++; action48108_43(onAfterFBAction);  return 0;
   } //1
 
     else if( ans_Var4_25_f != '\u0028\u0069\u0029\u0020\u0064\u0061\u006E\u0020\u0028\u0069\u0069\u0029' && ans_Var4_25_f != '~~~null~~~' ) 
     { //2 
-trivActFBCnt++; action48108_40(onAfterFBAction);return 0;  } //2 
+trivActFBCnt++; action48108_44(onAfterFBAction);return 0;  } //2 
 
     }
   }
@@ -860,20 +860,20 @@ trivActFBCnt++; action48108_40(onAfterFBAction);return 0;  } //2
   if(!qu48178.hasBeenProcessed) {
     if( ans_Var4_26_f != '\u0052\u0061\u0073\u0061\u0020\u006D\u0061\u006E\u0069\u0073\u0020\u006A\u0075\u0073\u0020\u006A\u0065\u0072\u0075\u006B\u0020\u0041\u0020\u0064\u0075\u0061\u0020\u006B\u0061\u006C\u0069\u0020\u006C\u0069\u0070\u0061\u0074\u0020\u0064\u0061\u0072\u0069\u0020\u006A\u0075\u0073\u0020\u006A\u0065\u0072\u0075\u006B\u0020\u0042' && ans_Var4_26_f != '~~~null~~~' ) 
     { //2 
-trivActFBCnt++; action48178_37(onAfterFBAction);return 0;  } //2 
+trivActFBCnt++; action48178_41(onAfterFBAction);return 0;  } //2 
 
     else if( ans_Var4_26_f == '\u0052\u0061\u0073\u0061\u0020\u006D\u0061\u006E\u0069\u0073\u0020\u006A\u0075\u0073\u0020\u006A\u0065\u0072\u0075\u006B\u0020\u0041\u0020\u0064\u0075\u0061\u0020\u006B\u0061\u006C\u0069\u0020\u006C\u0069\u0070\u0061\u0074\u0020\u0064\u0061\u0072\u0069\u0020\u006A\u0075\u0073\u0020\u006A\u0065\u0072\u0075\u006B\u0020\u0042' ) 
     { //1 
-        trivActFBCnt++; action48178_38(onAfterFBAction);  return 0;
+        trivActFBCnt++; action48178_42(onAfterFBAction);  return 0;
   } //1
 
     else if( ans_Var4_26_f != '\u0052\u0061\u0073\u0061\u0020\u006D\u0061\u006E\u0069\u0073\u0020\u006A\u0075\u0073\u0020\u006A\u0065\u0072\u0075\u006B\u0020\u0041\u0020\u0064\u0075\u0061\u0020\u006B\u0061\u006C\u0069\u0020\u006C\u0069\u0070\u0061\u0074\u0020\u0064\u0061\u0072\u0069\u0020\u006A\u0075\u0073\u0020\u006A\u0065\u0072\u0075\u006B\u0020\u0042' && ans_Var4_26_f != '~~~null~~~' ) 
     { //2 
-trivActFBCnt++; action48178_39(onAfterFBAction);return 0;  } //2 
+trivActFBCnt++; action48178_43(onAfterFBAction);return 0;  } //2 
 
     else if( ans_Var4_26_f != '\u0052\u0061\u0073\u0061\u0020\u006D\u0061\u006E\u0069\u0073\u0020\u006A\u0075\u0073\u0020\u006A\u0065\u0072\u0075\u006B\u0020\u0041\u0020\u0064\u0075\u0061\u0020\u006B\u0061\u006C\u0069\u0020\u006C\u0069\u0070\u0061\u0074\u0020\u0064\u0061\u0072\u0069\u0020\u006A\u0075\u0073\u0020\u006A\u0065\u0072\u0075\u006B\u0020\u0042' && ans_Var4_26_f != '~~~null~~~' ) 
     { //2 
-trivActFBCnt++; action48178_40(onAfterFBAction);return 0;  } //2 
+trivActFBCnt++; action48178_44(onAfterFBAction);return 0;  } //2 
 
     }
   }
@@ -882,20 +882,20 @@ trivActFBCnt++; action48178_40(onAfterFBAction);return 0;  } //2
   if(!qu48259.hasBeenProcessed) {
     if( ans_Var4_27_f != '\u0052\u0070\u0034\u0030\u002E\u0030\u0030\u0030' && ans_Var4_27_f != '~~~null~~~' ) 
     { //2 
-trivActFBCnt++; action48259_37(onAfterFBAction);return 0;  } //2 
+trivActFBCnt++; action48259_41(onAfterFBAction);return 0;  } //2 
 
     else if( ans_Var4_27_f == '\u0052\u0070\u0034\u0030\u002E\u0030\u0030\u0030' ) 
     { //1 
-        trivActFBCnt++; action48259_38(onAfterFBAction);  return 0;
+        trivActFBCnt++; action48259_42(onAfterFBAction);  return 0;
   } //1
 
     else if( ans_Var4_27_f != '\u0052\u0070\u0034\u0030\u002E\u0030\u0030\u0030' && ans_Var4_27_f != '~~~null~~~' ) 
     { //2 
-trivActFBCnt++; action48259_39(onAfterFBAction);return 0;  } //2 
+trivActFBCnt++; action48259_43(onAfterFBAction);return 0;  } //2 
 
     else if( ans_Var4_27_f != '\u0052\u0070\u0034\u0030\u002E\u0030\u0030\u0030' && ans_Var4_27_f != '~~~null~~~' ) 
     { //2 
-trivActFBCnt++; action48259_40(onAfterFBAction);return 0;  } //2 
+trivActFBCnt++; action48259_44(onAfterFBAction);return 0;  } //2 
 
     }
   }
@@ -904,20 +904,20 @@ trivActFBCnt++; action48259_40(onAfterFBAction);return 0;  } //2
   if(!qu48297.hasBeenProcessed) {
     if( ans_Var4_28_f == '\u0034\u0020\u0068\u0061\u0072\u0069' ) 
     { //1 
-        trivActFBCnt++; action48297_37(onAfterFBAction);  return 0;
+        trivActFBCnt++; action48297_41(onAfterFBAction);  return 0;
   } //1
 
     else if( ans_Var4_28_f != '\u0034\u0020\u0068\u0061\u0072\u0069' && ans_Var4_28_f != '~~~null~~~' ) 
     { //2 
-trivActFBCnt++; action48297_38(onAfterFBAction);return 0;  } //2 
+trivActFBCnt++; action48297_42(onAfterFBAction);return 0;  } //2 
 
     else if( ans_Var4_28_f != '\u0034\u0020\u0068\u0061\u0072\u0069' && ans_Var4_28_f != '~~~null~~~' ) 
     { //2 
-trivActFBCnt++; action48297_39(onAfterFBAction);return 0;  } //2 
+trivActFBCnt++; action48297_43(onAfterFBAction);return 0;  } //2 
 
     else if( ans_Var4_28_f != '\u0034\u0020\u0068\u0061\u0072\u0069' && ans_Var4_28_f != '~~~null~~~' ) 
     { //2 
-trivActFBCnt++; action48297_40(onAfterFBAction);return 0;  } //2 
+trivActFBCnt++; action48297_44(onAfterFBAction);return 0;  } //2 
 
     }
   }
@@ -926,20 +926,20 @@ trivActFBCnt++; action48297_40(onAfterFBAction);return 0;  } //2
   if(!qu48362.hasBeenProcessed) {
     if( ans_Var4_29_f != '\u0032\u0020\u006A\u0061\u006D' && ans_Var4_29_f != '~~~null~~~' ) 
     { //2 
-trivActFBCnt++; action48362_37(onAfterFBAction);return 0;  } //2 
+trivActFBCnt++; action48362_41(onAfterFBAction);return 0;  } //2 
 
     else if( ans_Var4_29_f == '\u0032\u0020\u006A\u0061\u006D' ) 
     { //1 
-        trivActFBCnt++; action48362_38(onAfterFBAction);  return 0;
+        trivActFBCnt++; action48362_42(onAfterFBAction);  return 0;
   } //1
 
     else if( ans_Var4_29_f != '\u0032\u0020\u006A\u0061\u006D' && ans_Var4_29_f != '~~~null~~~' ) 
     { //2 
-trivActFBCnt++; action48362_39(onAfterFBAction);return 0;  } //2 
+trivActFBCnt++; action48362_43(onAfterFBAction);return 0;  } //2 
 
     else if( ans_Var4_29_f != '\u0032\u0020\u006A\u0061\u006D' && ans_Var4_29_f != '~~~null~~~' ) 
     { //2 
-trivActFBCnt++; action48362_40(onAfterFBAction);return 0;  } //2 
+trivActFBCnt++; action48362_44(onAfterFBAction);return 0;  } //2 
 
     }
   }
@@ -983,7 +983,7 @@ function Update_qu48108(value) {
    qu48108Object.hasBeenProcessed=false;
 }
 
-function action48108_37(fn){
+function action48108_41(fn){
     try{
      pt(0,4,25,50); 
      } catch (e) {
@@ -993,7 +993,7 @@ function action48108_37(fn){
     else if(fn && typeof(fn) == 'function' ) fn();
 }
 
-function action48108_38(fn){
+function action48108_42(fn){
     try{
      pt(0,4,25,50); 
      } catch (e) {
@@ -1003,7 +1003,7 @@ function action48108_38(fn){
     else if(fn && typeof(fn) == 'function' ) fn();
 }
 
-function action48108_39(fn){
+function action48108_43(fn){
     try{
      pt(1,4,25,50); 
      } catch (e) {
@@ -1013,7 +1013,7 @@ function action48108_39(fn){
     else if(fn && typeof(fn) == 'function' ) fn();
 }
 
-function action48108_40(fn){
+function action48108_44(fn){
     try{
      pt(0,4,25,50); 
      } catch (e) {
@@ -1036,7 +1036,7 @@ function Update_qu48178(value) {
    qu48178Object.hasBeenProcessed=false;
 }
 
-function action48178_37(fn){
+function action48178_41(fn){
     try{
      pt(0,4,26,50); 
      } catch (e) {
@@ -1046,7 +1046,7 @@ function action48178_37(fn){
     else if(fn && typeof(fn) == 'function' ) fn();
 }
 
-function action48178_38(fn){
+function action48178_42(fn){
     try{
      pt(1,4,26,50); 
      } catch (e) {
@@ -1056,7 +1056,7 @@ function action48178_38(fn){
     else if(fn && typeof(fn) == 'function' ) fn();
 }
 
-function action48178_39(fn){
+function action48178_43(fn){
     try{
      pt(0,4,26,50); 
      } catch (e) {
@@ -1066,7 +1066,7 @@ function action48178_39(fn){
     else if(fn && typeof(fn) == 'function' ) fn();
 }
 
-function action48178_40(fn){
+function action48178_44(fn){
     try{
      pt(0,4,26,50); 
      } catch (e) {
@@ -1089,7 +1089,7 @@ function Update_qu48259(value) {
    qu48259Object.hasBeenProcessed=false;
 }
 
-function action48259_37(fn){
+function action48259_41(fn){
     try{
      pt(0,4,27,50); 
      } catch (e) {
@@ -1099,7 +1099,7 @@ function action48259_37(fn){
     else if(fn && typeof(fn) == 'function' ) fn();
 }
 
-function action48259_38(fn){
+function action48259_42(fn){
     try{
      pt(1,4,27,50); 
      } catch (e) {
@@ -1109,7 +1109,7 @@ function action48259_38(fn){
     else if(fn && typeof(fn) == 'function' ) fn();
 }
 
-function action48259_39(fn){
+function action48259_43(fn){
     try{
      pt(0,4,27,50); 
      } catch (e) {
@@ -1119,7 +1119,7 @@ function action48259_39(fn){
     else if(fn && typeof(fn) == 'function' ) fn();
 }
 
-function action48259_40(fn){
+function action48259_44(fn){
     try{
      pt(0,4,27,50); 
      } catch (e) {
@@ -1142,7 +1142,7 @@ function Update_qu48297(value) {
    qu48297Object.hasBeenProcessed=false;
 }
 
-function action48297_37(fn){
+function action48297_41(fn){
     try{
      pt(1,4,28,50); 
      } catch (e) {
@@ -1152,7 +1152,7 @@ function action48297_37(fn){
     else if(fn && typeof(fn) == 'function' ) fn();
 }
 
-function action48297_38(fn){
+function action48297_42(fn){
     try{
      pt(0,4,28,50); 
      } catch (e) {
@@ -1162,7 +1162,7 @@ function action48297_38(fn){
     else if(fn && typeof(fn) == 'function' ) fn();
 }
 
-function action48297_39(fn){
+function action48297_43(fn){
     try{
      pt(0,4,28,50); 
      } catch (e) {
@@ -1172,7 +1172,7 @@ function action48297_39(fn){
     else if(fn && typeof(fn) == 'function' ) fn();
 }
 
-function action48297_40(fn){
+function action48297_44(fn){
     try{
      pt(0,4,28,50); 
      } catch (e) {
@@ -1195,7 +1195,7 @@ function Update_qu48362(value) {
    qu48362Object.hasBeenProcessed=false;
 }
 
-function action48362_37(fn){
+function action48362_41(fn){
     try{
      pt(0,4,29,50); 
      } catch (e) {
@@ -1205,7 +1205,7 @@ function action48362_37(fn){
     else if(fn && typeof(fn) == 'function' ) fn();
 }
 
-function action48362_38(fn){
+function action48362_42(fn){
     try{
      pt(1,4,29,50); 
      } catch (e) {
@@ -1215,7 +1215,7 @@ function action48362_38(fn){
     else if(fn && typeof(fn) == 'function' ) fn();
 }
 
-function action48362_39(fn){
+function action48362_43(fn){
     try{
      pt(0,4,29,50); 
      } catch (e) {
@@ -1225,7 +1225,7 @@ function action48362_39(fn){
     else if(fn && typeof(fn) == 'function' ) fn();
 }
 
-function action48362_40(fn){
+function action48362_44(fn){
     try{
      pt(0,4,29,50); 
      } catch (e) {
@@ -1295,7 +1295,116 @@ button48487.hasOnUp = true
 button48487.capture=4
 button48487.build()
 
-image130175 = new ObjImage('image130175','images/final_report_4_revisi.png','final_report_4_revisi',24,136,720,1664,1,5,'div',null, 0 )
+text48298 = new ObjText('text48298',null,95,1372,633,123,1,69,null,'div',null,0 )
+text48298.initSLine(0)
+text48298.initHasBullet(0)
+text48298.initRotateAngle(0,0,0)
+text48298.initHasOuterShadow(0)
+text48298.initHasTextShadow(0)
+text48298.initHasBorder(0)
+text48298.initHasOutline(0)
+text48298.initHasMargin(0)
+text48298.addIe8Attr(95, 1372, 633, 123, 0, 0)
+text48298.addHeading(0)
+text48298.addOpacity(100)
+text48298.arrCSSStyles = new Array();
+text48298.arrCSSStyles.push('span.text48298Font1 { font-size:16px; font-family:"Arial", sans-serif; color:#010101;}');
+text48298.addInnerText('<legend><div id=\"text48298\" aria-hidden=\"true\" ><a id=\"text48298anc\" style=\"display:block;height:0px;width:0px;\"></a>\n<p  style=\"margin-left:0px;text-indent:0px;margin-top:0px;margin-bottom:0px;text-align:left;\" >\n<span class=\"text48298Font1\"  >&nbsp;\n</span ></p >\n</div>\n</legend>\n');
+text48298.build()
+
+text48299 = new ObjText('text48299',null,128,1494,595,40,1,70,null,'div',null,0 )
+text48299.initSLine(1)
+text48299.initHasBullet(0)
+text48299.initRotateAngle(0,0,0)
+text48299.initHasOuterShadow(0)
+text48299.initHasTextShadow(0)
+text48299.initHasBorder(0)
+text48299.initHasOutline(0)
+text48299.initHasMargin(0)
+text48299.addIe8Attr(128, 1494, 595, 40, 0, 0)
+text48299.addHeading(0)
+text48299.addOpacity(100)
+text48299.arrCSSStyles = new Array();
+text48299.arrCSSStyles.push('span.text48299Font1 { font-size:13px; font-family:"Montserrat"; color:#000000;}');
+text48299.arrCSSStyles.push('span.text48299Font2 { font-size:13px; font-family:"Arial", sans-serif; color:#000000;}');
+text48299.addInnerText('<div id=\"text48299\" aria-hidden=\"true\" ><a id=\"text48299anc\" style=\"display:block;height:0px;width:0px;\"></a>\n<label id=\"label48300id\" for=\"radio48300id\" ><p  style=\"margin-left:0px;text-indent:0px;margin-top:0px;margin-bottom:0px;text-align:left;\" >\n<span class=\"text48299Font1\"  >4 hari</span ><span class=\"text48299Font2\" style=\"background-color:transparent\" >\n</span ></p >\n</label></div>\n');
+text48299.build()
+
+radio48300 = new ObjInline('radio48300',null,(is.ie?98:97),(is.ie?1497:1496),null,null,1,71, 0, null, null, 0)
+radio48300.arrCSSStyles = new Array();
+radio48300.arrCSSStyles.push('');
+radio48300.build()
+
+text48301 = new ObjText('text48301',null,128,1546,576,37,1,72,null,'div',null,0 )
+text48301.initSLine(1)
+text48301.initHasBullet(0)
+text48301.initRotateAngle(0,0,0)
+text48301.initHasOuterShadow(0)
+text48301.initHasTextShadow(0)
+text48301.initHasBorder(0)
+text48301.initHasOutline(0)
+text48301.initHasMargin(0)
+text48301.addIe8Attr(128, 1546, 576, 37, 0, 0)
+text48301.addHeading(0)
+text48301.addOpacity(100)
+text48301.arrCSSStyles = new Array();
+text48301.arrCSSStyles.push('span.text48301Font1 { font-size:13px; font-family:"Montserrat"; color:#000000;}');
+text48301.arrCSSStyles.push('span.text48301Font2 { font-size:13px; font-family:"Arial", sans-serif; color:#000000;}');
+text48301.addInnerText('<div id=\"text48301\" aria-hidden=\"true\" ><a id=\"text48301anc\" style=\"display:block;height:0px;width:0px;\"></a>\n<label id=\"label48302id\" for=\"radio48302id\" ><p  style=\"margin-left:0px;text-indent:0px;margin-top:0px;margin-bottom:0px;text-align:left;\" >\n<span class=\"text48301Font1\"  >6 hari</span ><span class=\"text48301Font2\" style=\"background-color:transparent\" >\n</span ></p >\n</label></div>\n');
+text48301.build()
+
+radio48302 = new ObjInline('radio48302',null,(is.ie?98:97),(is.ie?1549:1548),null,null,1,73, 0, null, null, 0)
+radio48302.arrCSSStyles = new Array();
+radio48302.arrCSSStyles.push('');
+radio48302.build()
+
+text48303 = new ObjText('text48303',null,128,1599,479,37,1,74,null,'div',null,0 )
+text48303.initSLine(1)
+text48303.initHasBullet(0)
+text48303.initRotateAngle(0,0,0)
+text48303.initHasOuterShadow(0)
+text48303.initHasTextShadow(0)
+text48303.initHasBorder(0)
+text48303.initHasOutline(0)
+text48303.initHasMargin(0)
+text48303.addIe8Attr(128, 1599, 479, 37, 0, 0)
+text48303.addHeading(0)
+text48303.addOpacity(100)
+text48303.arrCSSStyles = new Array();
+text48303.arrCSSStyles.push('span.text48303Font1 { font-size:13px; font-family:"Montserrat"; color:#000000;}');
+text48303.arrCSSStyles.push('span.text48303Font2 { font-size:13px; font-family:"Arial", sans-serif; color:#000000;}');
+text48303.addInnerText('<div id=\"text48303\" aria-hidden=\"true\" ><a id=\"text48303anc\" style=\"display:block;height:0px;width:0px;\"></a>\n<label id=\"label48304id\" for=\"radio48304id\" ><p  style=\"margin-left:0px;text-indent:0px;margin-top:0px;margin-bottom:0px;text-align:left;\" >\n<span class=\"text48303Font1\"  >8 hari</span ><span class=\"text48303Font2\" style=\"background-color:transparent\" >\n</span ></p >\n</label></div>\n');
+text48303.build()
+
+radio48304 = new ObjInline('radio48304',null,(is.ie?98:97),(is.ie?1602:1601),null,null,1,75, 0, null, null, 0)
+radio48304.arrCSSStyles = new Array();
+radio48304.arrCSSStyles.push('');
+radio48304.build()
+
+text48305 = new ObjText('text48305',null,128,1650,479,37,1,76,null,'div',null,0 )
+text48305.initSLine(1)
+text48305.initHasBullet(0)
+text48305.initRotateAngle(0,0,0)
+text48305.initHasOuterShadow(0)
+text48305.initHasTextShadow(0)
+text48305.initHasBorder(0)
+text48305.initHasOutline(0)
+text48305.initHasMargin(0)
+text48305.addIe8Attr(128, 1650, 479, 37, 0, 0)
+text48305.addHeading(0)
+text48305.addOpacity(100)
+text48305.arrCSSStyles = new Array();
+text48305.arrCSSStyles.push('span.text48305Font1 { font-size:13px; font-family:"Montserrat"; color:#000000;}');
+text48305.arrCSSStyles.push('span.text48305Font2 { font-size:13px; font-family:"Arial", sans-serif; color:#000000;}');
+text48305.addInnerText('<div id=\"text48305\" aria-hidden=\"true\" ><a id=\"text48305anc\" style=\"display:block;height:0px;width:0px;\"></a>\n<label id=\"label48306id\" for=\"radio48306id\" ><p  style=\"margin-left:0px;text-indent:0px;margin-top:0px;margin-bottom:0px;text-align:left;\" >\n<span class=\"text48305Font1\"  >9 hari</span ><span class=\"text48305Font2\" style=\"background-color:transparent\" >\n</span ></p >\n</label></div>\n');
+text48305.build()
+
+radio48306 = new ObjInline('radio48306',null,(is.ie?98:97),(is.ie?1653:1652),null,null,1,77, 0, null, null, 0)
+radio48306.arrCSSStyles = new Array();
+radio48306.arrCSSStyles.push('');
+radio48306.build()
+
+image130175 = new ObjImage('image130175','images/final_report_4_revisi.png','final_report_4_revisi',24,136,720,1664,1,14,'div',null, 0 )
 image130175.initRotateAngle(0,0,0,0,0,0,0)
 image130175.initHasShadow(0)
 image130175.initHasReflection(0)
@@ -1319,7 +1428,7 @@ qu48108.addChild('radio48117')
 qu48108.ansVar=Var4_25_f;
 qu48108.build()
 
-text48109 = new ObjText('text48109',null,95,459,633,73,1,6,null,'div',null,0 )
+text48109 = new ObjText('text48109',null,95,459,633,73,1,15,null,'div',null,0 )
 text48109.initSLine(0)
 text48109.initHasBullet(0)
 text48109.initRotateAngle(0,0,0)
@@ -1336,7 +1445,7 @@ text48109.arrCSSStyles.push('span.text48109Font1 { font-size:16px; font-family:"
 text48109.addInnerText('<legend><div id=\"text48109\" aria-hidden=\"true\" ><a id=\"text48109anc\" style=\"display:block;height:0px;width:0px;\"></a>\n<p  style=\"margin-left:0px;text-indent:0px;margin-top:0px;margin-bottom:0px;text-align:left;\" >\n<span class=\"text48109Font1\"  >&nbsp;\n</span ></p >\n</div>\n</legend>\n');
 text48109.build()
 
-text48110 = new ObjText('text48110',null,128,536,479,37,1,7,null,'div',null,0 )
+text48110 = new ObjText('text48110',null,128,536,479,37,1,16,null,'div',null,0 )
 text48110.initSLine(1)
 text48110.initHasBullet(0)
 text48110.initRotateAngle(0,0,0)
@@ -1354,12 +1463,12 @@ text48110.arrCSSStyles.push('span.text48110Font2 { font-size:13px; font-family:"
 text48110.addInnerText('<div id=\"text48110\" aria-hidden=\"true\" ><a id=\"text48110anc\" style=\"display:block;height:0px;width:0px;\"></a>\n<label id=\"label48111id\" for=\"radio48111id\" ><p  style=\"margin-left:0px;text-indent:0px;margin-top:0px;margin-bottom:0px;text-align:left;\" >\n<span class=\"text48110Font1\"  >(i)</span ><span class=\"text48110Font2\" style=\"background-color:transparent\" >\n</span ></p >\n</label></div>\n');
 text48110.build()
 
-radio48111 = new ObjInline('radio48111',null,(is.ie?98:97),(is.ie?539:538),null,null,1,8, 0, null, null, 0)
+radio48111 = new ObjInline('radio48111',null,(is.ie?98:97),(is.ie?539:538),null,null,1,17, 0, null, null, 0)
 radio48111.arrCSSStyles = new Array();
 radio48111.arrCSSStyles.push('');
 radio48111.build()
 
-text48112 = new ObjText('text48112',null,128,583,479,37,1,9,null,'div',null,0 )
+text48112 = new ObjText('text48112',null,128,583,479,37,1,18,null,'div',null,0 )
 text48112.initSLine(1)
 text48112.initHasBullet(0)
 text48112.initRotateAngle(0,0,0)
@@ -1377,12 +1486,12 @@ text48112.arrCSSStyles.push('span.text48112Font2 { font-size:13px; font-family:"
 text48112.addInnerText('<div id=\"text48112\" aria-hidden=\"true\" ><a id=\"text48112anc\" style=\"display:block;height:0px;width:0px;\"></a>\n<label id=\"label48113id\" for=\"radio48113id\" ><p  style=\"margin-left:0px;text-indent:0px;margin-top:0px;margin-bottom:0px;text-align:left;\" >\n<span class=\"text48112Font1\"  >(ii)</span ><span class=\"text48112Font2\" style=\"background-color:transparent\" >\n</span ></p >\n</label></div>\n');
 text48112.build()
 
-radio48113 = new ObjInline('radio48113',null,(is.ie?98:97),(is.ie?586:585),null,null,1,10, 0, null, null, 0)
+radio48113 = new ObjInline('radio48113',null,(is.ie?98:97),(is.ie?586:585),null,null,1,19, 0, null, null, 0)
 radio48113.arrCSSStyles = new Array();
 radio48113.arrCSSStyles.push('');
 radio48113.build()
 
-text48114 = new ObjText('text48114',null,128,630,479,37,1,11,null,'div',null,0 )
+text48114 = new ObjText('text48114',null,128,630,479,37,1,20,null,'div',null,0 )
 text48114.initSLine(1)
 text48114.initHasBullet(0)
 text48114.initRotateAngle(0,0,0)
@@ -1400,12 +1509,12 @@ text48114.arrCSSStyles.push('span.text48114Font2 { font-size:13px; font-family:"
 text48114.addInnerText('<div id=\"text48114\" aria-hidden=\"true\" ><a id=\"text48114anc\" style=\"display:block;height:0px;width:0px;\"></a>\n<label id=\"label48115id\" for=\"radio48115id\" ><p  style=\"margin-left:0px;text-indent:0px;margin-top:0px;margin-bottom:0px;text-align:left;\" >\n<span class=\"text48114Font1\"  >(i) dan (ii)</span ><span class=\"text48114Font2\" style=\"background-color:transparent\" >\n</span ></p >\n</label></div>\n');
 text48114.build()
 
-radio48115 = new ObjInline('radio48115',null,(is.ie?98:97),(is.ie?633:632),null,null,1,12, 0, null, null, 0)
+radio48115 = new ObjInline('radio48115',null,(is.ie?98:97),(is.ie?633:632),null,null,1,21, 0, null, null, 0)
 radio48115.arrCSSStyles = new Array();
 radio48115.arrCSSStyles.push('');
 radio48115.build()
 
-text48116 = new ObjText('text48116',null,128,677,479,37,1,13,null,'div',null,0 )
+text48116 = new ObjText('text48116',null,128,677,479,37,1,22,null,'div',null,0 )
 text48116.initSLine(1)
 text48116.initHasBullet(0)
 text48116.initRotateAngle(0,0,0)
@@ -1423,7 +1532,7 @@ text48116.arrCSSStyles.push('span.text48116Font2 { font-size:13px; font-family:"
 text48116.addInnerText('<div id=\"text48116\" aria-hidden=\"true\" ><a id=\"text48116anc\" style=\"display:block;height:0px;width:0px;\"></a>\n<label id=\"label48117id\" for=\"radio48117id\" ><p  style=\"margin-left:0px;text-indent:0px;margin-top:0px;margin-bottom:0px;text-align:left;\" >\n<span class=\"text48116Font1\"  >Tidak ada yang benar</span ><span class=\"text48116Font2\" style=\"background-color:transparent\" >\n</span ></p >\n</label></div>\n');
 text48116.build()
 
-radio48117 = new ObjInline('radio48117',null,(is.ie?98:97),(is.ie?680:679),null,null,1,14, 0, null, null, 0)
+radio48117 = new ObjInline('radio48117',null,(is.ie?98:97),(is.ie?680:679),null,null,1,23, 0, null, null, 0)
 radio48117.arrCSSStyles = new Array();
 radio48117.arrCSSStyles.push('');
 radio48117.build()
@@ -1442,7 +1551,7 @@ qu48178.addChild('radio48187')
 qu48178.ansVar=Var4_26_f;
 qu48178.build()
 
-text48179 = new ObjText('text48179',null,95,717,633,83,1,15,null,'div',null,0 )
+text48179 = new ObjText('text48179',null,95,717,633,83,1,24,null,'div',null,0 )
 text48179.initSLine(0)
 text48179.initHasBullet(0)
 text48179.initRotateAngle(0,0,0)
@@ -1459,7 +1568,7 @@ text48179.arrCSSStyles.push('span.text48179Font1 { font-size:16px; font-family:"
 text48179.addInnerText('<legend><div id=\"text48179\" aria-hidden=\"true\" ><a id=\"text48179anc\" style=\"display:block;height:0px;width:0px;\"></a>\n<p  style=\"margin-left:0px;text-indent:0px;margin-top:0px;margin-bottom:0px;text-align:left;\" >\n<span class=\"text48179Font1\"  >&nbsp;\n</span ></p >\n</div>\n</legend>\n');
 text48179.build()
 
-text48180 = new ObjText('text48180',null,128,804,595,40,1,16,null,'div',null,0 )
+text48180 = new ObjText('text48180',null,128,804,595,40,1,25,null,'div',null,0 )
 text48180.initSLine(0)
 text48180.initHasBullet(0)
 text48180.initRotateAngle(0,0,0)
@@ -1477,12 +1586,12 @@ text48180.arrCSSStyles.push('span.text48180Font2 { font-size:13px; font-family:"
 text48180.addInnerText('<div id=\"text48180\" aria-hidden=\"true\" ><a id=\"text48180anc\" style=\"display:block;height:0px;width:0px;\" href=\"javascript:radio48181id.click();\"></a>\n<label id=\"label48181id\" for=\"radio48181id\" ><p  style=\"margin-left:0px;text-indent:0px;margin-top:0px;margin-bottom:0px;text-align:justify;\" >\n<span class=\"text48180Font1\"  >Jus jeruk A ditambah dua sendok gula dari jus jeruk B</span ><span class=\"text48180Font2\" style=\"background-color:transparent\" >\n</span ></p >\n</label></div>\n');
 text48180.build()
 
-radio48181 = new ObjInline('radio48181',null,(is.ie?98:97),(is.ie?807:806),null,null,1,17, 0, null, null, 0)
+radio48181 = new ObjInline('radio48181',null,(is.ie?98:97),(is.ie?807:806),null,null,1,26, 0, null, null, 0)
 radio48181.arrCSSStyles = new Array();
 radio48181.arrCSSStyles.push('');
 radio48181.build()
 
-text48182 = new ObjText('text48182',null,128,856,576,37,1,18,null,'div',null,0 )
+text48182 = new ObjText('text48182',null,128,856,576,37,1,27,null,'div',null,0 )
 text48182.initSLine(0)
 text48182.initHasBullet(0)
 text48182.initRotateAngle(0,0,0)
@@ -1500,12 +1609,12 @@ text48182.arrCSSStyles.push('span.text48182Font2 { font-size:13px; font-family:"
 text48182.addInnerText('<div id=\"text48182\" aria-hidden=\"true\" ><a id=\"text48182anc\" style=\"display:block;height:0px;width:0px;\" href=\"javascript:radio48183id.click();\"></a>\n<label id=\"label48183id\" for=\"radio48183id\" ><p  style=\"margin-left:0px;text-indent:0px;margin-top:0px;margin-bottom:0px;text-align:justify;\" >\n<span class=\"text48182Font1\"  >Rasa manis jus jeruk A dua kali lipat dari jus jeruk B</span ><span class=\"text48182Font2\" style=\"background-color:transparent\" >\n</span ></p >\n</label></div>\n');
 text48182.build()
 
-radio48183 = new ObjInline('radio48183',null,(is.ie?98:97),(is.ie?859:858),null,null,1,19, 0, null, null, 0)
+radio48183 = new ObjInline('radio48183',null,(is.ie?98:97),(is.ie?859:858),null,null,1,28, 0, null, null, 0)
 radio48183.arrCSSStyles = new Array();
 radio48183.arrCSSStyles.push('');
 radio48183.build()
 
-text48184 = new ObjText('text48184',null,128,909,479,37,1,20,null,'div',null,0 )
+text48184 = new ObjText('text48184',null,128,909,479,37,1,29,null,'div',null,0 )
 text48184.initSLine(0)
 text48184.initHasBullet(0)
 text48184.initRotateAngle(0,0,0)
@@ -1523,12 +1632,12 @@ text48184.arrCSSStyles.push('span.text48184Font2 { font-size:13px; font-family:"
 text48184.addInnerText('<div id=\"text48184\" aria-hidden=\"true\" ><a id=\"text48184anc\" style=\"display:block;height:0px;width:0px;\" href=\"javascript:radio48185id.click();\"></a>\n<label id=\"label48185id\" for=\"radio48185id\" ><p  style=\"margin-left:0px;text-indent:0px;margin-top:0px;margin-bottom:0px;text-align:justify;\" >\n<span class=\"text48184Font1\"  >Jus jeruk B lebih manis daripada jus jeruk A</span ><span class=\"text48184Font2\" style=\"background-color:transparent\" >\n</span ></p >\n</label></div>\n');
 text48184.build()
 
-radio48185 = new ObjInline('radio48185',null,(is.ie?98:97),(is.ie?912:911),null,null,1,21, 0, null, null, 0)
+radio48185 = new ObjInline('radio48185',null,(is.ie?98:97),(is.ie?912:911),null,null,1,30, 0, null, null, 0)
 radio48185.arrCSSStyles = new Array();
 radio48185.arrCSSStyles.push('');
 radio48185.build()
 
-text48186 = new ObjText('text48186',null,128,960,479,37,1,22,null,'div',null,0 )
+text48186 = new ObjText('text48186',null,128,960,479,37,1,31,null,'div',null,0 )
 text48186.initSLine(0)
 text48186.initHasBullet(0)
 text48186.initRotateAngle(0,0,0)
@@ -1546,7 +1655,7 @@ text48186.arrCSSStyles.push('span.text48186Font2 { font-size:13px; font-family:"
 text48186.addInnerText('<div id=\"text48186\" aria-hidden=\"true\" ><a id=\"text48186anc\" style=\"display:block;height:0px;width:0px;\" href=\"javascript:radio48187id.click();\"></a>\n<label id=\"label48187id\" for=\"radio48187id\" ><p  style=\"margin-left:0px;text-indent:0px;margin-top:0px;margin-bottom:0px;text-align:justify;\" >\n<span class=\"text48186Font1\"  >Kedua jus sama manisnya</span ><span class=\"text48186Font2\" style=\"background-color:transparent\" >\n</span ></p >\n</label></div>\n');
 text48186.build()
 
-radio48187 = new ObjInline('radio48187',null,(is.ie?98:97),(is.ie?963:962),null,null,1,23, 0, null, null, 0)
+radio48187 = new ObjInline('radio48187',null,(is.ie?98:97),(is.ie?963:962),null,null,1,32, 0, null, null, 0)
 radio48187.arrCSSStyles = new Array();
 radio48187.arrCSSStyles.push('');
 radio48187.build()
@@ -1565,7 +1674,7 @@ qu48259.addChild('radio48268')
 qu48259.ansVar=Var4_27_f;
 qu48259.build()
 
-text48260 = new ObjText('text48260',null,95,995,633,176,1,24,null,'div',null,0 )
+text48260 = new ObjText('text48260',null,95,995,633,176,1,33,null,'div',null,0 )
 text48260.initSLine(0)
 text48260.initHasBullet(0)
 text48260.initRotateAngle(0,0,0)
@@ -1582,7 +1691,7 @@ text48260.arrCSSStyles.push('span.text48260Font1 { font-size:16px; font-family:"
 text48260.addInnerText('<legend><div id=\"text48260\" aria-hidden=\"true\" ><a id=\"text48260anc\" style=\"display:block;height:0px;width:0px;\"></a>\n<p  style=\"margin-left:0px;text-indent:0px;margin-top:0px;margin-bottom:0px;text-align:left;\" >\n<span class=\"text48260Font1\"  >&nbsp;\n</span ></p >\n</div>\n</legend>\n');
 text48260.build()
 
-text48261 = new ObjText('text48261',null,128,1181,595,40,1,25,null,'div',null,0 )
+text48261 = new ObjText('text48261',null,128,1181,595,40,1,34,null,'div',null,0 )
 text48261.initSLine(1)
 text48261.initHasBullet(0)
 text48261.initRotateAngle(0,0,0)
@@ -1600,12 +1709,12 @@ text48261.arrCSSStyles.push('span.text48261Font2 { font-size:13px; font-family:"
 text48261.addInnerText('<div id=\"text48261\" aria-hidden=\"true\" ><a id=\"text48261anc\" style=\"display:block;height:0px;width:0px;\"></a>\n<label id=\"label48262id\" for=\"radio48262id\" ><p  style=\"margin-left:0px;text-indent:0px;margin-top:0px;margin-bottom:0px;text-align:left;\" >\n<span class=\"text48261Font1\"  >Rp35.000</span ><span class=\"text48261Font2\" style=\"background-color:transparent\" >\n</span ></p >\n</label></div>\n');
 text48261.build()
 
-radio48262 = new ObjInline('radio48262',null,(is.ie?98:97),(is.ie?1184:1183),null,null,1,26, 0, null, null, 0)
+radio48262 = new ObjInline('radio48262',null,(is.ie?98:97),(is.ie?1184:1183),null,null,1,35, 0, null, null, 0)
 radio48262.arrCSSStyles = new Array();
 radio48262.arrCSSStyles.push('');
 radio48262.build()
 
-text48263 = new ObjText('text48263',null,128,1233,576,37,1,27,null,'div',null,0 )
+text48263 = new ObjText('text48263',null,128,1233,576,37,1,36,null,'div',null,0 )
 text48263.initSLine(1)
 text48263.initHasBullet(0)
 text48263.initRotateAngle(0,0,0)
@@ -1623,12 +1732,12 @@ text48263.arrCSSStyles.push('span.text48263Font2 { font-size:13px; font-family:"
 text48263.addInnerText('<div id=\"text48263\" aria-hidden=\"true\" ><a id=\"text48263anc\" style=\"display:block;height:0px;width:0px;\"></a>\n<label id=\"label48264id\" for=\"radio48264id\" ><p  style=\"margin-left:0px;text-indent:0px;margin-top:0px;margin-bottom:0px;text-align:left;\" >\n<span class=\"text48263Font1\"  >Rp40.000</span ><span class=\"text48263Font2\" style=\"background-color:transparent\" >\n</span ></p >\n</label></div>\n');
 text48263.build()
 
-radio48264 = new ObjInline('radio48264',null,(is.ie?98:97),(is.ie?1236:1235),null,null,1,28, 0, null, null, 0)
+radio48264 = new ObjInline('radio48264',null,(is.ie?98:97),(is.ie?1236:1235),null,null,1,37, 0, null, null, 0)
 radio48264.arrCSSStyles = new Array();
 radio48264.arrCSSStyles.push('');
 radio48264.build()
 
-text48265 = new ObjText('text48265',null,128,1286,479,37,1,29,null,'div',null,0 )
+text48265 = new ObjText('text48265',null,128,1286,479,37,1,38,null,'div',null,0 )
 text48265.initSLine(1)
 text48265.initHasBullet(0)
 text48265.initRotateAngle(0,0,0)
@@ -1646,12 +1755,12 @@ text48265.arrCSSStyles.push('span.text48265Font2 { font-size:13px; font-family:"
 text48265.addInnerText('<div id=\"text48265\" aria-hidden=\"true\" ><a id=\"text48265anc\" style=\"display:block;height:0px;width:0px;\"></a>\n<label id=\"label48266id\" for=\"radio48266id\" ><p  style=\"margin-left:0px;text-indent:0px;margin-top:0px;margin-bottom:0px;text-align:left;\" >\n<span class=\"text48265Font1\"  >Rp45.000</span ><span class=\"text48265Font2\" style=\"background-color:transparent\" >\n</span ></p >\n</label></div>\n');
 text48265.build()
 
-radio48266 = new ObjInline('radio48266',null,(is.ie?98:97),(is.ie?1289:1288),null,null,1,30, 0, null, null, 0)
+radio48266 = new ObjInline('radio48266',null,(is.ie?98:97),(is.ie?1289:1288),null,null,1,39, 0, null, null, 0)
 radio48266.arrCSSStyles = new Array();
 radio48266.arrCSSStyles.push('');
 radio48266.build()
 
-text48267 = new ObjText('text48267',null,128,1337,479,37,1,31,null,'div',null,0 )
+text48267 = new ObjText('text48267',null,128,1337,479,37,1,40,null,'div',null,0 )
 text48267.initSLine(1)
 text48267.initHasBullet(0)
 text48267.initRotateAngle(0,0,0)
@@ -1669,12 +1778,12 @@ text48267.arrCSSStyles.push('span.text48267Font2 { font-size:13px; font-family:"
 text48267.addInnerText('<div id=\"text48267\" aria-hidden=\"true\" ><a id=\"text48267anc\" style=\"display:block;height:0px;width:0px;\"></a>\n<label id=\"label48268id\" for=\"radio48268id\" ><p  style=\"margin-left:0px;text-indent:0px;margin-top:0px;margin-bottom:0px;text-align:left;\" >\n<span class=\"text48267Font1\"  >Rp50.000</span ><span class=\"text48267Font2\" style=\"background-color:transparent\" >\n</span ></p >\n</label></div>\n');
 text48267.build()
 
-radio48268 = new ObjInline('radio48268',null,(is.ie?98:97),(is.ie?1340:1339),null,null,1,32, 0, null, null, 0)
+radio48268 = new ObjInline('radio48268',null,(is.ie?98:97),(is.ie?1340:1339),null,null,1,41, 0, null, null, 0)
 radio48268.arrCSSStyles = new Array();
 radio48268.arrCSSStyles.push('');
 radio48268.build()
 
-qu48297 = new ObjInline('qu48297',null,85,122,339,238,1,0)
+qu48297 = new ObjInline('qu48297',null,60,675,414,171,1,0)
 qu48297.isGrp = true
 qu48297.addChild('text48298')
 qu48297.addChild('text48299')
@@ -1688,116 +1797,7 @@ qu48297.addChild('radio48306')
 qu48297.ansVar=Var4_28_f;
 qu48297.build()
 
-text48298 = new ObjText('text48298',null,95,1372,633,123,1,33,null,'div',null,0 )
-text48298.initSLine(0)
-text48298.initHasBullet(0)
-text48298.initRotateAngle(0,0,0)
-text48298.initHasOuterShadow(0)
-text48298.initHasTextShadow(0)
-text48298.initHasBorder(0)
-text48298.initHasOutline(0)
-text48298.initHasMargin(0)
-text48298.addIe8Attr(95, 1372, 633, 123, 0, 0)
-text48298.addHeading(0)
-text48298.addOpacity(100)
-text48298.arrCSSStyles = new Array();
-text48298.arrCSSStyles.push('span.text48298Font1 { font-size:16px; font-family:"Arial", sans-serif; color:#010101;}');
-text48298.addInnerText('<legend><div id=\"text48298\" aria-hidden=\"true\" ><a id=\"text48298anc\" style=\"display:block;height:0px;width:0px;\"></a>\n<p  style=\"margin-left:0px;text-indent:0px;margin-top:0px;margin-bottom:0px;text-align:left;\" >\n<span class=\"text48298Font1\"  >&nbsp;\n</span ></p >\n</div>\n</legend>\n');
-text48298.build()
-
-text48299 = new ObjText('text48299',null,128,1494,595,40,1,34,null,'div',null,0 )
-text48299.initSLine(1)
-text48299.initHasBullet(0)
-text48299.initRotateAngle(0,0,0)
-text48299.initHasOuterShadow(0)
-text48299.initHasTextShadow(0)
-text48299.initHasBorder(0)
-text48299.initHasOutline(0)
-text48299.initHasMargin(0)
-text48299.addIe8Attr(128, 1494, 595, 40, 0, 0)
-text48299.addHeading(0)
-text48299.addOpacity(100)
-text48299.arrCSSStyles = new Array();
-text48299.arrCSSStyles.push('span.text48299Font1 { font-size:21px; font-family:"Montserrat"; color:#000000;}');
-text48299.arrCSSStyles.push('span.text48299Font2 { font-size:16px; font-family:"Arial", sans-serif; color:#010101;}');
-text48299.addInnerText('<div id=\"text48299\" aria-hidden=\"true\" ><a id=\"text48299anc\" style=\"display:block;height:0px;width:0px;\"></a>\n<label id=\"label48300id\" for=\"radio48300id\" ><p  style=\"margin-left:0px;text-indent:0px;margin-top:0px;margin-bottom:0px;text-align:left;\" >\n<span class=\"text48299Font1\"  >4 hari</span ><span class=\"text48299Font2\" style=\"background-color:transparent\" >\n</span ></p >\n</label></div>\n');
-text48299.build()
-
-radio48300 = new ObjInline('radio48300',null,(is.ie?98:97),(is.ie?1497:1496),null,null,1,35, 0, null, null, 0)
-radio48300.arrCSSStyles = new Array();
-radio48300.arrCSSStyles.push('');
-radio48300.build()
-
-text48301 = new ObjText('text48301',null,128,1546,576,37,1,36,null,'div',null,0 )
-text48301.initSLine(1)
-text48301.initHasBullet(0)
-text48301.initRotateAngle(0,0,0)
-text48301.initHasOuterShadow(0)
-text48301.initHasTextShadow(0)
-text48301.initHasBorder(0)
-text48301.initHasOutline(0)
-text48301.initHasMargin(0)
-text48301.addIe8Attr(128, 1546, 576, 37, 0, 0)
-text48301.addHeading(0)
-text48301.addOpacity(100)
-text48301.arrCSSStyles = new Array();
-text48301.arrCSSStyles.push('span.text48301Font1 { font-size:21px; font-family:"Montserrat"; color:#000000;}');
-text48301.arrCSSStyles.push('span.text48301Font2 { font-size:16px; font-family:"Arial", sans-serif; color:#010101;}');
-text48301.addInnerText('<div id=\"text48301\" aria-hidden=\"true\" ><a id=\"text48301anc\" style=\"display:block;height:0px;width:0px;\"></a>\n<label id=\"label48302id\" for=\"radio48302id\" ><p  style=\"margin-left:0px;text-indent:0px;margin-top:0px;margin-bottom:0px;text-align:left;\" >\n<span class=\"text48301Font1\"  >6 hari</span ><span class=\"text48301Font2\" style=\"background-color:transparent\" >\n</span ></p >\n</label></div>\n');
-text48301.build()
-
-radio48302 = new ObjInline('radio48302',null,(is.ie?98:97),(is.ie?1549:1548),null,null,1,37, 0, null, null, 0)
-radio48302.arrCSSStyles = new Array();
-radio48302.arrCSSStyles.push('');
-radio48302.build()
-
-text48303 = new ObjText('text48303',null,128,1599,479,37,1,38,null,'div',null,0 )
-text48303.initSLine(1)
-text48303.initHasBullet(0)
-text48303.initRotateAngle(0,0,0)
-text48303.initHasOuterShadow(0)
-text48303.initHasTextShadow(0)
-text48303.initHasBorder(0)
-text48303.initHasOutline(0)
-text48303.initHasMargin(0)
-text48303.addIe8Attr(128, 1599, 479, 37, 0, 0)
-text48303.addHeading(0)
-text48303.addOpacity(100)
-text48303.arrCSSStyles = new Array();
-text48303.arrCSSStyles.push('span.text48303Font1 { font-size:21px; font-family:"Montserrat"; color:#000000;}');
-text48303.arrCSSStyles.push('span.text48303Font2 { font-size:16px; font-family:"Arial", sans-serif; color:#010101;}');
-text48303.addInnerText('<div id=\"text48303\" aria-hidden=\"true\" ><a id=\"text48303anc\" style=\"display:block;height:0px;width:0px;\"></a>\n<label id=\"label48304id\" for=\"radio48304id\" ><p  style=\"margin-left:0px;text-indent:0px;margin-top:0px;margin-bottom:0px;text-align:left;\" >\n<span class=\"text48303Font1\"  >8 hari</span ><span class=\"text48303Font2\" style=\"background-color:transparent\" >\n</span ></p >\n</label></div>\n');
-text48303.build()
-
-radio48304 = new ObjInline('radio48304',null,(is.ie?98:97),(is.ie?1602:1601),null,null,1,39, 0, null, null, 0)
-radio48304.arrCSSStyles = new Array();
-radio48304.arrCSSStyles.push('');
-radio48304.build()
-
-text48305 = new ObjText('text48305',null,128,1650,479,37,1,40,null,'div',null,0 )
-text48305.initSLine(1)
-text48305.initHasBullet(0)
-text48305.initRotateAngle(0,0,0)
-text48305.initHasOuterShadow(0)
-text48305.initHasTextShadow(0)
-text48305.initHasBorder(0)
-text48305.initHasOutline(0)
-text48305.initHasMargin(0)
-text48305.addIe8Attr(128, 1650, 479, 37, 0, 0)
-text48305.addHeading(0)
-text48305.addOpacity(100)
-text48305.arrCSSStyles = new Array();
-text48305.arrCSSStyles.push('span.text48305Font1 { font-size:21px; font-family:"Montserrat"; color:#000000;}');
-text48305.arrCSSStyles.push('span.text48305Font2 { font-size:16px; font-family:"Arial", sans-serif; color:#010101;}');
-text48305.addInnerText('<div id=\"text48305\" aria-hidden=\"true\" ><a id=\"text48305anc\" style=\"display:block;height:0px;width:0px;\"></a>\n<label id=\"label48306id\" for=\"radio48306id\" ><p  style=\"margin-left:0px;text-indent:0px;margin-top:0px;margin-bottom:0px;text-align:left;\" >\n<span class=\"text48305Font1\"  >9 hari</span ><span class=\"text48305Font2\" style=\"background-color:transparent\" >\n</span ></p >\n</label></div>\n');
-text48305.build()
-
-radio48306 = new ObjInline('radio48306',null,(is.ie?98:97),(is.ie?1653:1652),null,null,1,41, 0, null, null, 0)
-radio48306.arrCSSStyles = new Array();
-radio48306.arrCSSStyles.push('');
-radio48306.build()
-
-qu48362 = new ObjInline('qu48362',null,85,122,339,238,1,0)
+qu48362 = new ObjInline('qu48362',null,60,837,412,111,1,0)
 qu48362.isGrp = true
 qu48362.addChild('text48363')
 qu48362.addChild('text48364')
@@ -1841,8 +1841,8 @@ text48364.addIe8Attr(128, 1821, 142, 40, 0, 0)
 text48364.addHeading(0)
 text48364.addOpacity(100)
 text48364.arrCSSStyles = new Array();
-text48364.arrCSSStyles.push('span.text48364Font1 { font-size:21px; font-family:"Montserrat"; color:#000000;}');
-text48364.arrCSSStyles.push('span.text48364Font2 { font-size:16px; font-family:"Arial", sans-serif; color:#010101;}');
+text48364.arrCSSStyles.push('span.text48364Font1 { font-size:13px; font-family:"Montserrat"; color:#000000;}');
+text48364.arrCSSStyles.push('span.text48364Font2 { font-size:13px; font-family:"Arial", sans-serif; color:#000000;}');
 text48364.addInnerText('<div id=\"text48364\" aria-hidden=\"true\" ><a id=\"text48364anc\" style=\"display:block;height:0px;width:0px;\"></a>\n<label id=\"label48365id\" for=\"radio48365id\" ><p  style=\"margin-left:0px;text-indent:0px;margin-top:0px;margin-bottom:0px;text-align:left;\" >\n<span class=\"text48364Font1\"  >1 jam</span ><span class=\"text48364Font2\" style=\"background-color:transparent\" >\n</span ></p >\n</label></div>\n');
 text48364.build()
 
@@ -1864,8 +1864,8 @@ text48366.addIe8Attr(128, 1873, 155, 37, 0, 0)
 text48366.addHeading(0)
 text48366.addOpacity(100)
 text48366.arrCSSStyles = new Array();
-text48366.arrCSSStyles.push('span.text48366Font1 { font-size:21px; font-family:"Montserrat"; color:#000000;}');
-text48366.arrCSSStyles.push('span.text48366Font2 { font-size:16px; font-family:"Arial", sans-serif; color:#010101;}');
+text48366.arrCSSStyles.push('span.text48366Font1 { font-size:13px; font-family:"Montserrat"; color:#000000;}');
+text48366.arrCSSStyles.push('span.text48366Font2 { font-size:13px; font-family:"Arial", sans-serif; color:#000000;}');
 text48366.addInnerText('<div id=\"text48366\" aria-hidden=\"true\" ><a id=\"text48366anc\" style=\"display:block;height:0px;width:0px;\"></a>\n<label id=\"label48367id\" for=\"radio48367id\" ><p  style=\"margin-left:0px;text-indent:0px;margin-top:0px;margin-bottom:0px;text-align:left;\" >\n<span class=\"text48366Font1\"  >2 jam</span ><span class=\"text48366Font2\" style=\"background-color:transparent\" >\n</span ></p >\n</label></div>\n');
 text48366.build()
 
@@ -1887,8 +1887,8 @@ text48368.addIe8Attr(393, 1821, 167, 37, 0, 0)
 text48368.addHeading(0)
 text48368.addOpacity(100)
 text48368.arrCSSStyles = new Array();
-text48368.arrCSSStyles.push('span.text48368Font1 { font-size:21px; font-family:"Montserrat"; color:#000000;}');
-text48368.arrCSSStyles.push('span.text48368Font2 { font-size:16px; font-family:"Arial", sans-serif; color:#010101;}');
+text48368.arrCSSStyles.push('span.text48368Font1 { font-size:13px; font-family:"Montserrat"; color:#000000;}');
+text48368.arrCSSStyles.push('span.text48368Font2 { font-size:13px; font-family:"Arial", sans-serif; color:#000000;}');
 text48368.addInnerText('<div id=\"text48368\" aria-hidden=\"true\" ><a id=\"text48368anc\" style=\"display:block;height:0px;width:0px;\"></a>\n<label id=\"label48369id\" for=\"radio48369id\" ><p  style=\"margin-left:0px;text-indent:0px;margin-top:0px;margin-bottom:0px;text-align:left;\" >\n<span class=\"text48368Font1\"  >4 jam</span ><span class=\"text48368Font2\" style=\"background-color:transparent\" >\n</span ></p >\n</label></div>\n');
 text48368.build()
 
@@ -1910,8 +1910,8 @@ text48370.addIe8Attr(393, 1873, 178, 37, 0, 0)
 text48370.addHeading(0)
 text48370.addOpacity(100)
 text48370.arrCSSStyles = new Array();
-text48370.arrCSSStyles.push('span.text48370Font1 { font-size:21px; font-family:"Montserrat"; color:#000000;}');
-text48370.arrCSSStyles.push('span.text48370Font2 { font-size:16px; font-family:"Arial", sans-serif; color:#010101;}');
+text48370.arrCSSStyles.push('span.text48370Font1 { font-size:13px; font-family:"Montserrat"; color:#000000;}');
+text48370.arrCSSStyles.push('span.text48370Font2 { font-size:13px; font-family:"Arial", sans-serif; color:#000000;}');
 text48370.addInnerText('<div id=\"text48370\" aria-hidden=\"true\" ><a id=\"text48370anc\" style=\"display:block;height:0px;width:0px;\"></a>\n<label id=\"label48371id\" for=\"radio48371id\" ><p  style=\"margin-left:0px;text-indent:0px;margin-top:0px;margin-bottom:0px;text-align:left;\" >\n<span class=\"text48370Font1\"  >8 jam</span ><span class=\"text48370Font2\" style=\"background-color:transparent\" >\n</span ></p >\n</label></div>\n');
 text48370.build()
 
@@ -1924,6 +1924,23 @@ var trivQuestionArray=[qu48108,qu48178,qu48259,qu48297,qu48362];
 arObjs.push(text80151);
 arObjs.push(button48493);
 arObjs.push(button48487);
+arObjs.push(text48298);
+arObjs.push(text48299);
+arObjs.push(radio48300);
+arObjs.push(radio48300);
+arObjs.push(radio48300);
+arObjs.push(text48301);
+arObjs.push(radio48302);
+arObjs.push(radio48302);
+arObjs.push(radio48302);
+arObjs.push(text48303);
+arObjs.push(radio48304);
+arObjs.push(radio48304);
+arObjs.push(radio48304);
+arObjs.push(text48305);
+arObjs.push(radio48306);
+arObjs.push(radio48306);
+arObjs.push(radio48306);
 arObjs.push(image130175);
 arObjs.push(qu48108);
 arObjs.push(qu48108);
@@ -1984,23 +2001,6 @@ arObjs.push(radio48268);
 arObjs.push(radio48268);
 arObjs.push(qu48297);
 arObjs.push(qu48297);
-arObjs.push(text48298);
-arObjs.push(text48299);
-arObjs.push(radio48300);
-arObjs.push(radio48300);
-arObjs.push(radio48300);
-arObjs.push(text48301);
-arObjs.push(radio48302);
-arObjs.push(radio48302);
-arObjs.push(radio48302);
-arObjs.push(text48303);
-arObjs.push(radio48304);
-arObjs.push(radio48304);
-arObjs.push(radio48304);
-arObjs.push(text48305);
-arObjs.push(radio48306);
-arObjs.push(radio48306);
-arObjs.push(radio48306);
 arObjs.push(qu48362);
 arObjs.push(qu48362);
 arObjs.push(text48363);
@@ -2048,6 +2048,19 @@ if( is.min ){
     appendElement(text80151, null, null);
     appendElement(button48493, null, null);
     appendElement(button48487, null, null);
+    appendElement(text48298, '<fieldset id="qu48297_fieldset" style="border:0;"></fieldset>', null);
+    appendElement(text48299, '<fieldset id="qu48297_fieldset" style="border:0;"></fieldset>', null);
+    appendElement(null, '<fieldset id="qu48297_fieldset" style="border:0;"></fieldset>', '<div id="radio48300"><a id="radio48300anc"></a></div>');
+    appendElement(null, radio48300.div, '<input type="radio" name="qu48297" id="radio48300id" value="4 hari" onClick="Update_qu48297(this.value);doImmFeedback(\'qu48297\');" >');
+    appendElement(text48301, '<fieldset id="qu48297_fieldset" style="border:0;"></fieldset>', null);
+    appendElement(null, '<fieldset id="qu48297_fieldset" style="border:0;"></fieldset>', '<div id="radio48302"><a id="radio48302anc"></a></div>');
+    appendElement(null, radio48302.div, '<input type="radio" name="qu48297" id="radio48302id" value="6 hari" onClick="Update_qu48297(this.value);doImmFeedback(\'qu48297\');" >');
+    appendElement(text48303, '<fieldset id="qu48297_fieldset" style="border:0;"></fieldset>', null);
+    appendElement(null, '<fieldset id="qu48297_fieldset" style="border:0;"></fieldset>', '<div id="radio48304"><a id="radio48304anc"></a></div>');
+    appendElement(null, radio48304.div, '<input type="radio" name="qu48297" id="radio48304id" value="8 hari" onClick="Update_qu48297(this.value);doImmFeedback(\'qu48297\');" >');
+    appendElement(text48305, '<fieldset id="qu48297_fieldset" style="border:0;"></fieldset>', null);
+    appendElement(null, '<fieldset id="qu48297_fieldset" style="border:0;"></fieldset>', '<div id="radio48306"><a id="radio48306anc"></a></div>');
+    appendElement(null, radio48306.div, '<input type="radio" name="qu48297" id="radio48306id" value="9 hari" onClick="Update_qu48297(this.value);doImmFeedback(\'qu48297\');" >');
     appendElement(image130175, null, null);
     appendElement( qu48108, '<fieldset id="qu48108_fieldset" style="border:0;"></fieldset>', '<div id="qu48108"><a id="qu48108anc"></a></div>');
     appendElement(text48109, '<fieldset id="qu48108_fieldset" style="border:0;"></fieldset>', null);
@@ -2092,19 +2105,6 @@ if( is.min ){
     appendElement(null, '<fieldset id="qu48259_fieldset" style="border:0;"></fieldset>', '<div id="radio48268"><a id="radio48268anc"></a></div>');
     appendElement(null, radio48268.div, '<input type="radio" name="qu48259" id="radio48268id" value="Rp50.000" onClick="Update_qu48259(this.value);doImmFeedback(\'qu48259\');" >');
     appendElement( qu48297, '<fieldset id="qu48297_fieldset" style="border:0;"></fieldset>', '<div id="qu48297"><a id="qu48297anc"></a></div>');
-    appendElement(text48298, '<fieldset id="qu48297_fieldset" style="border:0;"></fieldset>', null);
-    appendElement(text48299, '<fieldset id="qu48297_fieldset" style="border:0;"></fieldset>', null);
-    appendElement(null, '<fieldset id="qu48297_fieldset" style="border:0;"></fieldset>', '<div id="radio48300"><a id="radio48300anc"></a></div>');
-    appendElement(null, radio48300.div, '<input type="radio" name="qu48297" id="radio48300id" value="4 hari" onClick="Update_qu48297(this.value);doImmFeedback(\'qu48297\');" >');
-    appendElement(text48301, '<fieldset id="qu48297_fieldset" style="border:0;"></fieldset>', null);
-    appendElement(null, '<fieldset id="qu48297_fieldset" style="border:0;"></fieldset>', '<div id="radio48302"><a id="radio48302anc"></a></div>');
-    appendElement(null, radio48302.div, '<input type="radio" name="qu48297" id="radio48302id" value="6 hari" onClick="Update_qu48297(this.value);doImmFeedback(\'qu48297\');" >');
-    appendElement(text48303, '<fieldset id="qu48297_fieldset" style="border:0;"></fieldset>', null);
-    appendElement(null, '<fieldset id="qu48297_fieldset" style="border:0;"></fieldset>', '<div id="radio48304"><a id="radio48304anc"></a></div>');
-    appendElement(null, radio48304.div, '<input type="radio" name="qu48297" id="radio48304id" value="8 hari" onClick="Update_qu48297(this.value);doImmFeedback(\'qu48297\');" >');
-    appendElement(text48305, '<fieldset id="qu48297_fieldset" style="border:0;"></fieldset>', null);
-    appendElement(null, '<fieldset id="qu48297_fieldset" style="border:0;"></fieldset>', '<div id="radio48306"><a id="radio48306anc"></a></div>');
-    appendElement(null, radio48306.div, '<input type="radio" name="qu48297" id="radio48306id" value="9 hari" onClick="Update_qu48297(this.value);doImmFeedback(\'qu48297\');" >');
     appendElement( qu48362, '<fieldset id="qu48362_fieldset" style="border:0;"></fieldset>', '<div id="qu48362"><a id="qu48362anc"></a></div>');
     appendElement(text48363, '<fieldset id="qu48362_fieldset" style="border:0;"></fieldset>', null);
     appendElement(text48364, '<fieldset id="qu48362_fieldset" style="border:0;"></fieldset>', null);
