@@ -9,9 +9,9 @@ DesktopResponsive={"1009":{
 ,
 "image86452":{"x":0,"y":-1,"w":482,"h":766,"bOffBottom":0,"i":"images/login-page.png"}
 ,
-"entry21538":{"x":123,"y":302,"w":238,"h":29,"fsize":32,"bOffBottom":0}
+"entry21538":{"x":123,"y":302,"w":238,"h":29,"fsize":24,"bOffBottom":0}
 ,
-"entry21564":{"x":123,"y":396,"w":236,"h":31,"fsize":32,"bOffBottom":0}
+"entry21564":{"x":123,"y":396,"w":236,"h":31,"fsize":24,"bOffBottom":0}
 ,
 "RCDResetQuestion":function(){
 try{if(window.dragMgr)window.dragMgr.clearDropZones();}catch(e){if(e&&e.message)console.log(e.message);}

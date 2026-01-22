@@ -65,7 +65,7 @@ PhoneResponsive={"785":{
 ,
 "radio44309":{"x":97,"y":1154,"fsize":16,"bOffBottom":0}
 ,
-"text44394":{"x":485,"y":771,"w":632,"h":83,"txtscale":100,"bOffBottom":0}
+"text44394":{"x":790,"y":1707,"w":632,"h":83,"txtscale":100,"bOffBottom":0}
 ,
 "text44395":{"x":128,"y":1406,"w":477,"h":46,"txtscale":100,"bOffBottom":0}
 ,

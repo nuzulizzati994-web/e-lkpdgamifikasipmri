@@ -361,7 +361,7 @@ var pageScale = 1;
 var bDisableBrowserResize = false;
 var bScaleToWindow = false;
 var bFitToWidth = false;
-var bFitToMobile = false;
+var bFitToMobile = true;
 var pageHeight = 766;
 var bLoadedVariables = false;
 
@@ -464,7 +464,7 @@ Varusername_1 = new Variable( 'Varusername_1', '', 0, 0, null, null, 'lkpd_gamif
 Varpassword_1 = new Variable( 'Varpassword_1', '', 0, 0, null, null, 'lkpd_gamifikasi', false )
 VarToken = new Variable( 'VarToken', '', 0, 0, null, null, 'lkpd_gamifikasi', false )
 Varip = new Variable( 'Varip', 'api.epistura.web.id', 0, 0, null, null, 'lkpd_gamifikasi', false )
-Var1_18_k = new Variable( 'Var1_18_k', '', 0, 0, null, 365, 'lkpd_gamifikasi', false )
+Var1_15_k = new Variable( 'Var1_15_k', '', 0, 0, null, 365, 'lkpd_gamifikasi', false )
 Varpoints = new Variable( 'Varpoints', '{}', 0, 0, null, null, 'lkpd_gamifikasi', false )
 VarFinalPoint = new Variable( 'VarFinalPoint', '0', 0, 0, null, null, 'lkpd_gamifikasi', false )
 VarTotalPoint = new Variable( 'VarTotalPoint', '0', 0, 0, null, null, 'lkpd_gamifikasi', false )
@@ -544,8 +544,8 @@ function init11() {
 function loadActions(){
     if((window.bPageLoaded && window.bLoadedVariables && getDisplayWindow().pagePlayer &&
 	getDisplayWindow().pagePlayer.arLoadedPages && getDisplayWindow().pagePlayer.arLoadedPages.length == 1) || (window.bPageLoaded && window.bLoadedVariables && !isSinglePagePlayerAvail() )){
-      var valVar1_18_k = Var1_18_k.getValue()
-      if(valVar1_18_k!='~~~null~~~')entry40783.objLyr.doc.forms["entry40783form"]["CTC_1"].value=valVar1_18_k
+      var valVar1_15_k = Var1_15_k.getValue()
+      if(valVar1_15_k!='~~~null~~~')entry40783.objLyr.doc.forms["entry40783form"]["CTC_1"].value=valVar1_15_k
 
        if(typeof(updateFLVPlayer) !== 'undefined') updateFLVPlayer();
        postPageShowAction();
@@ -642,7 +642,7 @@ function action40854else(fn){
 }
 
 function action40854(fn){
-    if(!Var1_18_k.equals('~~~null~~~'))
+    if(!Var1_15_k.equals('~~~null~~~'))
     {trivExitPage('kasus_1_final_report_1.html',true); 
     }else{ action40854else();}
     if(fn && typeof(fn) == 'string' ) eval(fn);
@@ -685,7 +685,7 @@ function action65490(fn){
   ["merah", "cat merah"],
   ["kuning", "cat kuning"],
   ["warna", "warnanya", "oranye", "hasil", "hasilnya", "campuran", "lebih kuning", "lebih muda", "kurang merah", "lebih merah", "lebih tua"]
-], Var1_18_k.getValue(), 1, 18, 25); 
+], Var1_15_k.getValue(), 1, 15, 25); 
      } catch (e) {
      alert('[OnSelectChangeRunJS] ' + e);
      }
@@ -833,7 +833,7 @@ if( is.min ){
     appendElement(button40379, null, null);
     appendElement(null, null, '<div id="entry40783"><a id="entry40783anc"></a></div>');
     appendElement(null, '<div id="entry40783"><a id="entry40783anc"></a></div>', '<form id="entry40783form"  name="entry40783form" onSubmit="return false;"></form>');
-    appendElement(null, '<form id="entry40783form"  name="entry40783form" onSubmit="return false;"></form>', '<input class="entry40783" type="text" name="CTC_1" title="CTC_1" id="entry40783id" size="23" maxlength="500" onPropertyChange="if( !Var1_18_k.equals(this.value) ) { Var1_18_k.set(this.value);entry40783Object.onSelChg(); }" onChange="if( !Var1_18_k.equals(this.value) ) { Var1_18_k.set(this.value);entry40783Object.onSelChg(); }" onKeyUp="Var1_18_k.set(this.value);entry40783Object.onSelChg();;" onBlur="" >');
+    appendElement(null, '<form id="entry40783form"  name="entry40783form" onSubmit="return false;"></form>', '<input class="entry40783" type="text" name="CTC_1" title="CTC_1" id="entry40783id" size="23" maxlength="500" onPropertyChange="if( !Var1_15_k.equals(this.value) ) { Var1_15_k.set(this.value);entry40783Object.onSelChg(); }" onChange="if( !Var1_15_k.equals(this.value) ) { Var1_15_k.set(this.value);entry40783Object.onSelChg(); }" onKeyUp="Var1_15_k.set(this.value);entry40783Object.onSelChg();;" onBlur="" >');
     appendElement(text78516, null, null);
     appendElement(image102366, null, null);
 }

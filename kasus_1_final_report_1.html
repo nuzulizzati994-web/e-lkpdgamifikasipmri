@@ -361,7 +361,7 @@ var pageScale = 1;
 var bDisableBrowserResize = false;
 var bScaleToWindow = false;
 var bFitToWidth = false;
-var bFitToMobile = false;
+var bFitToMobile = true;
 var pageHeight = 1782;
 var bLoadedVariables = false;
 
@@ -468,10 +468,10 @@ Varusername_1 = new Variable( 'Varusername_1', '', 0, 0, null, null, 'lkpd_gamif
 Varpassword_1 = new Variable( 'Varpassword_1', '', 0, 0, null, null, 'lkpd_gamifikasi', false )
 VarToken = new Variable( 'VarToken', '', 0, 0, null, null, 'lkpd_gamifikasi', false )
 Varip = new Variable( 'Varip', 'api.epistura.web.id', 0, 0, null, null, 'lkpd_gamifikasi', false )
+Var1_16_f = new Variable( 'Var1_16_f', '', 0, 0, null, 365, 'lkpd_gamifikasi', false )
+Var1_17_f = new Variable( 'Var1_17_f', '', 0, 0, null, 365, 'lkpd_gamifikasi', false )
+Var1_18_f = new Variable( 'Var1_18_f', '', 0, 0, null, 365, 'lkpd_gamifikasi', false )
 Var1_19_f = new Variable( 'Var1_19_f', '', 0, 0, null, 365, 'lkpd_gamifikasi', false )
-Var1_20_f = new Variable( 'Var1_20_f', '', 0, 0, null, 365, 'lkpd_gamifikasi', false )
-Var1_21_f = new Variable( 'Var1_21_f', '', 0, 0, null, 365, 'lkpd_gamifikasi', false )
-Var1_22_f = new Variable( 'Var1_22_f', '', 0, 0, null, 365, 'lkpd_gamifikasi', false )
 Varpoints = new Variable( 'Varpoints', '{}', 0, 0, null, null, 'lkpd_gamifikasi', false )
 VarFinalPoint = new Variable( 'VarFinalPoint', '0', 0, 0, null, null, 'lkpd_gamifikasi', false )
 VarTotalPoint = new Variable( 'VarTotalPoint', '0', 0, 0, null, null, 'lkpd_gamifikasi', false )
@@ -793,90 +793,90 @@ function doImmFeedback( objId ) {
   var onAfterFBAction = function(){trivActFBCnt--;};
 
   if(objId=='qu42143') {
-  var ans_Var1_19_f = Var1_19_f.getValue()
+  var ans_Var1_16_f = Var1_16_f.getValue()
   if(!qu42143.hasBeenProcessed) {
-    if( ans_Var1_19_f == '\u0032\u0020\u003A\u0020\u0031' ) 
+    if( ans_Var1_16_f == '\u0032\u0020\u003A\u0020\u0031' ) 
     { //1 
-        trivActFBCnt++; action42143_13(onAfterFBAction);  return 0;
+        trivActFBCnt++; action42143_1(onAfterFBAction);  return 0;
   } //1
 
-    else if( ans_Var1_19_f != '\u0032\u0020\u003A\u0020\u0031' && ans_Var1_19_f != '~~~null~~~' ) 
+    else if( ans_Var1_16_f != '\u0032\u0020\u003A\u0020\u0031' && ans_Var1_16_f != '~~~null~~~' ) 
     { //2 
-trivActFBCnt++; action42143_14(onAfterFBAction);return 0;  } //2 
+trivActFBCnt++; action42143_2(onAfterFBAction);return 0;  } //2 
 
-    else if( ans_Var1_19_f != '\u0032\u0020\u003A\u0020\u0031' && ans_Var1_19_f != '~~~null~~~' ) 
+    else if( ans_Var1_16_f != '\u0032\u0020\u003A\u0020\u0031' && ans_Var1_16_f != '~~~null~~~' ) 
     { //2 
-trivActFBCnt++; action42143_15(onAfterFBAction);return 0;  } //2 
+trivActFBCnt++; action42143_3(onAfterFBAction);return 0;  } //2 
 
-    else if( ans_Var1_19_f != '\u0032\u0020\u003A\u0020\u0031' && ans_Var1_19_f != '~~~null~~~' ) 
+    else if( ans_Var1_16_f != '\u0032\u0020\u003A\u0020\u0031' && ans_Var1_16_f != '~~~null~~~' ) 
     { //2 
-trivActFBCnt++; action42143_16(onAfterFBAction);return 0;  } //2 
+trivActFBCnt++; action42143_4(onAfterFBAction);return 0;  } //2 
 
     }
   }
   if(objId=='qu42386') {
-  var ans_Var1_20_f = Var1_20_f.getValue()
+  var ans_Var1_17_f = Var1_17_f.getValue()
   if(!qu42386.hasBeenProcessed) {
-    if( ans_Var1_20_f != '\u0032\u0030\u0020\u003A\u0020\u0034\u0035' && ans_Var1_20_f != '~~~null~~~' ) 
+    if( ans_Var1_17_f != '\u0032\u0030\u0020\u003A\u0020\u0034\u0035' && ans_Var1_17_f != '~~~null~~~' ) 
     { //2 
-trivActFBCnt++; action42386_13(onAfterFBAction);return 0;  } //2 
+trivActFBCnt++; action42386_1(onAfterFBAction);return 0;  } //2 
 
-    else if( ans_Var1_20_f == '\u0032\u0030\u0020\u003A\u0020\u0034\u0035' ) 
+    else if( ans_Var1_17_f == '\u0032\u0030\u0020\u003A\u0020\u0034\u0035' ) 
     { //1 
-        trivActFBCnt++; action42386_14(onAfterFBAction);  return 0;
+        trivActFBCnt++; action42386_2(onAfterFBAction);  return 0;
   } //1
 
-    else if( ans_Var1_20_f != '\u0032\u0030\u0020\u003A\u0020\u0034\u0035' && ans_Var1_20_f != '~~~null~~~' ) 
+    else if( ans_Var1_17_f != '\u0032\u0030\u0020\u003A\u0020\u0034\u0035' && ans_Var1_17_f != '~~~null~~~' ) 
     { //2 
-trivActFBCnt++; action42386_15(onAfterFBAction);return 0;  } //2 
+trivActFBCnt++; action42386_3(onAfterFBAction);return 0;  } //2 
 
-    else if( ans_Var1_20_f != '\u0032\u0030\u0020\u003A\u0020\u0034\u0035' && ans_Var1_20_f != '~~~null~~~' ) 
+    else if( ans_Var1_17_f != '\u0032\u0030\u0020\u003A\u0020\u0034\u0035' && ans_Var1_17_f != '~~~null~~~' ) 
     { //2 
-trivActFBCnt++; action42386_16(onAfterFBAction);return 0;  } //2 
+trivActFBCnt++; action42386_4(onAfterFBAction);return 0;  } //2 
 
     }
   }
   if(objId=='qu42468') {
-  var ans_Var1_21_f = Var1_21_f.getValue()
+  var ans_Var1_18_f = Var1_18_f.getValue()
   if(!qu42468.hasBeenProcessed) {
-    if( ans_Var1_21_f != '\u004D\u0065\u006E\u0075\u006E\u006A\u0075\u006B\u006B\u0061\u006E\u0020\u0068\u0075\u0062\u0075\u006E\u0067\u0061\u006E\u0020\u0061\u006E\u0074\u0061\u0072\u0061\u0020\u0064\u0075\u0061\u0020\u0062\u0065\u0073\u0061\u0072\u0061\u006E' && ans_Var1_21_f != '~~~null~~~' ) 
+    if( ans_Var1_18_f != '\u004D\u0065\u006E\u0075\u006E\u006A\u0075\u006B\u006B\u0061\u006E\u0020\u0068\u0075\u0062\u0075\u006E\u0067\u0061\u006E\u0020\u0061\u006E\u0074\u0061\u0072\u0061\u0020\u0064\u0075\u0061\u0020\u0062\u0065\u0073\u0061\u0072\u0061\u006E' && ans_Var1_18_f != '~~~null~~~' ) 
     { //2 
-trivActFBCnt++; action42468_13(onAfterFBAction);return 0;  } //2 
+trivActFBCnt++; action42468_1(onAfterFBAction);return 0;  } //2 
 
-    else if( ans_Var1_21_f == '\u004D\u0065\u006E\u0075\u006E\u006A\u0075\u006B\u006B\u0061\u006E\u0020\u0068\u0075\u0062\u0075\u006E\u0067\u0061\u006E\u0020\u0061\u006E\u0074\u0061\u0072\u0061\u0020\u0064\u0075\u0061\u0020\u0062\u0065\u0073\u0061\u0072\u0061\u006E' ) 
+    else if( ans_Var1_18_f == '\u004D\u0065\u006E\u0075\u006E\u006A\u0075\u006B\u006B\u0061\u006E\u0020\u0068\u0075\u0062\u0075\u006E\u0067\u0061\u006E\u0020\u0061\u006E\u0074\u0061\u0072\u0061\u0020\u0064\u0075\u0061\u0020\u0062\u0065\u0073\u0061\u0072\u0061\u006E' ) 
     { //1 
-        trivActFBCnt++; action42468_14(onAfterFBAction);  return 0;
+        trivActFBCnt++; action42468_2(onAfterFBAction);  return 0;
   } //1
 
-    else if( ans_Var1_21_f != '\u004D\u0065\u006E\u0075\u006E\u006A\u0075\u006B\u006B\u0061\u006E\u0020\u0068\u0075\u0062\u0075\u006E\u0067\u0061\u006E\u0020\u0061\u006E\u0074\u0061\u0072\u0061\u0020\u0064\u0075\u0061\u0020\u0062\u0065\u0073\u0061\u0072\u0061\u006E' && ans_Var1_21_f != '~~~null~~~' ) 
+    else if( ans_Var1_18_f != '\u004D\u0065\u006E\u0075\u006E\u006A\u0075\u006B\u006B\u0061\u006E\u0020\u0068\u0075\u0062\u0075\u006E\u0067\u0061\u006E\u0020\u0061\u006E\u0074\u0061\u0072\u0061\u0020\u0064\u0075\u0061\u0020\u0062\u0065\u0073\u0061\u0072\u0061\u006E' && ans_Var1_18_f != '~~~null~~~' ) 
     { //2 
-trivActFBCnt++; action42468_15(onAfterFBAction);return 0;  } //2 
+trivActFBCnt++; action42468_3(onAfterFBAction);return 0;  } //2 
 
-    else if( ans_Var1_21_f != '\u004D\u0065\u006E\u0075\u006E\u006A\u0075\u006B\u006B\u0061\u006E\u0020\u0068\u0075\u0062\u0075\u006E\u0067\u0061\u006E\u0020\u0061\u006E\u0074\u0061\u0072\u0061\u0020\u0064\u0075\u0061\u0020\u0062\u0065\u0073\u0061\u0072\u0061\u006E' && ans_Var1_21_f != '~~~null~~~' ) 
+    else if( ans_Var1_18_f != '\u004D\u0065\u006E\u0075\u006E\u006A\u0075\u006B\u006B\u0061\u006E\u0020\u0068\u0075\u0062\u0075\u006E\u0067\u0061\u006E\u0020\u0061\u006E\u0074\u0061\u0072\u0061\u0020\u0064\u0075\u0061\u0020\u0062\u0065\u0073\u0061\u0072\u0061\u006E' && ans_Var1_18_f != '~~~null~~~' ) 
     { //2 
-trivActFBCnt++; action42468_16(onAfterFBAction);return 0;  } //2 
+trivActFBCnt++; action42468_4(onAfterFBAction);return 0;  } //2 
 
     }
   }
   if(objId=='qu42527') {
-  var ans_Var1_22_f = Var1_22_f.getValue()
+  var ans_Var1_19_f = Var1_19_f.getValue()
   if(!qu42527.hasBeenProcessed) {
-    if( ans_Var1_22_f != '\u004A\u0075\u006D\u006C\u0061\u0068\u0020\u0062\u0075\u006B\u0075\u0020\u0044\u0069\u0074\u006F\u0020\u0064\u0075\u0061\u0020\u006B\u0061\u006C\u0069\u0020\u006C\u0069\u0070\u0061\u0074\u0020\u006C\u0065\u0062\u0069\u0068\u0020\u0062\u0061\u006E\u0079\u0061\u006B\u0020\u0064\u0061\u0072\u0069\u0020\u006A\u0075\u006D\u006C\u0061\u0068\u0020\u0062\u0075\u006B\u0075\u0020\u0046\u0069\u0072\u0061' && ans_Var1_22_f != '~~~null~~~' ) 
+    if( ans_Var1_19_f != '\u004A\u0075\u006D\u006C\u0061\u0068\u0020\u0062\u0075\u006B\u0075\u0020\u0044\u0069\u0074\u006F\u0020\u0064\u0075\u0061\u0020\u006B\u0061\u006C\u0069\u0020\u006C\u0069\u0070\u0061\u0074\u0020\u006C\u0065\u0062\u0069\u0068\u0020\u0062\u0061\u006E\u0079\u0061\u006B\u0020\u0064\u0061\u0072\u0069\u0020\u006A\u0075\u006D\u006C\u0061\u0068\u0020\u0062\u0075\u006B\u0075\u0020\u0046\u0069\u0072\u0061' && ans_Var1_19_f != '~~~null~~~' ) 
     { //2 
-trivActFBCnt++; action42527_13(onAfterFBAction);return 0;  } //2 
+trivActFBCnt++; action42527_1(onAfterFBAction);return 0;  } //2 
 
-    else if( ans_Var1_22_f == '\u004A\u0075\u006D\u006C\u0061\u0068\u0020\u0062\u0075\u006B\u0075\u0020\u0044\u0069\u0074\u006F\u0020\u0064\u0075\u0061\u0020\u006B\u0061\u006C\u0069\u0020\u006C\u0069\u0070\u0061\u0074\u0020\u006C\u0065\u0062\u0069\u0068\u0020\u0062\u0061\u006E\u0079\u0061\u006B\u0020\u0064\u0061\u0072\u0069\u0020\u006A\u0075\u006D\u006C\u0061\u0068\u0020\u0062\u0075\u006B\u0075\u0020\u0046\u0069\u0072\u0061' ) 
+    else if( ans_Var1_19_f == '\u004A\u0075\u006D\u006C\u0061\u0068\u0020\u0062\u0075\u006B\u0075\u0020\u0044\u0069\u0074\u006F\u0020\u0064\u0075\u0061\u0020\u006B\u0061\u006C\u0069\u0020\u006C\u0069\u0070\u0061\u0074\u0020\u006C\u0065\u0062\u0069\u0068\u0020\u0062\u0061\u006E\u0079\u0061\u006B\u0020\u0064\u0061\u0072\u0069\u0020\u006A\u0075\u006D\u006C\u0061\u0068\u0020\u0062\u0075\u006B\u0075\u0020\u0046\u0069\u0072\u0061' ) 
     { //1 
-        trivActFBCnt++; action42527_14(onAfterFBAction);  return 0;
+        trivActFBCnt++; action42527_2(onAfterFBAction);  return 0;
   } //1
 
-    else if( ans_Var1_22_f != '\u004A\u0075\u006D\u006C\u0061\u0068\u0020\u0062\u0075\u006B\u0075\u0020\u0044\u0069\u0074\u006F\u0020\u0064\u0075\u0061\u0020\u006B\u0061\u006C\u0069\u0020\u006C\u0069\u0070\u0061\u0074\u0020\u006C\u0065\u0062\u0069\u0068\u0020\u0062\u0061\u006E\u0079\u0061\u006B\u0020\u0064\u0061\u0072\u0069\u0020\u006A\u0075\u006D\u006C\u0061\u0068\u0020\u0062\u0075\u006B\u0075\u0020\u0046\u0069\u0072\u0061' && ans_Var1_22_f != '~~~null~~~' ) 
+    else if( ans_Var1_19_f != '\u004A\u0075\u006D\u006C\u0061\u0068\u0020\u0062\u0075\u006B\u0075\u0020\u0044\u0069\u0074\u006F\u0020\u0064\u0075\u0061\u0020\u006B\u0061\u006C\u0069\u0020\u006C\u0069\u0070\u0061\u0074\u0020\u006C\u0065\u0062\u0069\u0068\u0020\u0062\u0061\u006E\u0079\u0061\u006B\u0020\u0064\u0061\u0072\u0069\u0020\u006A\u0075\u006D\u006C\u0061\u0068\u0020\u0062\u0075\u006B\u0075\u0020\u0046\u0069\u0072\u0061' && ans_Var1_19_f != '~~~null~~~' ) 
     { //2 
-trivActFBCnt++; action42527_15(onAfterFBAction);return 0;  } //2 
+trivActFBCnt++; action42527_3(onAfterFBAction);return 0;  } //2 
 
-    else if( ans_Var1_22_f != '\u004A\u0075\u006D\u006C\u0061\u0068\u0020\u0062\u0075\u006B\u0075\u0020\u0044\u0069\u0074\u006F\u0020\u0064\u0075\u0061\u0020\u006B\u0061\u006C\u0069\u0020\u006C\u0069\u0070\u0061\u0074\u0020\u006C\u0065\u0062\u0069\u0068\u0020\u0062\u0061\u006E\u0079\u0061\u006B\u0020\u0064\u0061\u0072\u0069\u0020\u006A\u0075\u006D\u006C\u0061\u0068\u0020\u0062\u0075\u006B\u0075\u0020\u0046\u0069\u0072\u0061' && ans_Var1_22_f != '~~~null~~~' ) 
+    else if( ans_Var1_19_f != '\u004A\u0075\u006D\u006C\u0061\u0068\u0020\u0062\u0075\u006B\u0075\u0020\u0044\u0069\u0074\u006F\u0020\u0064\u0075\u0061\u0020\u006B\u0061\u006C\u0069\u0020\u006C\u0069\u0070\u0061\u0074\u0020\u006C\u0065\u0062\u0069\u0068\u0020\u0062\u0061\u006E\u0079\u0061\u006B\u0020\u0064\u0061\u0072\u0069\u0020\u006A\u0075\u006D\u006C\u0061\u0068\u0020\u0062\u0075\u006B\u0075\u0020\u0046\u0069\u0072\u0061' && ans_Var1_19_f != '~~~null~~~' ) 
     { //2 
-trivActFBCnt++; action42527_16(onAfterFBAction);return 0;  } //2 
+trivActFBCnt++; action42527_4(onAfterFBAction);return 0;  } //2 
 
     }
   }
@@ -911,8 +911,8 @@ function Offset_qu42143(bDevRotate) {
 }
 
 function Update_qu42143(value) {
- if(typeof(value) !== "undefined")  Var1_19_f.set(value)
-  var val = Var1_19_f.getValue()
+ if(typeof(value) !== "undefined")  Var1_16_f.set(value)
+  var val = Var1_16_f.getValue()
   radio42147.objLyr.doc.getElementById("radio42147id").checked=(val=='2 : 1')
   radio42149.objLyr.doc.getElementById("radio42149id").checked=(val=='3 : 6')
   radio42151.objLyr.doc.getElementById("radio42151id").checked=(val=='1 : 2')
@@ -920,9 +920,9 @@ function Update_qu42143(value) {
    qu42143Object.hasBeenProcessed=false;
 }
 
-function action42143_13(fn){
+function action42143_1(fn){
     try{
-     pt(1,1,19,50); 
+     pt(1,1,16,50); 
      } catch (e) {
      alert('[] ' + e);
      }
@@ -930,9 +930,9 @@ function action42143_13(fn){
     else if(fn && typeof(fn) == 'function' ) fn();
 }
 
-function action42143_14(fn){
+function action42143_2(fn){
     try{
-     pt(0,1,19,50); 
+     pt(0,1,16,50); 
      } catch (e) {
      alert('[] ' + e);
      }
@@ -940,9 +940,9 @@ function action42143_14(fn){
     else if(fn && typeof(fn) == 'function' ) fn();
 }
 
-function action42143_15(fn){
+function action42143_3(fn){
     try{
-     pt(0,1,19,50); 
+     pt(0,1,16,50); 
      } catch (e) {
      alert('[] ' + e);
      }
@@ -950,9 +950,9 @@ function action42143_15(fn){
     else if(fn && typeof(fn) == 'function' ) fn();
 }
 
-function action42143_16(fn){
+function action42143_4(fn){
     try{
-     pt(0,1,19,50); 
+     pt(0,1,16,50); 
      } catch (e) {
      alert('[] ' + e);
      }
@@ -964,8 +964,8 @@ function Offset_qu42386(bDevRotate) {
 }
 
 function Update_qu42386(value) {
- if(typeof(value) !== "undefined")  Var1_20_f.set(value)
-  var val = Var1_20_f.getValue()
+ if(typeof(value) !== "undefined")  Var1_17_f.set(value)
+  var val = Var1_17_f.getValue()
   radio42389.objLyr.doc.getElementById("radio42389id").checked=(val=='20 : 25')
   radio42391.objLyr.doc.getElementById("radio42391id").checked=(val=='20 : 45')
   radio42393.objLyr.doc.getElementById("radio42393id").checked=(val=='25 : 20')
@@ -973,9 +973,9 @@ function Update_qu42386(value) {
    qu42386Object.hasBeenProcessed=false;
 }
 
-function action42386_13(fn){
+function action42386_1(fn){
     try{
-     pt(0,1,20,50); 
+     pt(0,1,17,50); 
      } catch (e) {
      alert('[] ' + e);
      }
@@ -983,9 +983,9 @@ function action42386_13(fn){
     else if(fn && typeof(fn) == 'function' ) fn();
 }
 
-function action42386_14(fn){
+function action42386_2(fn){
     try{
-     pt(1,1,20,50); 
+     pt(1,1,17,50); 
      } catch (e) {
      alert('[] ' + e);
      }
@@ -993,9 +993,9 @@ function action42386_14(fn){
     else if(fn && typeof(fn) == 'function' ) fn();
 }
 
-function action42386_15(fn){
+function action42386_3(fn){
     try{
-     pt(0,1,20,50); 
+     pt(0,1,17,50); 
      } catch (e) {
      alert('[] ' + e);
      }
@@ -1003,9 +1003,9 @@ function action42386_15(fn){
     else if(fn && typeof(fn) == 'function' ) fn();
 }
 
-function action42386_16(fn){
+function action42386_4(fn){
     try{
-     pt(0,1,20,50); 
+     pt(0,1,17,50); 
      } catch (e) {
      alert('[] ' + e);
      }
@@ -1017,8 +1017,8 @@ function Offset_qu42468(bDevRotate) {
 }
 
 function Update_qu42468(value) {
- if(typeof(value) !== "undefined")  Var1_21_f.set(value)
-  var val = Var1_21_f.getValue()
+ if(typeof(value) !== "undefined")  Var1_18_f.set(value)
+  var val = Var1_18_f.getValue()
   radio42471.objLyr.doc.getElementById("radio42471id").checked=(val=='Menjumlahkan dua bilangan')
   radio42473.objLyr.doc.getElementById("radio42473id").checked=(val=='Menunjukkan hubungan antara dua besaran')
   radio42475.objLyr.doc.getElementById("radio42475id").checked=(val=='Mengurangkan dua bilangan')
@@ -1026,9 +1026,9 @@ function Update_qu42468(value) {
    qu42468Object.hasBeenProcessed=false;
 }
 
-function action42468_13(fn){
+function action42468_1(fn){
     try{
-     pt(0,1,21,50); 
+     pt(0,1,18,50); 
      } catch (e) {
      alert('[] ' + e);
      }
@@ -1036,9 +1036,9 @@ function action42468_13(fn){
     else if(fn && typeof(fn) == 'function' ) fn();
 }
 
-function action42468_14(fn){
+function action42468_2(fn){
     try{
-     pt(1,1,21,50); 
+     pt(1,1,18,50); 
      } catch (e) {
      alert('[] ' + e);
      }
@@ -1046,9 +1046,9 @@ function action42468_14(fn){
     else if(fn && typeof(fn) == 'function' ) fn();
 }
 
-function action42468_15(fn){
+function action42468_3(fn){
     try{
-     pt(0,1,21,50); 
+     pt(0,1,18,50); 
      } catch (e) {
      alert('[] ' + e);
      }
@@ -1056,9 +1056,9 @@ function action42468_15(fn){
     else if(fn && typeof(fn) == 'function' ) fn();
 }
 
-function action42468_16(fn){
+function action42468_4(fn){
     try{
-     pt(0,1,21,50); 
+     pt(0,1,18,50); 
      } catch (e) {
      alert('[] ' + e);
      }
@@ -1070,8 +1070,8 @@ function Offset_qu42527(bDevRotate) {
 }
 
 function Update_qu42527(value) {
- if(typeof(value) !== "undefined")  Var1_22_f.set(value)
-  var val = Var1_22_f.getValue()
+ if(typeof(value) !== "undefined")  Var1_19_f.set(value)
+  var val = Var1_19_f.getValue()
   radio42530.objLyr.doc.getElementById("radio42530id").checked=(val=='Dito punya dua buku lebih banyak dari buku Fira')
   radio42532.objLyr.doc.getElementById("radio42532id").checked=(val=='Jumlah buku Dito dua kali lipat lebih banyak dari jumlah buku Fira')
   radio42534.objLyr.doc.getElementById("radio42534id").checked=(val=='Buku Dito lebih tebal dari buku Fira')
@@ -1079,9 +1079,9 @@ function Update_qu42527(value) {
    qu42527Object.hasBeenProcessed=false;
 }
 
-function action42527_13(fn){
+function action42527_1(fn){
     try{
-     pt(0,1,22,50); 
+     pt(0,1,19,50); 
      } catch (e) {
      alert('[] ' + e);
      }
@@ -1089,9 +1089,9 @@ function action42527_13(fn){
     else if(fn && typeof(fn) == 'function' ) fn();
 }
 
-function action42527_14(fn){
+function action42527_2(fn){
     try{
-     pt(1,1,22,50); 
+     pt(1,1,19,50); 
      } catch (e) {
      alert('[] ' + e);
      }
@@ -1099,9 +1099,9 @@ function action42527_14(fn){
     else if(fn && typeof(fn) == 'function' ) fn();
 }
 
-function action42527_15(fn){
+function action42527_3(fn){
     try{
-     pt(0,1,22,50); 
+     pt(0,1,19,50); 
      } catch (e) {
      alert('[] ' + e);
      }
@@ -1109,9 +1109,9 @@ function action42527_15(fn){
     else if(fn && typeof(fn) == 'function' ) fn();
 }
 
-function action42527_16(fn){
+function action42527_4(fn){
     try{
-     pt(0,1,22,50); 
+     pt(0,1,19,50); 
      } catch (e) {
      alert('[] ' + e);
      }
@@ -1200,7 +1200,7 @@ qu42143.addChild('text42150')
 qu42143.addChild('radio42151')
 qu42143.addChild('text42152')
 qu42143.addChild('radio42153')
-qu42143.ansVar=Var1_19_f;
+qu42143.ansVar=Var1_16_f;
 qu42143.build()
 
 text42145 = new ObjText('text42145',null,95,268,633,108,1,6,null,'div',null,0 )
@@ -1319,7 +1319,7 @@ qu42386.addChild('text42392')
 qu42386.addChild('radio42393')
 qu42386.addChild('text42394')
 qu42386.addChild('radio42395')
-qu42386.ansVar=Var1_20_f;
+qu42386.ansVar=Var1_17_f;
 qu42386.build()
 
 text42387 = new ObjText('text42387',null,95,590,633,199,1,15,null,'div',null,0 )
@@ -1439,7 +1439,7 @@ qu42468.addChild('text42474')
 qu42468.addChild('radio42475')
 qu42468.addChild('text42476')
 qu42468.addChild('radio42477')
-qu42468.ansVar=Var1_21_f;
+qu42468.ansVar=Var1_18_f;
 qu42468.build()
 
 text42469 = new ObjText('text42469',null,96,993,633,40,1,24,null,'div',null,0 )
@@ -1562,7 +1562,7 @@ qu42527.addChild('text42533')
 qu42527.addChild('radio42534')
 qu42527.addChild('text42535')
 qu42527.addChild('radio42536')
-qu42527.ansVar=Var1_22_f;
+qu42527.ansVar=Var1_19_f;
 qu42527.build()
 
 text42528 = new ObjText('text42528',null,95,1228,633,108,1,33,null,'div',null,0 )

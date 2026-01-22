@@ -9,9 +9,9 @@ TabletResponsive={"1009":{
 ,
 "image87062":{"x":0,"y":0,"w":482,"h":766,"bOffBottom":0,"i":"images/sign-up-page.png"}
 ,
-"entry23032":{"x":122,"y":302,"w":236,"h":29,"fsize":32,"bOffBottom":0}
+"entry23032":{"x":122,"y":302,"w":236,"h":29,"fsize":24,"bOffBottom":0}
 ,
-"entry70668":{"x":125,"y":396,"w":231,"h":31,"fsize":32,"bOffBottom":0}
+"entry70668":{"x":125,"y":396,"w":231,"h":31,"fsize":24,"bOffBottom":0}
 ,
 "RCDResetQuestion":function(){
 try{if(window.dragMgr)window.dragMgr.clearDropZones();}catch(e){if(e&&e.message)console.log(e.message);}
@@ -31,9 +31,9 @@ try{if(window.dragMgr)window.dragMgr.clearDropZones();}catch(e){if(e&&e.message)
 ,
 "image87062":{"x":0,"y":0,"w":482,"h":766,"bOffBottom":0,"i":"images/sign-up-page.png"}
 ,
-"entry23032":{"x":122,"y":302,"w":236,"h":29,"fsize":32,"bOffBottom":0}
+"entry23032":{"x":122,"y":302,"w":236,"h":29,"fsize":24,"bOffBottom":0}
 ,
-"entry70668":{"x":125,"y":396,"w":231,"h":31,"fsize":32,"bOffBottom":0}
+"entry70668":{"x":125,"y":396,"w":231,"h":31,"fsize":24,"bOffBottom":0}
 ,
 "RCDResetQuestion":function(){
 try{if(window.dragMgr)window.dragMgr.clearDropZones();}catch(e){if(e&&e.message)console.log(e.message);}
