@@ -34,7 +34,7 @@
     if (typeof Varip === "undefined") return null;
     return Varip.getValue();
   };
-  document.addEventListener("DOMContentLoaded", async () => {
+  // document.addEventListener("DOMContentLoaded", async () => {
     const api = axios.create({
       baseURL: `https://${ip()}/api`,
       timeout: 10000,
@@ -295,7 +295,7 @@
     window.login = login;
     window.signup = signup;
     window.totalPoint = totalPoints;
-  });
+  // });
 </script>
 <!DOCTYPE html>
 <html lang="en">
@@ -709,11 +709,11 @@ function doImmFeedback( objId ) {
   if(!qu38985.hasBeenProcessed) {
     if( ans_Var2_12_q != '\u0054\u0069\u0064\u0061\u006B\u0020\u0073\u0061\u006D\u0061' && ans_Var2_12_q != '~~~null~~~' ) 
     { //2 
-trivActFBCnt++; action38985_3(onAfterFBAction);return 0;  } //2 
+trivActFBCnt++; action38985_9(onAfterFBAction);return 0;  } //2 
 
     else if( ans_Var2_12_q == '\u0054\u0069\u0064\u0061\u006B\u0020\u0073\u0061\u006D\u0061' ) 
     { //1 
-        trivActFBCnt++; action38985_4(onAfterFBAction);  return 0;
+        trivActFBCnt++; action38985_10(onAfterFBAction);  return 0;
   } //1
 
     }
@@ -723,11 +723,11 @@ trivActFBCnt++; action38985_3(onAfterFBAction);return 0;  } //2
   if(!qu39120.hasBeenProcessed) {
     if( ans_Var2_13_q != '\u0054\u0069\u0064\u0061\u006B' && ans_Var2_13_q != '~~~null~~~' ) 
     { //2 
-trivActFBCnt++; action39120_3(onAfterFBAction);return 0;  } //2 
+trivActFBCnt++; action39120_9(onAfterFBAction);return 0;  } //2 
 
     else if( ans_Var2_13_q == '\u0054\u0069\u0064\u0061\u006B' ) 
     { //1 
-        trivActFBCnt++; action39120_4(onAfterFBAction);  return 0;
+        trivActFBCnt++; action39120_10(onAfterFBAction);  return 0;
   } //1
 
     }
@@ -825,7 +825,7 @@ function Update_qu38985(value) {
    qu38985Object.hasBeenProcessed=false;
 }
 
-function action38985_3(fn){
+function action38985_9(fn){
     try{
      pt(0,2,12,50); 
      } catch (e) {
@@ -835,7 +835,7 @@ function action38985_3(fn){
     else if(fn && typeof(fn) == 'function' ) fn();
 }
 
-function action38985_4(fn){
+function action38985_10(fn){
     try{
      pt(1,2,12,50); 
      } catch (e) {
@@ -856,7 +856,7 @@ function Update_qu39120(value) {
    qu39120Object.hasBeenProcessed=false;
 }
 
-function action39120_3(fn){
+function action39120_9(fn){
     try{
      pt(0,2,13,50); 
      } catch (e) {
@@ -866,7 +866,7 @@ function action39120_3(fn){
     else if(fn && typeof(fn) == 'function' ) fn();
 }
 
-function action39120_4(fn){
+function action39120_10(fn){
     try{
      pt(1,2,13,50); 
      } catch (e) {

@@ -34,7 +34,7 @@
     if (typeof Varip === "undefined") return null;
     return Varip.getValue();
   };
-  document.addEventListener("DOMContentLoaded", async () => {
+  // document.addEventListener("DOMContentLoaded", async () => {
     const api = axios.create({
       baseURL: `https://${ip()}/api`,
       timeout: 10000,
@@ -295,7 +295,7 @@
     window.login = login;
     window.signup = signup;
     window.totalPoint = totalPoints;
-  });
+  // });
 </script>
 <!DOCTYPE html>
 <html lang="en">
