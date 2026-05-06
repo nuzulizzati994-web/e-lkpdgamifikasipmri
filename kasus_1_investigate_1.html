@@ -316,10 +316,8 @@
 
 <!--[if lt IE 7]>
 <style type="text/css">
-    #image148700 img { filter:progid:DXImageTransform.Microsoft.Alpha(opacity=0); }
-    #image148700 { filter:progid:DXImageTransform.Microsoft.AlphaImageLoader(src='images/2.1.png',sizingMethod='scale'); }
     #image148702 img { filter:progid:DXImageTransform.Microsoft.Alpha(opacity=0); }
-    #image148702 { filter:progid:DXImageTransform.Microsoft.AlphaImageLoader(src='images/2.1.png',sizingMethod='scale'); }
+    #image148702 { filter:progid:DXImageTransform.Microsoft.AlphaImageLoader(src='images/4.2.png',sizingMethod='scale'); }
     #image148704 img { filter:progid:DXImageTransform.Microsoft.Alpha(opacity=0); }
     #image148704 { filter:progid:DXImageTransform.Microsoft.AlphaImageLoader(src='images/2.2.png',sizingMethod='scale'); }
     #image148706 img { filter:progid:DXImageTransform.Microsoft.Alpha(opacity=0); }
@@ -891,9 +889,9 @@ function doImmFeedback( objId ) {
         if( offset < 0 ) wrong = true
         else offset = offset + arrAns[idx].length
       }
-    if( !wrong ) {        trivActFBCnt++; action148587_13(onAfterFBAction); return 0;  } //1
+    if( !wrong ) {        trivActFBCnt++; action148587_1(onAfterFBAction); return 0;  } //1
 
-    if( wrong ) {trivActFBCnt++; action148587_14(onAfterFBAction); return 0;  } //2 
+    if( wrong ) {trivActFBCnt++; action148587_2(onAfterFBAction); return 0;  } //2 
 
     }
   }
@@ -902,12 +900,12 @@ function doImmFeedback( objId ) {
   if(!qu23964.hasBeenProcessed) {
     if( ans_Var1_2_q == '\u0059\u0061\u002C\u0020\u0073\u0061\u006D\u0061' ) 
     { //1 
-        trivActFBCnt++; action23964_13(onAfterFBAction);  return 0;
+        trivActFBCnt++; action23964_1(onAfterFBAction);  return 0;
   } //1
 
     else if( ans_Var1_2_q != '\u0059\u0061\u002C\u0020\u0073\u0061\u006D\u0061' && ans_Var1_2_q != '~~~null~~~' ) 
     { //2 
-trivActFBCnt++; action23964_14(onAfterFBAction);return 0;  } //2 
+trivActFBCnt++; action23964_2(onAfterFBAction);return 0;  } //2 
 
     }
   }
@@ -916,11 +914,11 @@ trivActFBCnt++; action23964_14(onAfterFBAction);return 0;  } //2
   if(!qu24247.hasBeenProcessed) {
     if( ans_Var1_4_q != '\u0054\u0069\u0064\u0061\u006B\u0020\u0073\u0061\u006D\u0061' && ans_Var1_4_q != '~~~null~~~' ) 
     { //2 
-trivActFBCnt++; action24247_13(onAfterFBAction);return 0;  } //2 
+trivActFBCnt++; action24247_1(onAfterFBAction);return 0;  } //2 
 
     else if( ans_Var1_4_q == '\u0054\u0069\u0064\u0061\u006B\u0020\u0073\u0061\u006D\u0061' ) 
     { //1 
-        trivActFBCnt++; action24247_14(onAfterFBAction);  return 0;
+        trivActFBCnt++; action24247_2(onAfterFBAction);  return 0;
   } //1
 
     }
@@ -930,12 +928,12 @@ trivActFBCnt++; action24247_13(onAfterFBAction);return 0;  } //2
   if(!qu24315.hasBeenProcessed) {
     if( ans_Var1_5_q == '\u004C\u0065\u0062\u0069\u0068\u0020\u0074\u0065\u0072\u0061\u006E\u0067' ) 
     { //1 
-        trivActFBCnt++; action24315_13(onAfterFBAction);  return 0;
+        trivActFBCnt++; action24315_1(onAfterFBAction);  return 0;
   } //1
 
     else if( ans_Var1_5_q != '\u004C\u0065\u0062\u0069\u0068\u0020\u0074\u0065\u0072\u0061\u006E\u0067' && ans_Var1_5_q != '~~~null~~~' ) 
     { //2 
-trivActFBCnt++; action24315_14(onAfterFBAction);return 0;  } //2 
+trivActFBCnt++; action24315_2(onAfterFBAction);return 0;  } //2 
 
     }
   }
@@ -944,11 +942,11 @@ trivActFBCnt++; action24315_14(onAfterFBAction);return 0;  } //2
   if(!qu24370.hasBeenProcessed) {
     if( ans_Var1_7_q != '\u0054\u0069\u0064\u0061\u006B\u0020\u0073\u0061\u006D\u0061' && ans_Var1_7_q != '~~~null~~~' ) 
     { //2 
-trivActFBCnt++; action24370_13(onAfterFBAction);return 0;  } //2 
+trivActFBCnt++; action24370_1(onAfterFBAction);return 0;  } //2 
 
     else if( ans_Var1_7_q == '\u0054\u0069\u0064\u0061\u006B\u0020\u0073\u0061\u006D\u0061' ) 
     { //1 
-        trivActFBCnt++; action24370_14(onAfterFBAction);  return 0;
+        trivActFBCnt++; action24370_2(onAfterFBAction);  return 0;
   } //1
 
     }
@@ -1192,7 +1190,7 @@ function Update_qu148587() {
   doImmFeedback('qu148587');
 }
 
-function action148587_13(fn){
+function action148587_1(fn){
     try{
      pt(1,1,1,50); 
      } catch (e) {
@@ -1202,7 +1200,7 @@ function action148587_13(fn){
     else if(fn && typeof(fn) == 'function' ) fn();
 }
 
-function action148587_14(fn){
+function action148587_2(fn){
     try{
      pt(0,0,1,50); 
      } catch (e) {
@@ -1223,7 +1221,7 @@ function Update_qu23964(value) {
    qu23964Object.hasBeenProcessed=false;
 }
 
-function action23964_13(fn){
+function action23964_1(fn){
     try{
      pt(1,1,2,50); 
      } catch (e) {
@@ -1233,7 +1231,7 @@ function action23964_13(fn){
     else if(fn && typeof(fn) == 'function' ) fn();
 }
 
-function action23964_14(fn){
+function action23964_2(fn){
     try{
      pt(0, 1, 2, 50); 
      } catch (e) {
@@ -1254,7 +1252,7 @@ function Update_qu24247(value) {
    qu24247Object.hasBeenProcessed=false;
 }
 
-function action24247_13(fn){
+function action24247_1(fn){
     try{
      pt(0, 1, 4, 50); 
      } catch (e) {
@@ -1264,7 +1262,7 @@ function action24247_13(fn){
     else if(fn && typeof(fn) == 'function' ) fn();
 }
 
-function action24247_14(fn){
+function action24247_2(fn){
     try{
      pt(1,1,4,50); 
      } catch (e) {
@@ -1285,7 +1283,7 @@ function Update_qu24315(value) {
    qu24315Object.hasBeenProcessed=false;
 }
 
-function action24315_13(fn){
+function action24315_1(fn){
     try{
      pt(1,1,5,50); 
      } catch (e) {
@@ -1295,7 +1293,7 @@ function action24315_13(fn){
     else if(fn && typeof(fn) == 'function' ) fn();
 }
 
-function action24315_14(fn){
+function action24315_2(fn){
     try{
      pt(0,1,5,50); 
      } catch (e) {
@@ -1316,7 +1314,7 @@ function Update_qu24370(value) {
    qu24370Object.hasBeenProcessed=false;
 }
 
-function action24370_13(fn){
+function action24370_1(fn){
     try{
      pt(0,1,7,50); 
      } catch (e) {
@@ -1326,7 +1324,7 @@ function action24370_13(fn){
     else if(fn && typeof(fn) == 'function' ) fn();
 }
 
-function action24370_14(fn){
+function action24370_2(fn){
     try{
      pt(1,1,7,50); 
      } catch (e) {
@@ -1338,7 +1336,7 @@ function action24370_14(fn){
 
 if( is.min ){
 text149958 = new ObjText('text149958',null,208,-1666,200,80,1,62,null,'div',null,0 )
-text149958.initSLine(1)
+text149958.initSLine(0)
 text149958.initHasBullet(0)
 text149958.initRotateAngle(0,0,0)
 text149958.initHasOuterShadow(0)
@@ -1355,7 +1353,7 @@ text149958.addInnerText('<div id=\"text149958\" aria-hidden=\"true\" ><a id=\"te
 text149958.build()
 
 text150055 = new ObjText('text150055',null,208,-1666,200,80,1,63,null,'div',null,0 )
-text150055.initSLine(1)
+text150055.initSLine(0)
 text150055.initHasBullet(0)
 text150055.initRotateAngle(0,0,0)
 text150055.initHasOuterShadow(0)
@@ -1372,7 +1370,7 @@ text150055.addInnerText('<div id=\"text150055\" aria-hidden=\"true\" ><a id=\"te
 text150055.build()
 
 text150088 = new ObjText('text150088',null,208,-1666,200,80,1,64,null,'div',null,0 )
-text150088.initSLine(1)
+text150088.initSLine(0)
 text150088.initHasBullet(0)
 text150088.initRotateAngle(0,0,0)
 text150088.initHasOuterShadow(0)
@@ -1389,7 +1387,7 @@ text150088.addInnerText('<div id=\"text150088\" aria-hidden=\"true\" ><a id=\"te
 text150088.build()
 
 text150134 = new ObjText('text150134',null,208,-1666,200,80,1,65,null,'div',null,0 )
-text150134.initSLine(1)
+text150134.initSLine(0)
 text150134.initHasBullet(0)
 text150134.initRotateAngle(0,0,0)
 text150134.initHasOuterShadow(0)
@@ -1406,7 +1404,7 @@ text150134.addInnerText('<div id=\"text150134\" aria-hidden=\"true\" ><a id=\"te
 text150134.build()
 
 text149802 = new ObjText('text149802',null,284,-1583,200,80,1,66,null,'div',null,0 )
-text149802.initSLine(1)
+text149802.initSLine(0)
 text149802.initHasBullet(0)
 text149802.initRotateAngle(0,0,0)
 text149802.initHasOuterShadow(0)
@@ -1534,7 +1532,7 @@ text148607.arrCSSStyles.push('span.text148607Font1 { font-size:16px; font-family
 text148607.addInnerText('<div id=\"text148607\" aria-hidden=\"true\" ><a id=\"text148607anc\" style=\"display:block;height:0px;width:0px;\"></a>\n<div style=\"cursor:pointer\">\n<p  style=\"margin-left:0px;text-indent:0px;margin-top:0px;margin-bottom:0px;text-align:center;\" >\n<span class=\"text148607Font1\"  >1 : 2\n</span ></p >\n</div></div>\n');
 text148607.build()
 
-image148700 = new ObjImage('image148700','images/2.1.png','2.1',-9,-1939,786,793,1,73,'div',null, 0 )
+image148700 = new ObjImage('image148700','images/2.1crop_image148700.png','2.1',-9,-1939,786,793,1,73,'div',null, 0 )
 image148700.initRotateAngle(0,0,0,0,0,0,0)
 image148700.initHasShadow(0)
 image148700.initHasReflection(0)
@@ -1546,12 +1544,12 @@ image148700.setupMatch( false, '1R', Update_qu148587, 68, 'cf2a27', 3)
 image148700.isChoice = true
 image148700.build()
 
-image148702 = new ObjImage('image148702','images/2.1.png','4.2',-9,-1939,786,793,1,74,'div',null, 0 )
+image148702 = new ObjImage('image148702','images/4.2.png','4.2',-9,-1939,113,113,1,74,'div',null, 0 )
 image148702.initRotateAngle(0,0,0,0,0,0,0)
 image148702.initHasShadow(0)
 image148702.initHasReflection(0)
-image148702.addIe8Attr(-9, -1939, 786, 793, 0, 0)
-image148702.initImageMap(1,'0,0,786,0,786,793,0,793,0,0','M 0 0 L 786 0 L 786 793 L 0 793 L 0 0 z')
+image148702.addIe8Attr(-9, -1939, 113, 113, 0, 0)
+image148702.initImageMap(1,'0,0,113,0,113,113,0,113,0,0','M 0 0 L 113 0 L 113 113 L 0 113 L 0 0 z')
 image148702.addBorder(0)
 image148702.addOpacity(100)
 image148702.setupMatch( false, '2R', Update_qu148587, 68, 'cf2a27', 3)
@@ -1639,7 +1637,7 @@ entry26471.arrCSSStyles.push('input.entry26471 { font-size:16px; font-family:"Ar
 entry26471.build()
 
 text23966 = new ObjText('text23966',null,80,1520,621,37,1,81,null,'div',null,0 )
-text23966.initSLine(1)
+text23966.initSLine(0)
 text23966.initHasBullet(0)
 text23966.initRotateAngle(0,0,0)
 text23966.initHasOuterShadow(0)
@@ -1656,7 +1654,7 @@ text23966.addInnerText('<legend><div id=\"text23966\" aria-hidden=\"true\" ><a i
 text23966.build()
 
 text23967 = new ObjText('text23967',null,107,1565,117,35,1,82,null,'div',null,0 )
-text23967.initSLine(1)
+text23967.initSLine(0)
 text23967.initHasBullet(0)
 text23967.initRotateAngle(0,0,0)
 text23967.initHasOuterShadow(0)
@@ -1679,7 +1677,7 @@ radio23968.arrCSSStyles.push('');
 radio23968.build()
 
 text23969 = new ObjText('text23969',null,107,1610,157,37,1,84,null,'div',null,0 )
-text23969.initSLine(1)
+text23969.initSLine(0)
 text23969.initHasBullet(0)
 text23969.initRotateAngle(0,0,0)
 text23969.initHasOuterShadow(0)
@@ -1702,7 +1700,7 @@ radio23970.arrCSSStyles.push('');
 radio23970.build()
 
 text24248 = new ObjText('text24248',null,80,1823,629,70,1,86,null,'div',null,0 )
-text24248.initSLine(1)
+text24248.initSLine(0)
 text24248.initHasBullet(0)
 text24248.initRotateAngle(0,0,0)
 text24248.initHasOuterShadow(0)
@@ -1742,7 +1740,7 @@ radio24250.arrCSSStyles.push('');
 radio24250.build()
 
 text24251 = new ObjText('text24251',null,107,1952,157,37,1,89,null,'div',null,0 )
-text24251.initSLine(1)
+text24251.initSLine(0)
 text24251.initHasBullet(0)
 text24251.initRotateAngle(0,0,0)
 text24251.initHasOuterShadow(0)
@@ -1782,7 +1780,7 @@ text24316.addInnerText('<legend><div id=\"text24316\" aria-hidden=\"true\" ><a i
 text24316.build()
 
 text24317 = new ObjText('text24317',null,107,2080,159,38,1,92,null,'div',null,0 )
-text24317.initSLine(1)
+text24317.initSLine(0)
 text24317.initHasBullet(0)
 text24317.initRotateAngle(0,0,0)
 text24317.initHasOuterShadow(0)
@@ -1804,7 +1802,7 @@ radio24318.arrCSSStyles.push('');
 radio24318.build()
 
 text24319 = new ObjText('text24319',null,107,2125,157,37,1,94,null,'div',null,0 )
-text24319.initSLine(1)
+text24319.initSLine(0)
 text24319.initHasBullet(0)
 text24319.initRotateAngle(0,0,0)
 text24319.initHasOuterShadow(0)
@@ -1826,7 +1824,7 @@ radio24320.arrCSSStyles.push('');
 radio24320.build()
 
 text24371 = new ObjText('text24371',null,80,2338,629,70,1,96,null,'div',null,0 )
-text24371.initSLine(1)
+text24371.initSLine(0)
 text24371.initHasBullet(0)
 text24371.initRotateAngle(0,0,0)
 text24371.initHasOuterShadow(0)
@@ -1843,7 +1841,7 @@ text24371.addInnerText('<legend><div id=\"text24371\" aria-hidden=\"true\" ><a i
 text24371.build()
 
 text24372 = new ObjText('text24372',null,107,2422,159,38,1,97,null,'div',null,0 )
-text24372.initSLine(1)
+text24372.initSLine(0)
 text24372.initHasBullet(0)
 text24372.initRotateAngle(0,0,0)
 text24372.initHasOuterShadow(0)
@@ -1865,7 +1863,7 @@ radio24373.arrCSSStyles.push('');
 radio24373.build()
 
 text24374 = new ObjText('text24374',null,107,2467,157,51,1,99,null,'div',null,0 )
-text24374.initSLine(1)
+text24374.initSLine(0)
 text24374.initHasBullet(0)
 text24374.initRotateAngle(0,0,0)
 text24374.initHasOuterShadow(0)
@@ -1931,7 +1929,7 @@ entry26527.arrCSSStyles = new Array();
 entry26527.arrCSSStyles.push('input.entry26527 { font-size:16px; font-family:"Arial", sans-serif; color:#000000; width:608px; height:118px; -webkit-appearance:none; background-color:#ffffff; }');
 entry26527.build()
 
-qu148587 = new ObjInline('qu148587',null,41,265,429,522,1,0)
+qu148587 = new ObjInline('qu148587',null,-9,-2020,864,2640,1,0)
 qu148587.isGrp = true
 qu148587.addChild('text148589')
 qu148587.addChild('text148590')
@@ -1957,7 +1955,7 @@ image148119.addBorder(0)
 image148119.addOpacity(100)
 image148119.build()
 
-qu23964 = new ObjInline('qu23964',null,40,760,339,67,1,0)
+qu23964 = new ObjInline('qu23964',null,80,1520,683,139,1,0)
 qu23964.isGrp = true
 qu23964.addChild('text23966')
 qu23964.addChild('text23967')
@@ -1967,7 +1965,7 @@ qu23964.addChild('radio23970')
 qu23964.ansVar=Var1_2_q;
 qu23964.build()
 
-qu24247 = new ObjInline('qu24247',null,40,912,408,66,1,0)
+qu24247 = new ObjInline('qu24247',null,80,1823,691,182,1,0)
 qu24247.isGrp = true
 qu24247.addChild('text24248')
 qu24247.addChild('text24249')
@@ -1977,7 +1975,7 @@ qu24247.addChild('radio24252')
 qu24247.ansVar=Var1_4_q;
 qu24247.build()
 
-qu24315 = new ObjInline('qu24315',null,40,972,339,90,1,0)
+qu24315 = new ObjInline('qu24315',null,80,1996,691,182,1,0)
 qu24315.isGrp = true
 qu24315.addChild('text24316')
 qu24315.addChild('text24317')
@@ -1987,7 +1985,7 @@ qu24315.addChild('radio24320')
 qu24315.ansVar=Var1_5_q;
 qu24315.build()
 
-qu24370 = new ObjInline('qu24370',null,40,1122,403,69,1,0)
+qu24370 = new ObjInline('qu24370',null,80,2338,691,198,1,0)
 qu24370.isGrp = true
 qu24370.addChild('text24371')
 qu24370.addChild('text24372')

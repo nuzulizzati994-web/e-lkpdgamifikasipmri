@@ -765,12 +765,12 @@ function doImmFeedback( objId ) {
   if(!qu32587.hasBeenProcessed) {
     if( ans_Var4_1_q == '\u0059\u0061\u002C\u0020\u0073\u0061\u006D\u0061' ) 
     { //1 
-        trivActFBCnt++; action32587_11(onAfterFBAction);  return 0;
+        trivActFBCnt++; action32587_1(onAfterFBAction);  return 0;
   } //1
 
     else if( ans_Var4_1_q != '\u0059\u0061\u002C\u0020\u0073\u0061\u006D\u0061' && ans_Var4_1_q != '~~~null~~~' ) 
     { //2 
-trivActFBCnt++; action32587_12(onAfterFBAction);return 0;  } //2 
+trivActFBCnt++; action32587_2(onAfterFBAction);return 0;  } //2 
 
     }
   }
@@ -779,11 +779,11 @@ trivActFBCnt++; action32587_12(onAfterFBAction);return 0;  } //2
   if(!qu32612.hasBeenProcessed) {
     if( ans_Var4_3_q != '\u0054\u0069\u0064\u0061\u006B\u0020\u0073\u0061\u006D\u0061' && ans_Var4_3_q != '~~~null~~~' ) 
     { //2 
-trivActFBCnt++; action32612_11(onAfterFBAction);return 0;  } //2 
+trivActFBCnt++; action32612_1(onAfterFBAction);return 0;  } //2 
 
     else if( ans_Var4_3_q == '\u0054\u0069\u0064\u0061\u006B\u0020\u0073\u0061\u006D\u0061' ) 
     { //1 
-        trivActFBCnt++; action32612_12(onAfterFBAction);  return 0;
+        trivActFBCnt++; action32612_2(onAfterFBAction);  return 0;
   } //1
 
     }
@@ -930,7 +930,7 @@ function Update_qu32587(value) {
    qu32587Object.hasBeenProcessed=false;
 }
 
-function action32587_11(fn){
+function action32587_1(fn){
     try{
      pt(1,4,1,50); 
      } catch (e) {
@@ -940,7 +940,7 @@ function action32587_11(fn){
     else if(fn && typeof(fn) == 'function' ) fn();
 }
 
-function action32587_12(fn){
+function action32587_2(fn){
     try{
      pt(0,4,1,50); 
      } catch (e) {
@@ -961,7 +961,7 @@ function Update_qu32612(value) {
    qu32612Object.hasBeenProcessed=false;
 }
 
-function action32612_11(fn){
+function action32612_1(fn){
     try{
      pt(0,4,3,50); 
      } catch (e) {
@@ -971,7 +971,7 @@ function action32612_11(fn){
     else if(fn && typeof(fn) == 'function' ) fn();
 }
 
-function action32612_12(fn){
+function action32612_2(fn){
     try{
      pt(1,4,3,50); 
      } catch (e) {
@@ -1042,7 +1042,7 @@ combo32641.arrCSSStyles.push('select.combo32641 { font-size:16px; font-family:"A
 combo32641.build()
 
 text32588 = new ObjText('text32588',null,80,1529,634,76,1,38,null,'div',null,0 )
-text32588.initSLine(1)
+text32588.initSLine(0)
 text32588.initHasBullet(0)
 text32588.initRotateAngle(0,0,0)
 text32588.initHasOuterShadow(0)
@@ -1059,7 +1059,7 @@ text32588.addInnerText('<legend><div id=\"text32588\" aria-hidden=\"true\" ><a i
 text32588.build()
 
 text32589 = new ObjText('text32589',null,107,1610,117,35,1,39,null,'div',null,0 )
-text32589.initSLine(1)
+text32589.initSLine(0)
 text32589.initHasBullet(0)
 text32589.initRotateAngle(0,0,0)
 text32589.initHasOuterShadow(0)
@@ -1082,7 +1082,7 @@ radio32590.arrCSSStyles.push('');
 radio32590.build()
 
 text32591 = new ObjText('text32591',null,107,1655,157,37,1,41,null,'div',null,0 )
-text32591.initSLine(1)
+text32591.initSLine(0)
 text32591.initHasBullet(0)
 text32591.initRotateAngle(0,0,0)
 text32591.initHasOuterShadow(0)
@@ -1122,7 +1122,7 @@ text32613.addInnerText('<legend><div id=\"text32613\" aria-hidden=\"true\" ><a i
 text32613.build()
 
 text32614 = new ObjText('text32614',null,107,1948,117,35,1,44,null,'div',null,0 )
-text32614.initSLine(1)
+text32614.initSLine(0)
 text32614.initHasBullet(0)
 text32614.initRotateAngle(0,0,0)
 text32614.initHasOuterShadow(0)
@@ -1145,7 +1145,7 @@ radio32615.arrCSSStyles.push('');
 radio32615.build()
 
 text32616 = new ObjText('text32616',null,107,1993,157,37,1,46,null,'div',null,0 )
-text32616.initSLine(1)
+text32616.initSLine(0)
 text32616.initHasBullet(0)
 text32616.initRotateAngle(0,0,0)
 text32616.initHasOuterShadow(0)
@@ -1198,7 +1198,7 @@ image142182.addBorder(0)
 image142182.addOpacity(100)
 image142182.build()
 
-qu32587 = new ObjInline('qu32587',null,40,698,427,67,1,0)
+qu32587 = new ObjInline('qu32587',null,80,1529,697,179,1,0)
 qu32587.isGrp = true
 qu32587.addChild('text32588')
 qu32587.addChild('text32589')
@@ -1208,7 +1208,7 @@ qu32587.addChild('radio32592')
 qu32587.ansVar=Var4_1_q;
 qu32587.build()
 
-qu32612 = new ObjInline('qu32612',null,40,851,436,90,1,0)
+qu32612 = new ObjInline('qu32612',null,80,1867,697,179,1,0)
 qu32612.isGrp = true
 qu32612.addChild('text32613')
 qu32612.addChild('text32614')

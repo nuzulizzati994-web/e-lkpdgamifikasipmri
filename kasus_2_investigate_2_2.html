@@ -709,11 +709,11 @@ function doImmFeedback( objId ) {
   if(!qu38985.hasBeenProcessed) {
     if( ans_Var2_12_q != '\u0054\u0069\u0064\u0061\u006B\u0020\u0073\u0061\u006D\u0061' && ans_Var2_12_q != '~~~null~~~' ) 
     { //2 
-trivActFBCnt++; action38985_11(onAfterFBAction);return 0;  } //2 
+trivActFBCnt++; action38985_1(onAfterFBAction);return 0;  } //2 
 
     else if( ans_Var2_12_q == '\u0054\u0069\u0064\u0061\u006B\u0020\u0073\u0061\u006D\u0061' ) 
     { //1 
-        trivActFBCnt++; action38985_12(onAfterFBAction);  return 0;
+        trivActFBCnt++; action38985_2(onAfterFBAction);  return 0;
   } //1
 
     }
@@ -723,11 +723,11 @@ trivActFBCnt++; action38985_11(onAfterFBAction);return 0;  } //2
   if(!qu39120.hasBeenProcessed) {
     if( ans_Var2_13_q != '\u0054\u0069\u0064\u0061\u006B' && ans_Var2_13_q != '~~~null~~~' ) 
     { //2 
-trivActFBCnt++; action39120_11(onAfterFBAction);return 0;  } //2 
+trivActFBCnt++; action39120_1(onAfterFBAction);return 0;  } //2 
 
     else if( ans_Var2_13_q == '\u0054\u0069\u0064\u0061\u006B' ) 
     { //1 
-        trivActFBCnt++; action39120_12(onAfterFBAction);  return 0;
+        trivActFBCnt++; action39120_2(onAfterFBAction);  return 0;
   } //1
 
     }
@@ -825,7 +825,7 @@ function Update_qu38985(value) {
    qu38985Object.hasBeenProcessed=false;
 }
 
-function action38985_11(fn){
+function action38985_1(fn){
     try{
      pt(0,2,12,50); 
      } catch (e) {
@@ -835,7 +835,7 @@ function action38985_11(fn){
     else if(fn && typeof(fn) == 'function' ) fn();
 }
 
-function action38985_12(fn){
+function action38985_2(fn){
     try{
      pt(1,2,12,50); 
      } catch (e) {
@@ -856,7 +856,7 @@ function Update_qu39120(value) {
    qu39120Object.hasBeenProcessed=false;
 }
 
-function action39120_11(fn){
+function action39120_1(fn){
     try{
      pt(0,2,13,50); 
      } catch (e) {
@@ -866,7 +866,7 @@ function action39120_11(fn){
     else if(fn && typeof(fn) == 'function' ) fn();
 }
 
-function action39120_12(fn){
+function action39120_2(fn){
     try{
      pt(1,2,13,50); 
      } catch (e) {
@@ -1000,7 +1000,7 @@ radio38990.arrCSSStyles.push('');
 radio38990.build()
 
 text39121 = new ObjText('text39121',null,80,1035,629,73,1,38,null,'div',null,0 )
-text39121.initSLine(1)
+text39121.initSLine(0)
 text39121.initHasBullet(0)
 text39121.initRotateAngle(0,0,0)
 text39121.initHasOuterShadow(0)
@@ -1084,7 +1084,7 @@ image136657.addBorder(0)
 image136657.addOpacity(100)
 image136657.build()
 
-qu38985 = new ObjInline('qu38985',null,40,396,433,111,1,0)
+qu38985 = new ObjInline('qu38985',null,80,784,691,262,1,0)
 qu38985.isGrp = true
 qu38985.addChild('text38986')
 qu38985.addChild('text38987')
@@ -1094,7 +1094,7 @@ qu38985.addChild('radio38990')
 qu38985.ansVar=Var2_12_q;
 qu38985.build()
 
-qu39120 = new ObjInline('qu39120',null,40,497,422,68,1,0)
+qu39120 = new ObjInline('qu39120',null,80,1035,691,163,1,0)
 qu39120.isGrp = true
 qu39120.addChild('text39121')
 qu39120.addChild('text39122')

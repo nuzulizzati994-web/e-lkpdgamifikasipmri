@@ -755,12 +755,12 @@ function doImmFeedback( objId ) {
     if(!qu34040.hasBeenProcessed && qu34040Cked >= 2) {
     if( ans_Var1_10_q == '\u0042\u0075\u006B\u0074\u0069\u0020\u0031\u002C\u0042\u0075\u006B\u0074\u0069\u0020\u0032' ) 
     { //1 
-        trivActFBCnt++; action34040_11(onAfterFBAction);  return 0;
+        trivActFBCnt++; action34040_1(onAfterFBAction);  return 0;
   } //1
 
     else if( ans_Var1_10_q != '\u0042\u0075\u006B\u0074\u0069\u0020\u0031\u002C\u0042\u0075\u006B\u0074\u0069\u0020\u0032' && ans_Var1_10_q != '~~~null~~~' ) 
     { //2 
-trivActFBCnt++; action34040_12(onAfterFBAction);return 0;  } //2 
+trivActFBCnt++; action34040_2(onAfterFBAction);return 0;  } //2 
 
     }
   }
@@ -769,11 +769,11 @@ trivActFBCnt++; action34040_12(onAfterFBAction);return 0;  } //2
   if(!qu34213.hasBeenProcessed) {
     if( ans_Var1_11_q != '\u0042\u0075\u006B\u0074\u0069\u0020\u0033' && ans_Var1_11_q != '~~~null~~~' ) 
     { //2 
-trivActFBCnt++; action34213_11(onAfterFBAction);return 0;  } //2 
+trivActFBCnt++; action34213_1(onAfterFBAction);return 0;  } //2 
 
     else if( ans_Var1_11_q == '\u0042\u0075\u006B\u0074\u0069\u0020\u0033' ) 
     { //1 
-        trivActFBCnt++; action34213_12(onAfterFBAction);  return 0;
+        trivActFBCnt++; action34213_2(onAfterFBAction);  return 0;
   } //1
 
     }
@@ -783,11 +783,11 @@ trivActFBCnt++; action34213_11(onAfterFBAction);return 0;  } //2
   if(!qu34304.hasBeenProcessed) {
     if( ans_Var1_13_q != '\u004B\u0075\u006E\u0069\u006E\u0067' && ans_Var1_13_q != '~~~null~~~' ) 
     { //2 
-trivActFBCnt++; action34304_11(onAfterFBAction);return 0;  } //2 
+trivActFBCnt++; action34304_1(onAfterFBAction);return 0;  } //2 
 
     else if( ans_Var1_13_q == '\u004B\u0075\u006E\u0069\u006E\u0067' ) 
     { //1 
-        trivActFBCnt++; action34304_12(onAfterFBAction);  return 0;
+        trivActFBCnt++; action34304_2(onAfterFBAction);  return 0;
   } //1
 
     }
@@ -898,7 +898,7 @@ function Update_qu34040( upd ) {
     qu34040Object.hasBeenProcessed=false;
 }
 
-function action34040_11(fn){
+function action34040_1(fn){
     try{
      pt(1,1,10,50); 
      } catch (e) {
@@ -908,7 +908,7 @@ function action34040_11(fn){
     else if(fn && typeof(fn) == 'function' ) fn();
 }
 
-function action34040_12(fn){
+function action34040_2(fn){
     try{
      pt(0,1,10,50); 
      } catch (e) {
@@ -929,7 +929,7 @@ function Update_qu34213(value) {
    qu34213Object.hasBeenProcessed=false;
 }
 
-function action34213_11(fn){
+function action34213_1(fn){
     try{
      pt(0,1,11,50); 
      } catch (e) {
@@ -939,7 +939,7 @@ function action34213_11(fn){
     else if(fn && typeof(fn) == 'function' ) fn();
 }
 
-function action34213_12(fn){
+function action34213_2(fn){
     try{
      pt(1,1,11,50); 
      } catch (e) {
@@ -960,7 +960,7 @@ function Update_qu34304(value) {
    qu34304Object.hasBeenProcessed=false;
 }
 
-function action34304_11(fn){
+function action34304_1(fn){
     try{
      pt(0,1,13,50); 
      } catch (e) {
@@ -970,7 +970,7 @@ function action34304_11(fn){
     else if(fn && typeof(fn) == 'function' ) fn();
 }
 
-function action34304_12(fn){
+function action34304_2(fn){
     try{
      pt(1,1,13,50); 
      } catch (e) {
@@ -1053,7 +1053,7 @@ entry34287.arrCSSStyles.push('input.entry34287 { font-size:16px; font-family:"Ar
 entry34287.build()
 
 text34214 = new ObjText('text34214',null,80,1148,629,70,1,45,null,'div',null,0 )
-text34214.initSLine(1)
+text34214.initSLine(0)
 text34214.initHasBullet(0)
 text34214.initRotateAngle(0,0,0)
 text34214.initHasOuterShadow(0)
@@ -1070,7 +1070,7 @@ text34214.addInnerText('<legend><div id=\"text34214\" aria-hidden=\"true\" ><a i
 text34214.build()
 
 text34215 = new ObjText('text34215',null,107,1232,158,46,1,46,null,'div',null,0 )
-text34215.initSLine(1)
+text34215.initSLine(0)
 text34215.initHasBullet(0)
 text34215.initRotateAngle(0,0,0)
 text34215.initHasOuterShadow(0)
@@ -1093,7 +1093,7 @@ radio34216.arrCSSStyles.push('');
 radio34216.build()
 
 text34217 = new ObjText('text34217',null,107,1277,157,51,1,48,null,'div',null,0 )
-text34217.initSLine(1)
+text34217.initSLine(0)
 text34217.initHasBullet(0)
 text34217.initRotateAngle(0,0,0)
 text34217.initHasOuterShadow(0)
@@ -1116,7 +1116,7 @@ radio34218.arrCSSStyles.push('');
 radio34218.build()
 
 text34305 = new ObjText('text34305',null,80,1491,629,70,1,50,null,'div',null,0 )
-text34305.initSLine(1)
+text34305.initSLine(0)
 text34305.initHasBullet(0)
 text34305.initRotateAngle(0,0,0)
 text34305.initHasOuterShadow(0)
@@ -1133,7 +1133,7 @@ text34305.addInnerText('<legend><div id=\"text34305\" aria-hidden=\"true\" ><a i
 text34305.build()
 
 text34306 = new ObjText('text34306',null,107,1575,158,46,1,51,null,'div',null,0 )
-text34306.initSLine(1)
+text34306.initSLine(0)
 text34306.initHasBullet(0)
 text34306.initRotateAngle(0,0,0)
 text34306.initHasOuterShadow(0)
@@ -1155,7 +1155,7 @@ radio34307.arrCSSStyles.push('');
 radio34307.build()
 
 text34308 = new ObjText('text34308',null,107,1620,157,51,1,53,null,'div',null,0 )
-text34308.initSLine(1)
+text34308.initSLine(0)
 text34308.initHasBullet(0)
 text34308.initRotateAngle(0,0,0)
 text34308.initHasOuterShadow(0)
@@ -1186,7 +1186,7 @@ image134413.addBorder(0)
 image134413.addOpacity(100)
 image134413.build()
 
-qu34040 = new ObjInline('qu34040',null,40,492,433,89,1,0)
+qu34040 = new ObjInline('qu34040',null,80,988,695,177,1,0)
 qu34040.isGrp = true
 qu34040.addChild('text34042')
 qu34040.addChild('text34043')
@@ -1201,7 +1201,7 @@ qu34040.ansVar=Var1_10_q;
 qu34040.build()
 
 text34042 = new ObjText('text34042',null,80,988,632,70,1,18,null,'div',null,0 )
-text34042.initSLine(1)
+text34042.initSLine(0)
 text34042.initHasBullet(0)
 text34042.initRotateAngle(0,0,0)
 text34042.initHasOuterShadow(0)
@@ -1218,7 +1218,7 @@ text34042.addInnerText('<legend><div id=\"text34042\" aria-hidden=\"true\" ><a i
 text34042.build()
 
 text34043 = new ObjText('text34043',null,107,1067,140,37,1,19,null,'div',null,0 )
-text34043.initSLine(1)
+text34043.initSLine(0)
 text34043.initHasBullet(0)
 text34043.initRotateAngle(0,0,0)
 text34043.initHasOuterShadow(0)
@@ -1240,7 +1240,7 @@ check34044.arrCSSStyles.push('');
 check34044.build()
 
 text34045 = new ObjText('text34045',null,107,1112,138,37,1,21,null,'div',null,0 )
-text34045.initSLine(1)
+text34045.initSLine(0)
 text34045.initHasBullet(0)
 text34045.initRotateAngle(0,0,0)
 text34045.initHasOuterShadow(0)
@@ -1262,7 +1262,7 @@ check34046.arrCSSStyles.push('');
 check34046.build()
 
 text34047 = new ObjText('text34047',null,352,1067,165,37,1,23,null,'div',null,0 )
-text34047.initSLine(1)
+text34047.initSLine(0)
 text34047.initHasBullet(0)
 text34047.initRotateAngle(0,0,0)
 text34047.initHasOuterShadow(0)
@@ -1284,7 +1284,7 @@ check34048.arrCSSStyles.push('');
 check34048.build()
 
 text34049 = new ObjText('text34049',null,352,1112,130,37,1,25,null,'div',null,0 )
-text34049.initSLine(1)
+text34049.initSLine(0)
 text34049.initHasBullet(0)
 text34049.initRotateAngle(0,0,0)
 text34049.initHasOuterShadow(0)
@@ -1305,7 +1305,7 @@ check34050.arrCSSStyles = new Array();
 check34050.arrCSSStyles.push('');
 check34050.build()
 
-qu34213 = new ObjInline('qu34213',null,40,573,424,71,1,0)
+qu34213 = new ObjInline('qu34213',null,80,1148,691,198,1,0)
 qu34213.isGrp = true
 qu34213.addChild('text34214')
 qu34213.addChild('text34215')
@@ -1315,7 +1315,7 @@ qu34213.addChild('radio34218')
 qu34213.ansVar=Var1_11_q;
 qu34213.build()
 
-qu34304 = new ObjInline('qu34304',null,40,743,432,91,1,0)
+qu34304 = new ObjInline('qu34304',null,80,1491,691,198,1,0)
 qu34304.isGrp = true
 qu34304.addChild('text34305')
 qu34304.addChild('text34306')
